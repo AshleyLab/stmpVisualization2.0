@@ -11,10 +11,10 @@ $(function() {
 
 		var file = $("#uploadInput")[0].files[0]; 
 
-		if (validateTSV(file)) {
+		if (validateXLSX(file)) {
 
 			showSpinner(); 
-			parseTSV(file); 
+			parseXLSX(file); 
 
 		} else { 
 
@@ -26,20 +26,20 @@ $(function() {
 
 });
 
-function validateTSV(file) {
+function validateXLSX(file) {
 
 	console.log(file);
 	console.log(file.name);
 
 	var extension = file.name.split(".").slice(-1)[0]; 
 
-	return true;
+	return extension == ".xlsx" || extension == ".xls"; 
 
 }
 
-function parseTSV(TSV) {
+function parseXLSX(XLSX) {
 
-	console.log("parsing", TSV);
+	console.log("parsing", XLSX);
 
 	var infoColumnCorrespondenceDict = {
 		"chromosome" : ["CHROM", "Chromosome"],
@@ -58,7 +58,7 @@ function parseTSV(TSV) {
 		"clinvar" : ["clinvar_clinical_significance"]
 	};
 
-	function readTsv(tsv) { 
+	function readTSV(TSV) { 
 
 		data = []; 
 		lines = tsv.split("\n");
