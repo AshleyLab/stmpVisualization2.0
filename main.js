@@ -196,6 +196,9 @@ function renderSampleData() {
         {"key" : 9, "xyz" : {"A" : 3,"B" : 3, "C" : 1, "D" : 4}}
 	];
 
+	data = sortOnKeys(data, ["xyz", "C"], false);
+
+
 	var flattened = $.map(data, function(element, index) {
 		return element.xyz; 
 	}); 
@@ -214,81 +217,48 @@ function renderSampleData() {
 				return yScale(d[1]); }
 			);
 
+	var h = $(element).height(); 
+   	var w = $(element).width(); 
+
 	var yScale = d3.scaleLinear()
    		.domain([
    			d3.min(stacked, function(layer) { return d3.min(layer, function(d) { return d[0]; }); }), 
    			d3.max(stacked, function(layer) { return d3.max(layer, function(d) { return d[1]; }); })
-   		]).range([160, 0]);
+   		]).range([h, 0]);
+
 
    	var xScale = d3.scaleLinear() 
-   		.domain([0, flattened.length])
-   		.range([0, 800])
+   		.domain([0, flattened.length - 1])
+   		.range([0, w])
 
 	d3.select(element)
 		.selectAll("path")
 		.data(stacked)
 		.enter()
 		.append("path")
-		.attr("d", area
+		.attr("d", area)
+		.attr("fill", getRandomColor);
 
-		).attr("fill", getRandomColor);
+}
+
+function sortOnKeys(data, keys, increasing) { 
+
+	return data.sort(function(a, b) {
+
+		for (i = 0; i < keys.length; i++) {
+			a = a[keys[i]]; 
+			b = b[keys[i]];
+		}
+
+		return increasing ? d3.ascending(a, b) : d3.descending(a, b);
+
+	}); 
 
 }
 
 function getRandomColor() {
 
 	return "#" + Math.floor(Math.random() * 16777215).toString(16);
-}
-
-function renderSampleDataOLD() {
-
-	console.log("rendering sample data");
-
-	//master view
-	//make stream(o?)graph
-
-	var element = "svg";
-
-	var data = [
-		
-		{"key" : 1, "data" : [1, 2, 4, 5]},
-		{"key" : 2, "data" : [2, 4, 3, 1]},
-        	{"key" : 3, "data" : [3, 3, 1, 4]},
-        {"key" : 4, "data" : [4, 5, 2, 3]},
-        {"key" : 5, "data" : [5, 4, 2, 2]}
-
-	];
-
-	var area = d3.area()
-			.x(function(d, i) { 
-				return i * 100; 
-			}).y0(function(d, i) { 
-				return d[1] * 10; 
-			}).y1(function(d, i) { 
-				return 100; }
-			);
-
-
-	d3.select(element)
-		.selectAll("path")
-		.data(data)
-		.enter()
-		.append("path")
-		.attr("d", function(datum, index) { 
-
-			var arr = $.map(datum.data, function(element, index) {
-				return [[0, element]]; 
-			}); 
-
-			console.log(arr);
-			console.log(area(arr));
-
-			return area(arr); 
-
-
-		})
-		.attr("fill", "black");
-
 }
 
 function renderJSON(JSON) {
