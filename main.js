@@ -1,8 +1,11 @@
 $(function() { 
 
+	renderSampleData(); 
+
 	$("#uploadLink").on("click", function(event){
 
     	event.preventDefault();
+
         $("#uploadInput").trigger("click");
 
     });
@@ -168,6 +171,57 @@ function parseXLSX(XLSX) {
 		jsonFile.write(json.dumps(parsedJSON));
 	}
 
+
+}
+
+function renderSampleData() {
+
+	console.log("rendering sample data");
+
+	//master view
+	//make stream(o?)graph
+
+	var element = "svg";
+
+	var data = [
+		
+		{"key" : 1, "data" : [1, 2, 4, 5]},
+		{"key" : 2, "data" : [2, 4, 3, 1]},
+        {"key" : 3, "data" : [3, 3, 1, 4]},
+        {"key" : 4, "data" : [4, 5, 2, 3]},
+        {"key" : 5, "data" : [5, 4, 2, 2]}
+
+	];
+
+	var area = d3.area()
+			.x(function(d, i) { 
+				return i * 100; 
+			}).y0(function(d, i) { 
+				return d[1] * 10; 
+			}).y1(function(d, i) { 
+				return 100; }
+			);
+
+
+	d3.select(element)
+		.selectAll("path")
+		.data(data)
+		.enter()
+		.append("path")
+		.attr("d", function(datum, index) { 
+
+			var arr = $.map(datum.data, function(element, index) {
+				return [[0, element]]; 
+			}); 
+
+			console.log(arr);
+			console.log(area(arr));
+
+			return area(arr); 
+
+
+		})
+		.attr("fill", "black");
 
 }
 
