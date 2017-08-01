@@ -189,8 +189,11 @@ function renderSampleData() {
 		{"key" : 2, "xyz" : {"A" : 2,"B" : 4, "C" : 3, "D" : 1}},
         {"key" : 3, "xyz" : {"A" : 4,"B" : 3, "C" : 1, "D" : 4}},
         {"key" : 4, "xyz" : {"A" : 1,"B" : 5, "C" : 2, "D" : 3}},
-        {"key" : 5, "xyz" : {"A" : 3,"B" : 4, "C" : 2, "D" : 2}}
-
+        {"key" : 5, "xyz" : {"A" : 5,"B" : 4, "C" : 3, "D" : 2}},
+        {"key" : 6, "xyz" : {"A" : 1,"B" : 2, "C" : 2, "D" : 5}},
+		{"key" : 7, "xyz" : {"A" : 2,"B" : 3, "C" : 4, "D" : 3}},
+        {"key" : 8, "xyz" : {"A" : 4,"B" : 1, "C" : 5, "D" : 2}},
+        {"key" : 9, "xyz" : {"A" : 3,"B" : 3, "C" : 1, "D" : 4}}
 	];
 
 	var flattened = $.map(data, function(element, index) {
@@ -202,8 +205,9 @@ function renderSampleData() {
 	var stacked = stacker(flattened);
 
 	var area = d3.area()
+			.curve(d3.curveCardinal)
 			.x(function(d, i) { 
-				return i * 200; 
+				return xScale(i); 
 			}).y0(function(d, i) { 
 				return yScale(d[0]); 
 			}).y1(function(d, i) { 
@@ -215,6 +219,10 @@ function renderSampleData() {
    			d3.min(stacked, function(layer) { return d3.min(layer, function(d) { return d[0]; }); }), 
    			d3.max(stacked, function(layer) { return d3.max(layer, function(d) { return d[1]; }); })
    		]).range([160, 0]);
+
+   	var xScale = d3.scaleLinear() 
+   		.domain([0, flattened.length])
+   		.range([0, 800])
 
 	d3.select(element)
 		.selectAll("path")
