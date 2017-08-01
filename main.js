@@ -241,6 +241,13 @@ function renderStreamgraph(element, data) {
 
 function renderRadar(element, data) { 
 
+	var data = [
+		
+		{"key" : 1, "xyz" : {"A" : 3,"B" : 2, "C" : 4, "D" : 5}},
+		{"key" : 2, "xyz" : {"A" : 2,"B" : 4, "C" : 3, "D" : 1}}
+
+	];
+
 	console.log("rendering radar...");
 
 	var flattened = $.map(data, function(variant, index) {
@@ -252,10 +259,8 @@ function renderRadar(element, data) {
 			}); 
 		}
 
-		return [[toPlot]]; 
+		return [toPlot]; 
 	}); 
-
-	console.log(flattened);
 
 	var color = d3.scaleLinear()
 				.range(["#EDC951","#CC333F","#00A0B0"]);
@@ -272,38 +277,10 @@ function renderRadar(element, data) {
 	  	color: color
 	};
 
-	var radarData = [
-					  [//iPhone
-						{axis:"Battery Life",value:0.22},
-						{axis:"Brand",value:0.28},
-						{axis:"Contract Cost",value:0.29},
-						{axis:"Design And Quality",value:0.17},
-						{axis:"Have Internet Connectivity",value:0.22},
-						{axis:"Large Screen",value:0.02},
-						{axis:"Price Of Device",value:0.21},
-						{axis:"To Be A Smartphone",value:0.50}			
-					  ],[//Samsung
-						{axis:"Battery Life",value:0.27},
-						{axis:"Brand",value:0.16},
-						{axis:"Contract Cost",value:0.35},
-						{axis:"Design And Quality",value:0.13},
-						{axis:"Have Internet Connectivity",value:0.20},
-						{axis:"Large Screen",value:0.13},
-						{axis:"Price Of Device",value:0.35},
-						{axis:"To Be A Smartphone",value:0.38}
-					  ],[//Nokia Smartphone
-						{axis:"Battery Life",value:0.26},
-						{axis:"Brand",value:0.10},
-						{axis:"Contract Cost",value:0.30},
-						{axis:"Design And Quality",value:0.14},
-						{axis:"Have Internet Connectivity",value:0.22},
-						{axis:"Large Screen",value:0.04},
-						{axis:"Price Of Device",value:0.41},
-						{axis:"To Be A Smartphone",value:0.30}
-					  ]
-					];
+	// console.log(radarData);
+	// console.log(flattened);
 
-	RadarChart(element, radarData, radarChartOptions);
+	RadarChart(element, flattened, radarChartOptions);
 
 }
 
