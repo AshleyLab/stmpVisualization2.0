@@ -185,9 +185,67 @@ function renderSampleData() {
 
 	var data = [
 		
+		{"key" : 1, "xyz" : {"A" : 3,"B" : 2, "C" : 4, "D" : 5}},
+		{"key" : 2, "xyz" : {"A" : 2,"B" : 4, "C" : 3, "D" : 1}},
+        {"key" : 3, "xyz" : {"A" : 4,"B" : 3, "C" : 1, "D" : 4}},
+        {"key" : 4, "xyz" : {"A" : 1,"B" : 5, "C" : 2, "D" : 3}},
+        {"key" : 5, "xyz" : {"A" : 3,"B" : 4, "C" : 2, "D" : 2}}
+
+	];
+
+	var flattened = $.map(data, function(element, index) {
+		return element.xyz; 
+	}); 
+
+	var stacker = d3.stack().keys(["A", "B", "C", "D"]).offset(d3.stackOffsetNone);
+
+	var stacked = stacker(flattened);
+
+	var area = d3.area()
+			.x(function(d, i) { 
+				return i * 200; 
+			}).y0(function(d, i) { 
+				return yScale(d[0]); 
+			}).y1(function(d, i) { 
+				return yScale(d[1]); }
+			);
+
+	var yScale = d3.scaleLinear()
+   		.domain([
+   			d3.min(stacked, function(layer) { return d3.min(layer, function(d) { return d[0]; }); }), 
+   			d3.max(stacked, function(layer) { return d3.max(layer, function(d) { return d[1]; }); })
+   		]).range([160, 0]);
+
+	d3.select(element)
+		.selectAll("path")
+		.data(stacked)
+		.enter()
+		.append("path")
+		.attr("d", area
+
+		).attr("fill", getRandomColor);
+
+}
+
+function getRandomColor() {
+
+	return "#" + Math.floor(Math.random() * 16777215).toString(16);
+}
+
+function renderSampleDataOLD() {
+
+	console.log("rendering sample data");
+
+	//master view
+	//make stream(o?)graph
+
+	var element = "svg";
+
+	var data = [
+		
 		{"key" : 1, "data" : [1, 2, 4, 5]},
 		{"key" : 2, "data" : [2, 4, 3, 1]},
-        {"key" : 3, "data" : [3, 3, 1, 4]},
+        	{"key" : 3, "data" : [3, 3, 1, 4]},
         {"key" : 4, "data" : [4, 5, 2, 3]},
         {"key" : 5, "data" : [5, 4, 2, 2]}
 
