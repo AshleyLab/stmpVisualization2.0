@@ -1,6 +1,23 @@
-$(function() { 
+$(function() {
 
-	renderSampleData(); 
+	var streamElement = "#streamSVG"; 
+	var radarElement = "#radarSVG";
+
+	var sampleData = [
+		
+		{"key" : 1, "xyz" : {"A" : 3,"B" : 2, "C" : 4, "D" : 5}},
+		{"key" : 2, "xyz" : {"A" : 2,"B" : 4, "C" : 3, "D" : 1}},
+        {"key" : 3, "xyz" : {"A" : 4,"B" : 3, "C" : 1, "D" : 4}},
+        {"key" : 4, "xyz" : {"A" : 1,"B" : 5, "C" : 2, "D" : 3}},
+        {"key" : 5, "xyz" : {"A" : 5,"B" : 4, "C" : 3, "D" : 2}},
+        {"key" : 6, "xyz" : {"A" : 1,"B" : 2, "C" : 2, "D" : 5}},
+		{"key" : 7, "xyz" : {"A" : 2,"B" : 3, "C" : 4, "D" : 3}},
+        {"key" : 8, "xyz" : {"A" : 4,"B" : 1, "C" : 5, "D" : 2}},
+        {"key" : 9, "xyz" : {"A" : 3,"B" : 3, "C" : 1, "D" : 4}}
+	];
+
+	renderStreamgraph(streamElement, sampleData); 
+	renderRadar(radarElement, sampleData); 
 
 	$("#uploadLink").on("click", function(event){
 
@@ -174,30 +191,11 @@ function parseXLSX(XLSX) {
 
 }
 
-function renderSampleData() {
+function renderStreamgraph(element, data) {
 
-	console.log("rendering sample data");
-
-	//master view
-	//make stream(o?)graph
-
-	var element = "svg";
-
-	var data = [
-		
-		{"key" : 1, "xyz" : {"A" : 3,"B" : 2, "C" : 4, "D" : 5}},
-		{"key" : 2, "xyz" : {"A" : 2,"B" : 4, "C" : 3, "D" : 1}},
-        {"key" : 3, "xyz" : {"A" : 4,"B" : 3, "C" : 1, "D" : 4}},
-        {"key" : 4, "xyz" : {"A" : 1,"B" : 5, "C" : 2, "D" : 3}},
-        {"key" : 5, "xyz" : {"A" : 5,"B" : 4, "C" : 3, "D" : 2}},
-        {"key" : 6, "xyz" : {"A" : 1,"B" : 2, "C" : 2, "D" : 5}},
-		{"key" : 7, "xyz" : {"A" : 2,"B" : 3, "C" : 4, "D" : 3}},
-        {"key" : 8, "xyz" : {"A" : 4,"B" : 1, "C" : 5, "D" : 2}},
-        {"key" : 9, "xyz" : {"A" : 3,"B" : 3, "C" : 1, "D" : 4}}
-	];
+	console.log("rendering streamgraph...");
 
 	data = sortOnKeys(data, ["xyz", "C"], false);
-
 
 	var flattened = $.map(data, function(element, index) {
 		return element.xyz; 
@@ -238,6 +236,74 @@ function renderSampleData() {
 		.append("path")
 		.attr("d", area)
 		.attr("fill", getRandomColor);
+
+}
+
+function renderRadar(element, data) { 
+
+	console.log("rendering radar...");
+
+	var flattened = $.map(data, function(variant, index) {
+		var toPlot = []; 
+		for (var key in variant.xyz) {
+			toPlot.push({
+				"axis" : key, 
+				"value" : variant.xyz[key]
+			}); 
+		}
+
+		return [[toPlot]]; 
+	}); 
+
+	console.log(flattened);
+
+	var color = d3.scaleLinear()
+				.range(["#EDC951","#CC333F","#00A0B0"]);
+
+	var margin = {top: 50, right: 100, bottom: 100, left: 50};
+
+	var radarChartOptions = {
+		w: 200,
+		h: 200,
+		margin: margin,
+		maxValue: .5,
+	  	levels: 5,
+	  	roundStrokes: true,
+	  	color: color
+	};
+
+	var radarData = [
+					  [//iPhone
+						{axis:"Battery Life",value:0.22},
+						{axis:"Brand",value:0.28},
+						{axis:"Contract Cost",value:0.29},
+						{axis:"Design And Quality",value:0.17},
+						{axis:"Have Internet Connectivity",value:0.22},
+						{axis:"Large Screen",value:0.02},
+						{axis:"Price Of Device",value:0.21},
+						{axis:"To Be A Smartphone",value:0.50}			
+					  ],[//Samsung
+						{axis:"Battery Life",value:0.27},
+						{axis:"Brand",value:0.16},
+						{axis:"Contract Cost",value:0.35},
+						{axis:"Design And Quality",value:0.13},
+						{axis:"Have Internet Connectivity",value:0.20},
+						{axis:"Large Screen",value:0.13},
+						{axis:"Price Of Device",value:0.35},
+						{axis:"To Be A Smartphone",value:0.38}
+					  ],[//Nokia Smartphone
+						{axis:"Battery Life",value:0.26},
+						{axis:"Brand",value:0.10},
+						{axis:"Contract Cost",value:0.30},
+						{axis:"Design And Quality",value:0.14},
+						{axis:"Have Internet Connectivity",value:0.22},
+						{axis:"Large Screen",value:0.04},
+						{axis:"Price Of Device",value:0.41},
+						{axis:"To Be A Smartphone",value:0.30}
+					  ]
+					];
+
+	RadarChart(element, radarData, radarChartOptions);
 
 }
 
