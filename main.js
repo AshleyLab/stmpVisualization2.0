@@ -1,3 +1,5 @@
+var element, data; 
+
 $(function() {
 
 	var streamElement = "#streamSVG"; 
@@ -16,8 +18,11 @@ $(function() {
         {"key" : "key9", "xyz" : {"A" : 3,"B" : 3, "C" : 1, "D" : 4}}
 	];
 
+	data = sampleData; 
+	element = radarElement; 
+
 	renderStreamgraph(streamElement, sampleData); 
-	renderRadar(radarElement, sampleData); 
+	updateRadar(); 
 
 	$("#uploadLink").on("click", function(event){
 
@@ -187,7 +192,7 @@ function parseXLSX(XLSX) {
 	}
 
 
-}
+} 
 
 function renderStreamgraph(element, data) {
 
@@ -243,15 +248,47 @@ function renderStreamgraph(element, data) {
     		.tickSize(-h)
     		.tickFormat(function(datum, index) {
 
-    			console.log(datum);
-    			console.log(data[datum].key)
+    			return data[index].key;
 
-    			return data[datum].key;
-
-    		});
+    		}); 
     }
 
+    d3.selectAll(".tick line")
+    	.attr("id", function(datum, index) {
+
+    		return "axisLine" + index; 
+
+    	}).on("click", function(datum, index) {
+
+    		d3.select(this).classed("selectedForRadar", !d3.select(this).classed("selectedForRadar")); //toggle the class
+    		updateRadar(); 
+
+    	});
+
 }
+
+function updateRadar() { 
+
+	var selectedVariants = []; 
+
+	d3.selectAll(".selectedForRadar").each(function(element, index){
+
+		var id = d3.select(this).attr("id");
+
+		selectedVariants.push(parseInt(id.substring(id.indexOf("e") + 1)));
+
+	});
+
+	var selectedData = $.map(selectedVariants, function(element, index) {
+		return data[element];
+	});
+
+	console.log(selectedData);
+
+	renderRadar(element, selectedData);
+
+}
+
 function renderRadar(element, data) { 
 
 	data = data.slice(0, 3)
