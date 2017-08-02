@@ -1,9 +1,10 @@
-var element, data; 
+var element, data, axisSpace; 
 
 $(function() {
 
-	var streamElement = "#streamSVG"; 
-	var radarElement = "#radarSVG";
+	var streamElement = "#masterSVG"; 
+	var radarElement = "#detailSVG";
+	axisSpace = 15; 
 
 	var sampleData = [
 		
@@ -89,7 +90,7 @@ function parseXLSX(XLSX) {
 
 		for (var line in lines) { 
 
-				data.append(line.split("\t"));
+			data.append(line.split("\t"));
 
 		}
 
@@ -196,6 +197,10 @@ function parseXLSX(XLSX) {
 
 function renderStreamgraph(element, data) {
 
+	//add baseline data so no variants are on the egde of the graph 
+	data.unshift({"key" : "keyX", "xyz" : {"A" : 0,"B" : 0, "C" : 0, "D" : 0}}); 
+	data.push({"key" : "keyX", "xyz" : {"A" : 0,"B" : 0, "C" : 0, "D" : 0}});
+
 	var h = $(element).height(); 
    	var w = $(element).width(); 
 
@@ -214,7 +219,7 @@ function renderStreamgraph(element, data) {
    		.domain([
    			d3.min(stacked, function(layer) { return d3.min(layer, function(d) { return d[0]; }); }), 
    			d3.max(stacked, function(layer) { return d3.max(layer, function(d) { return d[1]; }); })
-   		]).range([h, 0]);
+   		]).range([h - axisSpace, 10]); //leave space for axis //leave space at top?
 
 	d3.select(element)
 		.selectAll("path")
@@ -240,18 +245,23 @@ function renderStreamgraph(element, data) {
 	d3.select(element)
 		.append("g")
 		.attr("class", "xAxis")
-		.attr("transform", "translate(0," + (h - 20) + ")")
+		.attr("transform", "translate(0," + (h - axisSpace) + ")")
 		.call(xAxis());
+
+	var clipTicks = true; 
 
 	function xAxis() {		
     	return d3.axisBottom(xScale)
-    		.tickSize(-h)
-    		.tickFormat(function(datum, index) {
+    		.tickSize(0) //custom resize later
+			.tickFormat(function(datum, index) {
 
     			return data[index].key;
 
-    		}); 
+    		});
     }
+
+    customResizeTicks(data, yScale);
+
 
     d3.selectAll(".tick line")
     	.attr("id", function(datum, index) {
@@ -265,26 +275,46 @@ function renderStreamgraph(element, data) {
 
     	});
 
-    haze(element); 
+    // haze(element); 
 
 }
 
+function customResizeTicks(data, yScale) { 
+
+	console.log("custom resizing"); 
+	console.log(d3.selectAll("g.xAxis g.tick line").size()); 
+	console.log(yScale.domain());
+
+	d3.selectAll("g.xAxis g.tick line")
+		.attr("y2", function(datum, index) {
+
+			var streamValues = data[index].xyz;
+			var total = 0;  
+
+			for (var key in streamValues) {
+				total += streamValues[key]; 
+			}		
+
+			console.log("index: " + index + "; total: " + total);
+
+			return (0 - yScale(15 - total + .1)); //why 15? //.1 so ends don't protrude
+
+
+		});
+
+
+}
+ 
 function haze(element) { 
 
 	var nVariants = 9;
 	var buffer = 4;
 
 	var h = $(element).height(); 
-	var wStep = $(element).width() / (nVariants - 1);
-
-	console.log($(element).width());
-	console.log(wStep);
+	var w = $(element).width() / (nVariants - 1);
 
 	var startXs = [...Array(nVariants - 1).keys()];
-
-	startXs = $.map(startXs, e => e * wStep + buffer);
-
-	console.log(startXs);
+	startXs = $.map(startXs, e => e * w + buffer);
 
 	d3.select(element)
 		.append("g")
@@ -296,10 +326,9 @@ function haze(element) {
 		.attr("class", "haze")
 		.attr("x", d => d)
 		.attr("y", 0)
-		.attr("width", wStep - (buffer * 2))
+		.attr("width", w - (buffer * 2))
 		.attr("height", h)
-		// .attr("fill", "orange")
-		.attr("opacity", .1)
+		.attr("opacity", .8)
 		.attr("stroke", "black");
 
 }
@@ -311,8 +340,7 @@ function updateRadar() {
 	d3.selectAll(".selectedForRadar").each(function(element, index){
 
 		var id = d3.select(this).attr("id");
-
-		selectedVariants.push(parseInt(id.substring(id.indexOf("e") + 1)));
+		selectedVariants.push(parseInt(id.substring(id.indexOf("e") + 1))); //TODO: actually get key
 
 	});
 
@@ -320,9 +348,7 @@ function updateRadar() {
 		return data[element];
 	});
 
-	console.log(selectedData);
-
-	renderRadar(element, selectedData);
+	// renderRadar(element, selectedData);
 
 }
 
@@ -383,18 +409,6 @@ function getRandomColor() {
 
 function renderJSON(JSON) {
 
-	var element = "svg";
-
-	var data = [13, 9, 17];
-
-	d3.select(element)
-		.selectAll("circle")
-		.data(data)
-		.enter()
-		.append("circle")
-		.attr("r", function(datum, index) { return datum; })
-		.attr("cx", function(datum, index) { return index * 40 + 40; })
-		.attr("cy", 40);
 
 }
 

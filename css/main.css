@@ -1,25 +1,61 @@
+* {
+    font-family: "Avenir Next", Calibri, sans-serif;
+}
+
 #uploadInput { 
 	display: none;
 }
 
 #visualizer { 
-    background: green;
+    border: 0px solid white;
+    border-top-width: 4px;
+    padding: 20px;
+    background: #191a1b !important;
 }
 
-#svgContainer {
-    background: purple;
+#visualizer div { 
+
+    background: #22262d;
+
+    border: 0px solid white;
+    border-left-width: 2px;
+    border-radius: 3px;
+
+}
+
+#textContainer { 
+   
+}
+
+#textContainer span {
+    display: block;
+    padding-left: 20px;
+    font-size: 30px;
+    color: white;
+}
+
+#graphics span { 
+    display: block;
+    padding-left: 5px;
+    font-size: 20px;
+    color: white;
+}
+
+#graphics {
+    padding-top: 10px;
+    margin-top: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+#masterSVG { 
+	background: #22262d;
     width: 100%;
-    height: 100%;
-    margin: 0;
+    display: block;
 }
 
-#streamSVG { 
-	background: red;
-	width: 100%;
-    margin: 0;
-}
-
-#radarSVG { 
+#detailSVG { 
+    margin-top: 20px;
     background: purple;
     height: 600px;
 }
@@ -33,13 +69,21 @@ path:hover:not(.domain) {
 }
 
 g.tick line { 
-    stroke-width: 8;
-    opacity: .2;
+/*    stroke-width: 8;
+*/    opacity: .8;
+    stroke: white;
 }
 
-path.domain { 
-    opacity: .2;
-    stroke-width: 3;
+g.tick text { 
+    fill: white;
+}
+
+
+g.xAxis path.domain { 
+    /*opacity: .2;
+    stroke-width: 10;*/
+    /*fill: orange;*/
+    stroke: white;
 }
 
 g.tick line:hover, 
