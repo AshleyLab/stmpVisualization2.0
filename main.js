@@ -5,15 +5,15 @@ $(function() {
 
 	var sampleData = [
 		
-		{"key" : 1, "xyz" : {"A" : 3,"B" : 2, "C" : 4, "D" : 5}},
-		{"key" : 2, "xyz" : {"A" : 2,"B" : 4, "C" : 3, "D" : 1}},
-        {"key" : 3, "xyz" : {"A" : 4,"B" : 3, "C" : 1, "D" : 4}},
-        {"key" : 4, "xyz" : {"A" : 1,"B" : 5, "C" : 2, "D" : 3}},
-        {"key" : 5, "xyz" : {"A" : 5,"B" : 4, "C" : 3, "D" : 2}},
-        {"key" : 6, "xyz" : {"A" : 1,"B" : 2, "C" : 2, "D" : 5}},
-		{"key" : 7, "xyz" : {"A" : 2,"B" : 3, "C" : 4, "D" : 3}},
-        {"key" : 8, "xyz" : {"A" : 4,"B" : 1, "C" : 5, "D" : 2}},
-        {"key" : 9, "xyz" : {"A" : 3,"B" : 3, "C" : 1, "D" : 4}}
+		{"key" : "AXZ", "xyz" : {"A" : 3,"B" : 2, "C" : 4, "D" : 5}},
+		{"key" : "BXZ", "xyz" : {"A" : 2,"B" : 4, "C" : 3, "D" : 1}},
+        {"key" : "CXZ", "xyz" : {"A" : 4,"B" : 3, "C" : 1, "D" : 4}},
+        {"key" : "DXZ", "xyz" : {"A" : 1,"B" : 5, "C" : 2, "D" : 3}},
+        {"key" : "EXZ", "xyz" : {"A" : 5,"B" : 4, "C" : 3, "D" : 2}},
+        {"key" : "FXZ", "xyz" : {"A" : 1,"B" : 2, "C" : 2, "D" : 5}},
+		{"key" : "GXZ", "xyz" : {"A" : 2,"B" : 3, "C" : 4, "D" : 3}},
+        {"key" : "HXZ", "xyz" : {"A" : 4,"B" : 1, "C" : 5, "D" : 2}},
+        {"key" : "IXZ", "xyz" : {"A" : 3,"B" : 3, "C" : 1, "D" : 4}}
 	];
 
 	renderStreamgraph(streamElement, sampleData); 
@@ -193,8 +193,6 @@ function parseXLSX(XLSX) {
 
 function renderStreamgraph(element, data) {
 
-	console.log("rendering streamgraph...");
-
 	data = sortOnKeys(data, ["xyz", "C"], false);
 
 	var flattened = $.map(data, function(element, index) {
@@ -204,6 +202,9 @@ function renderStreamgraph(element, data) {
 	var stacker = d3.stack().keys(["A", "B", "C", "D"]).offset(d3.stackOffsetNone);
 
 	var stacked = stacker(flattened);
+
+	console.log(flattened);
+	console.log(stacked);
 
 	var area = d3.area()
 			.curve(d3.curveCardinal)
@@ -224,7 +225,6 @@ function renderStreamgraph(element, data) {
    			d3.max(stacked, function(layer) { return d3.max(layer, function(d) { return d[1]; }); })
    		]).range([h, 0]);
 
-
    	var xScale = d3.scaleLinear() 
    		.domain([0, flattened.length - 1])
    		.range([0, w])
@@ -236,6 +236,41 @@ function renderStreamgraph(element, data) {
 		.append("path")
 		.attr("d", area)
 		.attr("fill", getRandomColor);
+
+	d3.select(element)
+		.append("g")
+		.attr("class", "xAxis")
+		.attr("transform", "translate(0," + ($(element).height() - 20) + ")")
+		.call(xAxis());
+
+
+	function xAxis() {		
+    	return d3.axisBottom(xScale)
+    		.tickSize(-40)
+    		.tickFormat(function(datum, index) {
+
+    			console.log(datum);
+    			console.log(data[datum].key)
+
+    			return data[datum].key;
+
+    		});
+
+    }
+
+	// addVerticalLines(element, data);
+
+}
+
+function addVerticalLines(element, data) {
+
+	var variantNames = $.map(data, function(element, index) {
+		return element.key; 
+	}); 
+
+	console.log(variantNames);
+
+
 
 }
 
