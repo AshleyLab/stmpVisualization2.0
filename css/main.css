@@ -33,7 +33,7 @@ path:hover:not(.domain) {
 }
 
 g.tick line { 
-    stroke-width: 3;
+    stroke-width: 8;
     opacity: .2;
 }
 
@@ -42,7 +42,8 @@ path.domain {
     stroke-width: 3;
 }
 
-g.tick line:hover { 
+g.tick line:hover, 
+g.tick line.selectedForRadar { 
     stroke: orange; 
 }
 

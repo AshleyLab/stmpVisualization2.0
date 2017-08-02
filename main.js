@@ -265,6 +265,43 @@ function renderStreamgraph(element, data) {
 
     	});
 
+    haze(element); 
+
+}
+
+function haze(element) { 
+
+	var nVariants = 9;
+	var buffer = 4;
+
+	var h = $(element).height(); 
+	var wStep = $(element).width() / (nVariants - 1);
+
+	console.log($(element).width());
+	console.log(wStep);
+
+	var startXs = [...Array(nVariants - 1).keys()];
+
+	startXs = $.map(startXs, e => e * wStep + buffer);
+
+	console.log(startXs);
+
+	d3.select(element)
+		.append("g")
+		.attr("class", "hazeContainer")
+		.selectAll("rect.haze")
+		.data(startXs)
+		.enter()
+		.append("rect")
+		.attr("class", "haze")
+		.attr("x", d => d)
+		.attr("y", 0)
+		.attr("width", wStep - (buffer * 2))
+		.attr("height", h)
+		// .attr("fill", "orange")
+		.attr("opacity", .1)
+		.attr("stroke", "black");
+
 }
 
 function updateRadar() { 
