@@ -1,4 +1,4 @@
-var element, data, axisSpace; 
+var element, data, axisSpace, pathClicks; 
 
 $(function() {
 
@@ -19,6 +19,9 @@ $(function() {
         {"key" : "key9", "xyz" : {"A" : 3,"B" : 3, "C" : 1, "D" : 4}}
 
 	];
+
+	pathClicks = Array.apply(null, Array(4)).map(Number.prototype.valueOf,0); 
+	//keep track of how many times a layer is clicked so know how to sort it
 
 	data = sampleData; 
 	element = radarElement; 
@@ -198,6 +201,8 @@ function parseXLSX(XLSX) {
 
 function renderStreamgraph(element, data) {
 
+	d3.select(element).html("");
+
 	//add baseline data so no variants are on the egde of the graph 
 	data.unshift({"key" : "keyX", "xyz" : {"A" : 0,"B" : 0, "C" : 0, "D" : 0}}); 
 	data.push({"key" : "keyX", "xyz" : {"A" : 0,"B" : 0, "C" : 0, "D" : 0}});
@@ -241,7 +246,21 @@ function renderStreamgraph(element, data) {
 
 			return area(datum, index);
 
-		}).attr("fill", getRandomColor);
+		}).attr("fill", getRandomColor)
+		.on("click", function(datum, index) {
+
+			pathClicks[index]++; 
+
+			//remove empty post values
+			data = data.slice(1, data.length - 1);
+
+			newData = sortOnKeys(data, ["xyz", datum.key], pathClicks[index] % 2 == 0);
+
+			console.log(data);
+			console.log(newData);
+			renderStreamgraph(element, newData);
+
+		}); 
 
 	d3.select(element)
 		.append("g")
@@ -256,7 +275,10 @@ function renderStreamgraph(element, data) {
     		.tickSize(0) //custom resize later
 			.tickFormat(function(datum, index) {
 
-    			return index == 0 || index == data.length - 1 ? "" : data[datum].key; 
+				console.log("datum: " + datum + "; index: " + index); 
+				console.log(data[index]);
+
+    			return index == 0 || index == data.length - 1 ? "" : data[index].key; 
 
     		}); 
     }
@@ -282,10 +304,6 @@ function renderStreamgraph(element, data) {
 
 function customResizeTicks(data, yScale) { 
 
-	console.log("custom resizing"); 
-	console.log(d3.selectAll("g.xAxis g.tick line").size()); 
-	console.log(yScale.domain());
-
 	d3.selectAll("g.xAxis g.tick line")
 		.attr("y2", function(datum, index) {
 
@@ -296,10 +314,7 @@ function customResizeTicks(data, yScale) {
 				total += streamValues[key]; 
 			}		
 
-			console.log("index: " + index + "; total: " + total);
-
 			return (0 - yScale(15 - total + .1)); //why 15? //.1 so ends don't protrude
-
 
 		});
 
@@ -308,10 +323,10 @@ function customResizeTicks(data, yScale) {
  
 function haze(element) { 
 
-	var nVariants = 9;
-	var buffer = 4;
+	var nVariants = 11;
+	var buffer = 1;
 
-	var h = $(element).height(); 
+	var h = $(element).height() - axisSpace; 
 	var w = $(element).width() / (nVariants - 1);
 
 	var startXs = [...Array(nVariants - 1).keys()];
@@ -329,7 +344,7 @@ function haze(element) {
 		.attr("y", 0)
 		.attr("width", w - (buffer * 2))
 		.attr("height", h)
-		.attr("opacity", .8)
+		.attr("opacity", .6)
 		.attr("stroke", "black");
 
 }
@@ -392,12 +407,15 @@ function sortOnKeys(data, keys, increasing) {
 
 	return data.sort(function(a, b) {
 
+		var aEl = a; 
+		var bEl = b; 
+
 		for (i = 0; i < keys.length; i++) {
-			a = a[keys[i]]; 
-			b = b[keys[i]];
+			aEl = aEl[keys[i]]; 
+			bEl = bEl[keys[i]];
 		}
 
-		return increasing ? d3.ascending(a, b) : d3.descending(a, b);
+		return increasing ? d3.ascending(aEl, bEl) : d3.descending(aEl, bEl);
 
 	}); 
 

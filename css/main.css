@@ -52,7 +52,8 @@
 	background: #22262d;
     width: 100%;
     display: block;
-}
+/*    height: 200px;
+*/}
 
 #detailSVG { 
     margin-top: 20px;
@@ -69,8 +70,8 @@ path:hover:not(.domain) {
 }
 
 g.tick line { 
-/*    stroke-width: 8;
-*/    opacity: .8;
+    stroke-width: 8;
+    opacity: .1;
     stroke: white;
 }
 
