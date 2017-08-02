@@ -23,22 +23,36 @@
 
 }
 
-#textContainer { 
-   
+span#masterText { 
+    display: block;
+    height: 40px;
+    font-size: 15px !important;
+}
+
+span#sortInfo { 
+    font-size: 10px;
+    padding-left: 0px !important;
+    font-style: italic;
+}
+
+span#overview { 
+
+    font-size: 20px;
+    
 }
 
 #textContainer span {
     display: block;
+    color: white;
     padding-left: 20px;
     font-size: 30px;
-    color: white;
 }
 
 #graphics span { 
     display: block;
-    padding-left: 5px;
-    font-size: 20px;
     color: white;
+        padding-left: 5px;
+
 }
 
 #graphics {

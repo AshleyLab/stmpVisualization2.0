@@ -227,6 +227,8 @@ function renderStreamgraph(element, data) {
    			d3.max(stacked, function(layer) { return d3.max(layer, function(d) { return d[1]; }); })
    		]).range([h - axisSpace, 10]); //leave space for axis //leave space at top?
 
+   	var lastHTML = ""; 
+
 	d3.select(element)
 		.selectAll("path")
 		.data(stacked)
@@ -250,17 +252,36 @@ function renderStreamgraph(element, data) {
 		.on("click", function(datum, index) {
 
 			pathClicks[index]++; 
+			var increasing = pathClicks[index] % 2 == 0; 
+			console.log(increasing + " since " + pathClicks[index]);
 
-			//remove empty post values
-			data = data.slice(1, data.length - 1);
+			data = data.slice(1, data.length - 1); //remove empty post values
+			newData = sortOnKeys(data, ["xyz", datum.key], increasing);
 
-			newData = sortOnKeys(data, ["xyz", datum.key], pathClicks[index] % 2 == 0);
+			var incrText = increasing ? "increasing" : "decreasing";
+			console.log(incrText);
 
-			console.log(data);
-			console.log(newData);
+			var info = "<span id=\"sortInfo\">" + incrText + "</span>";
+			var finalHTML = datum.key + info; 
+			console.log(finalHTML);
+
+			$("span#masterText").html(finalHTML); 
+
 			renderStreamgraph(element, newData);
 
-		}); 
+
+		}).on("mouseover", function(datum, index) {
+
+			lastHTML = $("span#masterText").html(); 
+
+			var info = pathClicks[index] == 0 ? "<span id=\"sortInfo\">click to sort</span>" : ""; 
+			$("span#masterText").html(datum.key + info);
+
+		}).on("mouseout", function(datum, index) {
+
+			$("span#masterText").html(lastHTML);
+
+		});
 
 	d3.select(element)
 		.append("g")
@@ -274,9 +295,6 @@ function renderStreamgraph(element, data) {
     	return d3.axisBottom(xScale)
     		.tickSize(0) //custom resize later
 			.tickFormat(function(datum, index) {
-
-				console.log("datum: " + datum + "; index: " + index); 
-				console.log(data[index]);
 
     			return index == 0 || index == data.length - 1 ? "" : data[index].key; 
 
