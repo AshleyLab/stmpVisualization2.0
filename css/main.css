@@ -24,9 +24,32 @@
     height: 600px;
 }
 
-path:hover:not(.domain):not(.tick) { 
+path:not(.domain) {
+    stroke: white;
+}
+
+path:hover:not(.domain) { 
     fill: grey;
 }
+
+g.tick line { 
+    stroke-width: 3;
+    opacity: .2;
+}
+
+path.domain { 
+    opacity: .2;
+    stroke-width: 3;
+}
+
+g.tick line:hover { 
+    stroke: orange; 
+}
+
+g.tick text:hover { 
+    fill: orange;
+/*    dy: 4em !important;
+*/}
 
 /*SPINNER*/
 #spinnerContainer { 
