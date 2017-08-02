@@ -5,15 +5,15 @@ $(function() {
 
 	var sampleData = [
 		
-		{"key" : "AXZ", "xyz" : {"A" : 3,"B" : 2, "C" : 4, "D" : 5}},
-		{"key" : "BXZ", "xyz" : {"A" : 2,"B" : 4, "C" : 3, "D" : 1}},
-        {"key" : "CXZ", "xyz" : {"A" : 4,"B" : 3, "C" : 1, "D" : 4}},
-        {"key" : "DXZ", "xyz" : {"A" : 1,"B" : 5, "C" : 2, "D" : 3}},
-        {"key" : "EXZ", "xyz" : {"A" : 5,"B" : 4, "C" : 3, "D" : 2}},
-        {"key" : "FXZ", "xyz" : {"A" : 1,"B" : 2, "C" : 2, "D" : 5}},
-		{"key" : "GXZ", "xyz" : {"A" : 2,"B" : 3, "C" : 4, "D" : 3}},
-        {"key" : "HXZ", "xyz" : {"A" : 4,"B" : 1, "C" : 5, "D" : 2}},
-        {"key" : "IXZ", "xyz" : {"A" : 3,"B" : 3, "C" : 1, "D" : 4}}
+		{"key" : "key1", "xyz" : {"A" : 3,"B" : 2, "C" : 4, "D" : 5}},
+		{"key" : "key2", "xyz" : {"A" : 2,"B" : 4, "C" : 3, "D" : 1}},
+        {"key" : "key3", "xyz" : {"A" : 4,"B" : 3, "C" : 1, "D" : 4}},
+        {"key" : "key4", "xyz" : {"A" : 1,"B" : 5, "C" : 2, "D" : 3}},
+        {"key" : "key5", "xyz" : {"A" : 5,"B" : 4, "C" : 3, "D" : 2}},
+        {"key" : "key6", "xyz" : {"A" : 1,"B" : 2, "C" : 2, "D" : 5}},
+		{"key" : "key7", "xyz" : {"A" : 2,"B" : 3, "C" : 4, "D" : 3}},
+        {"key" : "key8", "xyz" : {"A" : 4,"B" : 1, "C" : 5, "D" : 2}},
+        {"key" : "key9", "xyz" : {"A" : 3,"B" : 3, "C" : 1, "D" : 4}}
 	];
 
 	renderStreamgraph(streamElement, sampleData); 
@@ -22,7 +22,6 @@ $(function() {
 	$("#uploadLink").on("click", function(event){
 
     	event.preventDefault();
-
         $("#uploadInput").trigger("click");
 
     });
@@ -38,7 +37,7 @@ $(function() {
 
 		} else { 
 
-
+			showError(); 
 
 		}
 
@@ -48,7 +47,6 @@ $(function() {
 
 function validateXLSX(file) {
 
-	console.log(file);
 	console.log(file.name);
 
 	var extension = file.name.split(".").slice(-1)[0]; 
@@ -84,7 +82,7 @@ function parseXLSX(XLSX) {
 		lines = tsv.split("\n");
 		columns = lines[0].split("\t");
 
-		for (line in lines) { 
+		for (var line in lines) { 
 
 				data.append(line.split("\t"));
 
@@ -101,7 +99,7 @@ function parseXLSX(XLSX) {
 
 		var placeholder = []; 
 
-		for (column in placeholder) { 
+		for (var column in placeholder) { 
 
 			value = variantLine[idxDict[column]] || "na";
 
@@ -157,7 +155,7 @@ function parseXLSX(XLSX) {
 
 		columns = curDf.columns; 
 
-		for (column in columnames) { 
+		for (var column in columnames) { 
 		}
 
 		variant["coreAnnotationFields"]["infoFields"] = infoFields; 
@@ -193,31 +191,19 @@ function parseXLSX(XLSX) {
 
 function renderStreamgraph(element, data) {
 
-	data = sortOnKeys(data, ["xyz", "C"], false);
+	var h = $(element).height(); 
+   	var w = $(element).width(); 
 
 	var flattened = $.map(data, function(element, index) {
 		return element.xyz; 
 	}); 
 
 	var stacker = d3.stack().keys(["A", "B", "C", "D"]).offset(d3.stackOffsetNone);
-
 	var stacked = stacker(flattened);
 
-	console.log(flattened);
-	console.log(stacked);
-
-	var area = d3.area()
-			.curve(d3.curveCardinal)
-			.x(function(d, i) { 
-				return xScale(i); 
-			}).y0(function(d, i) { 
-				return yScale(d[0]); 
-			}).y1(function(d, i) { 
-				return yScale(d[1]); }
-			);
-
-	var h = $(element).height(); 
-   	var w = $(element).width(); 
+	var xScale = d3.scaleLinear() 
+   		.domain([0, flattened.length - 1])
+   		.range([0, w])
 
 	var yScale = d3.scaleLinear()
    		.domain([
@@ -225,28 +211,36 @@ function renderStreamgraph(element, data) {
    			d3.max(stacked, function(layer) { return d3.max(layer, function(d) { return d[1]; }); })
    		]).range([h, 0]);
 
-   	var xScale = d3.scaleLinear() 
-   		.domain([0, flattened.length - 1])
-   		.range([0, w])
-
 	d3.select(element)
 		.selectAll("path")
 		.data(stacked)
 		.enter()
 		.append("path")
-		.attr("d", area)
-		.attr("fill", getRandomColor);
+		.attr("d", function(datum, index) {
+
+			var area = d3.area()
+				.curve(d3.curveCardinal)
+				.x(function(d, i) { 
+					return xScale(i); 
+				}).y0(function(d, i) { 
+					return yScale(d[0]); 
+				}).y1(function(d, i) { 
+					return yScale(d[1]); }
+				);
+
+			return area(datum, index);
+
+		}).attr("fill", getRandomColor);
 
 	d3.select(element)
 		.append("g")
 		.attr("class", "xAxis")
-		.attr("transform", "translate(0," + ($(element).height() - 20) + ")")
+		.attr("transform", "translate(0," + (h - 20) + ")")
 		.call(xAxis());
-
 
 	function xAxis() {		
     	return d3.axisBottom(xScale)
-    		.tickSize(-40)
+    		.tickSize(-h)
     		.tickFormat(function(datum, index) {
 
     			console.log(datum);
@@ -255,37 +249,14 @@ function renderStreamgraph(element, data) {
     			return data[datum].key;
 
     		});
-
     }
 
-	// addVerticalLines(element, data);
-
 }
-
-function addVerticalLines(element, data) {
-
-	var variantNames = $.map(data, function(element, index) {
-		return element.key; 
-	}); 
-
-	console.log(variantNames);
-
-
-
-}
-
 function renderRadar(element, data) { 
 
-	var data = [
-		
-		{"key" : 1, "xyz" : {"A" : 3,"B" : 2, "C" : 4, "D" : 5}},
-		{"key" : 2, "xyz" : {"A" : 2,"B" : 4, "C" : 3, "D" : 1}}
+	data = data.slice(0, 3)
 
-	];
-
-	console.log("rendering radar...");
-
-	var flattened = $.map(data, function(variant, index) {
+	var formatted = $.map(data, function(variant, index) {
 		var toPlot = []; 
 		for (var key in variant.xyz) {
 			toPlot.push({
@@ -306,16 +277,13 @@ function renderRadar(element, data) {
 		w: 200,
 		h: 200,
 		margin: margin,
-		maxValue: .5,
+		maxValue: 6,
 	  	levels: 5,
 	  	roundStrokes: true,
 	  	color: color
 	};
 
-	// console.log(radarData);
-	// console.log(flattened);
-
-	RadarChart(element, flattened, radarChartOptions);
+	RadarChart(element, formatted, radarChartOptions);
 
 }
 
