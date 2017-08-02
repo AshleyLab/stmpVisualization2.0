@@ -17,6 +17,7 @@ $(function() {
 		{"key" : "key7", "xyz" : {"A" : 2,"B" : 3, "C" : 4, "D" : 3}},
         {"key" : "key8", "xyz" : {"A" : 4,"B" : 1, "C" : 5, "D" : 2}},
         {"key" : "key9", "xyz" : {"A" : 3,"B" : 3, "C" : 1, "D" : 4}}
+
 	];
 
 	data = sampleData; 
@@ -255,9 +256,9 @@ function renderStreamgraph(element, data) {
     		.tickSize(0) //custom resize later
 			.tickFormat(function(datum, index) {
 
-    			return data[index].key;
+    			return index == 0 || index == data.length - 1 ? "" : data[datum].key; 
 
-    		});
+    		}); 
     }
 
     customResizeTicks(data, yScale);
