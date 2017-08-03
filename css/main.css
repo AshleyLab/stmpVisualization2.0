@@ -2,6 +2,15 @@
     font-family: "Avenir Next", Calibri, sans-serif;
 }
 
+/*svg.starplot { 
+    background-color: white;
+    margin: 20px;
+}*/
+
+svg.chart { 
+    background-color: white !important;
+}
+
 #uploadInput { 
 	display: none;
 }

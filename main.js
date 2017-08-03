@@ -26,8 +26,10 @@ $(function() {
 	data = sampleData; 
 	element = radarElement; 
 
-	renderStreamgraph(streamElement, sampleData); 
-	updateRadar(); 
+	// renderStreamgraph(streamElement, sampleData); 
+	// updateRadar(); 
+
+	renderGlyphplot(sampleData);
 
 	$("#uploadLink").on("click", function(event){
 
@@ -199,13 +201,96 @@ function parseXLSX(XLSX) {
 
 } 
 
+function renderGlyphplot(data) { 
+
+	var margin = {
+	  top: 20,
+	  right: 20,
+	  bottom: 20,
+	  left: 20
+	};
+
+	var width = 240 - margin.left - margin.right;
+	var height = 240 - margin.top - margin.bottom;
+
+	var scale = d3.scaleLinear()
+		.domain([0, 6])
+		.range([0, 200]);
+
+	var star = d3.starPlot()
+      	.width(width)
+      	.accessors([
+	        function(d) { return scale(d.Body); },
+	        function(d) { return scale(d.Sweetness); },
+	        function(d) { return scale(d.Smoky); },
+	        function(d) { return scale(d.Honey); },
+	        function(d) { return scale(d.Spicy); },
+	        function(d) { return scale(d.Nutty); },
+	        function(d) { return scale(d.Malty); },
+	        function(d) { return scale(d.Fruity); },
+	        function(d) { return scale(d.Floral); },
+      	])
+      	.labels([
+	        'Body',
+	        'Sweetness',
+	        'Smoky',
+	        'Honey',
+	        'Spicy',
+	        'Nutty',
+	        'Malty',
+	        'Fruity',
+	        'Floral',
+      	])
+	    .title(function(d) { return d.Distillery; })
+	    .margin(margin)
+		.labelMargin(8);
+
+d3.csv("whiskies.csv")
+  .row(function(d) {
+
+      d.Body = +d.Body;
+      d.Sweetness = +d.Sweetness;
+      d.Smoky = +d.Smoky;
+      d.Medicinal = +d.Medicinal;
+      d.Tobacco = +d.Tobacco;
+      d.Honey = +d.Honey;
+      d.Spicy = +d.Spicy;
+      d.Winey = +d.Winey;
+      d.Nutty = +d.Nutty;
+      d.Malty = +d.Malty;
+      d.Fruity = +d.Fruity;
+      d.Floral = +d.Floral;
+      return d;
+
+  }).get(function(error, rows) {
+  	console.log(error);
+
+    console.log(rows);
+
+    rows.forEach(function(d, i) {
+      star.includeLabels(i % 4 === 0 ? true : false);
+
+        console.log(d);
+
+      d3.select('#graphics').append('svg')
+        .attr('class', 'chart')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', width + margin.top + margin.bottom)
+        .append('g')
+          .datum(d)
+          .call(star)
+    });
+  });
+
+}
+
 function renderStreamgraph(element, data) {
 
 	d3.select(element).html("");
 
 	//add baseline data so no variants are on the egde of the graph 
-	data.unshift({"key" : "keyX", "xyz" : {"A" : 0,"B" : 0, "C" : 0, "D" : 0}}); 
-	data.push({"key" : "keyX", "xyz" : {"A" : 0,"B" : 0, "C" : 0, "D" : 0}});
+	data.unshift({"key" : "keyX", "xyz" : {"A" : 0, "B" : 0, "C" : 0, "D" : 0}}); 
+	data.push({"key" : "keyX", "xyz" : {"A" : 0, "B" : 0, "C" : 0, "D" : 0}});
 
 	var h = $(element).height(); 
    	var w = $(element).width(); 
