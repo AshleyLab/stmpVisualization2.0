@@ -46,12 +46,12 @@ d3.starPlot = function() {
       l = radius;
       x = l * Math.cos(r);
       y = l * Math.sin(r);
-      g.append("line")
-        .attr("class", 'star-axis')
-        .attr("x1", origin[0])
-        .attr("y1", origin[1])
-        .attr("x2", origin[0] + x)
-        .attr("y2", origin[1] + y)
+      g.append('line')
+        .attr('class', 'star-axis')
+        .attr('x1', origin[0])
+        .attr('y1', origin[1])
+        .attr('x2', origin[0] + x)
+        .attr('y2', origin[1] + y)
 
       r += radians;
     })
@@ -65,69 +65,40 @@ d3.starPlot = function() {
       l = radius;
       x = (l + labelMargin) * Math.cos(r);
       y = (l + labelMargin) * Math.sin(r);
-      g.append("text")
-        .attr("class", "star-label")
-        .attr("x", origin[0] + x)
-        .attr("y", origin[1] + y)
+      g.append('text')
+        .attr('class', 'star-label')
+        .attr('x', origin[0] + x)
+        .attr('y', origin[1] + y)
         .text(labels[i])
-        .style("text-anchor", "middle")
-        .style("dominant-baseline", "central")
+        .style('text-anchor', 'middle')
+        .style('dominant-baseline', 'central')
 
       r += radians;
     })
   }
 
   function drawChart() {
-    g.append("circle")
-      .attr("class", "star-origin")
-      .attr("cx", origin[0])
-      .attr("cy", origin[1])
-      .attr("r", 2)
+    g.append('circle')
+      .attr('class', 'star-origin')
+      .attr('cx', origin[0])
+      .attr('cy', origin[1])
+      .attr('r', 2)
 
     var path = d3.radialLine()
 
     var pathData = [];
     var r = Math.PI / 2;
-
     accessors.forEach(function(d) {
 
+      pathData.push([r, scale(d(datum))]);
 
-        pathData.push([r, scale(d(datum))]);
-        r += radians;
-
-      //added by Charlie: spokes from origin to corners
-
+      r += radians;
     });
 
-    console.log("adding");
-
-    console.log(pathData);
-      
-    g.selectAll("line.spoke")
-        .data(pathData)
-        .enter()
-        .append("line")
-        .attr("class", "spoke")
-        .attr("x1", origin[0])
-        .attr("y1", origin[1])
-        .attr("x2", function(element, index) {
-
-            var x2 = element[1] * Math.cos(element[0] - Math.PI / 2) + width / 2; 
-
-            return x2; 
-
-        }).attr("y2", function(element, index) {
-
-            var y2 = element[1] * Math.sin(element[0] - Math.PI / 2) + width / 2; 
-
-            return y2; 
-
-        }).attr("stroke", "white");
-
-    g.append("path")
-        .attr("class", "star-path")
-        .attr("transform", "translate(" + origin[0] + "," + origin[1] + ")")
-        .attr("d", path(pathData) + "Z");
+    g.append('path')
+        .attr('class', 'star-path')
+        .attr('transform', 'translate(' + origin[0] + ',' + origin[1] + ')')
+        .attr('d', path(pathData) + 'Z');
 
     g.append('text')
         .attr('class', 'star-title')
@@ -135,8 +106,6 @@ d3.starPlot = function() {
         .attr('y', -(margin.top / 2))
         .text(title(datum))
         .style('text-anchor', 'middle')
-
-        console.log("end draw chart");
   }
 
   function nop() {

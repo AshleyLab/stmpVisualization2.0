@@ -201,7 +201,10 @@ function parseXLSX(XLSX) {
 
 } 
 
-function renderGlyphplotSample(data) { 
+function renderGlyphplot(data) { 
+
+	var forKey = {"key" : "keyX", "xyz" : {"A" : 0, "B" : 0, "C": 0, "D": 0}};
+	data.unshift(forKey);
 
 	var margin = {
 	  top: 20,
@@ -210,90 +213,12 @@ function renderGlyphplotSample(data) {
 	  left: 20
 	};
 
-	var width = 240 - margin.left - margin.right;
-	var height = 240 - margin.top - margin.bottom;
+	var width = 120 - margin.left - margin.right;
+	var height = 120 - margin.top - margin.bottom;
 
 	var scale = d3.scaleLinear()
 		.domain([0, 6])
-		.range([0, 200]);
-
-	var star = d3.starPlot()
-      	.width(width)
-      	.accessors([
-	        function(d) { return scale(d.Body); },
-	        function(d) { return scale(d.Sweetness); },
-	        function(d) { return scale(d.Smoky); },
-	        function(d) { return scale(d.Honey); },
-	        function(d) { return scale(d.Spicy); },
-	        function(d) { return scale(d.Nutty); },
-	        function(d) { return scale(d.Malty); },
-	        function(d) { return scale(d.Fruity); },
-	        function(d) { return scale(d.Floral); },
-      	])
-      	.labels([
-	        'Body',
-	        'Sweetness',
-	        'Smoky',
-	        'Honey',
-	        'Spicy',
-	        'Nutty',
-	        'Malty',
-	        'Fruity',
-	        'Floral',
-      	])
-	    .title(function(d) { return d.Distillery; })
-	    .margin(margin)
-		.labelMargin(8);
-
-d3.csv("whiskies.csv")
-  .row(function(d) {
-
-      d.Body = +d.Body;
-      d.Sweetness = +d.Sweetness;
-      d.Smoky = +d.Smoky;
-      d.Medicinal = +d.Medicinal;
-      d.Tobacco = +d.Tobacco;
-      d.Honey = +d.Honey;
-      d.Spicy = +d.Spicy;
-      d.Winey = +d.Winey;
-      d.Nutty = +d.Nutty;
-      d.Malty = +d.Malty;
-      d.Fruity = +d.Fruity;
-      d.Floral = +d.Floral;
-      return d;
-
-  }).get(function(error, rows) {
-
-    rows.forEach(function(d, i) {
-      star.includeLabels(i % 4 === 0 ? true : false);
-
-      d3.select('#graphics').append('svg')
-        .attr('class', 'chart')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', width + margin.top + margin.bottom)
-        .append('g')
-          .datum(d)
-          .call(star)
-    });
-  });
-
-}
-
-function renderGlyphplot(data) { 
-
-	var margin = {
-	  top: 36,
-	  right: 50,
-	  bottom: 20,
-	  left: 50
-	};
-
-	var width = 240 - margin.left - margin.right;
-	var height = 240 - margin.top - margin.bottom;
-
-	var scale = d3.scaleLinear()
-		.domain([0, 6])
-		.range([0, 100]);
+		.range([0, 150]);
 
 	var star = d3.starPlot()
       	.width(width)
@@ -309,7 +234,7 @@ function renderGlyphplot(data) {
 	        "C",
 	        "D"
       	])
-	    .title(function(d) { console.log(d); return "TITLE"; })
+      	.title(function(datum, index) { return "TITLE"; })
 	    .margin(margin)
 		.labelMargin(8);
 
@@ -317,11 +242,12 @@ function renderGlyphplot(data) {
 
       d3.select("#graphics").append("svg")
         .attr("class", "starplot")
-        .attr("width", width + margin.left + margin.right - 10)
+        .attr("width", width + margin.left + margin.right)
         .attr("height", width + margin.top + margin.bottom)
         .append("g")
           .datum(datum.xyz)
           .call(star)
+          .classed("legend", index == 0);
 
     });
 
@@ -381,17 +307,12 @@ function renderStreamgraph(element, data) {
 
 			pathClicks[index]++; 
 			var increasing = pathClicks[index] % 2 == 0; 
-			console.log(increasing + " since " + pathClicks[index]);
 
 			data = data.slice(1, data.length - 1); //remove empty post values
 			newData = sortOnKeys(data, ["xyz", datum.key], increasing);
 
-			var incrText = increasing ? "increasing" : "decreasing";
-			console.log(incrText);
-
-			var info = "<span id=\"sortInfo\">" + incrText + "</span>";
+			var info = "<span id=\"sortInfo\">" + (increasing ? "increasing" : "decreasing") + "</span>";
 			var finalHTML = datum.key + info; 
-			console.log(finalHTML);
 
 			$("span#masterText").html(finalHTML); 
 
