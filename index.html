@@ -99,10 +99,22 @@
                 <span>Analyzing...</span>
             </div>
             <div id="graphics">
-                <span id="overview">Overview of Variants</span>
+                <div class="splitContainer">
+                    <div class="leftSplit">
+                        <span id="overview">Overview of Variants</span>
+                    </div>
+                    <div class="rightSplit">
+                        <form id="visualizationType">
+                            <label class="radio inline"><input type="radio" value="stream" name="optradio" checked="checked">Streamgraph</label>
+                            <label class="radio inline"><input type="radio" value="glyph" name="optradio">Glyphplot</label>
+                        </form>
+                    </div>
+                </div>
                 <span id="masterText"></span>
-<!--                 <svg id="masterSVG"></svg>
-                <svg id="detailSVG"></svg> -->
+
+                <svg id="masterSVG"></svg>
+                <svg id="detailSVG"></svg>
+
             </div>
         </section>
 

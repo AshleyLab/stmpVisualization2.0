@@ -2,8 +2,8 @@ var element, data, axisSpace, pathClicks;
 
 $(function() {
 
-	var streamElement = "#masterSVG"; 
-	var radarElement = "#detailSVG";
+	var element = "#graphics";
+
 	axisSpace = 15; 
 
 	var sampleData = [
@@ -20,16 +20,12 @@ $(function() {
 
 	];
 
+	data = sampleData; 
+
 	pathClicks = Array.apply(null, Array(4)).map(Number.prototype.valueOf,0); 
 	//keep track of how many times a layer is clicked so know how to sort it
 
-	data = sampleData; 
-	element = radarElement; 
-
-	// renderStreamgraph(streamElement, sampleData); 
-	// updateRadar(); 
-
-	renderGlyphplot(sampleData);
+	renderVisualization(true, element, data)
 
 	$("#uploadLink").on("click", function(event){
 
@@ -52,6 +48,12 @@ $(function() {
 			showError(); 
 
 		}
+
+	});
+
+	$("input[type=radio]").change(function() { 
+
+		renderVisualization(this.value == "stream", element, data)
 
 	});
 
@@ -201,7 +203,19 @@ function parseXLSX(XLSX) {
 
 } 
 
-function renderGlyphplot(data) { 
+function renderVisualization(isStreamgraph, element, data) {
+
+	if (isStreamgraph) {
+		renderStreamgraph("#masterSVG", data); 
+	} else { 
+		renderGlyphplot(element, data); 
+	}
+
+}
+
+function renderGlyphplot(element, data) { 
+
+	console.log(data);
 
 	var forKey = {"key" : "keyX", "xyz" : {"A" : 0, "B" : 0, "C": 0, "D": 0, "E" : 0, "F" : 0}};
 	data.unshift(forKey);
@@ -274,11 +288,15 @@ function renderStreamgraph(element, data) {
 	var stacker = d3.stack().keys(["A", "B", "C", "D"]).offset(d3.stackOffsetNone);
 	var stacked = stacker(flattened);
 
+	var tops = $.map(stacked[stacked.length - 1], function(element, index) {
+		return element[1];
+	});
+
 	var xScale = d3.scaleLinear() 
    		.domain([0, flattened.length - 1])
    		.range([0, w])
 
-	var yScale = d3.scaleLinear()
+	var yScale = d3.scaleLinear() //gives the height one layer should be 
    		.domain([
    			d3.min(stacked, function(layer) { return d3.min(layer, function(d) { return d[0]; }); }), 
    			d3.max(stacked, function(layer) { return d3.max(layer, function(d) { return d[1]; }); })
@@ -298,10 +316,14 @@ function renderStreamgraph(element, data) {
 				.x(function(d, i) { 
 					return xScale(i); 
 				}).y0(function(d, i) { 
+
 					return yScale(d[0]); 
+
 				}).y1(function(d, i) { 
-					return yScale(d[1]); }
-				);
+
+					return yScale(d[1]); 
+
+				});
 
 			return area(datum, index);
 
@@ -353,8 +375,7 @@ function renderStreamgraph(element, data) {
     		}); 
     }
 
-    customResizeTicks(data, yScale);
-
+    resizeTicks(tops, yScale, h - axisSpace);
 
     d3.selectAll(".tick line")
     	.attr("id", function(datum, index) {
@@ -372,22 +393,20 @@ function renderStreamgraph(element, data) {
 
 }
 
-function customResizeTicks(data, yScale) { 
+function resizeTicks(tops, yScale, drawingHeight) { 
 
 	d3.selectAll("g.xAxis g.tick line")
 		.attr("y2", function(datum, index) {
 
-			var streamValues = data[index].xyz;
-			var total = 0;  
+			if (index == 0 || index == data.length - 1) {
+				return 0; 
+			}
 
-			for (var key in streamValues) {
-				total += streamValues[key]; 
-			}		
+			console.log(tops[index] + " : " + yScale(tops[index]));
 
-			return (0 - yScale(15 - total + .1)); //why 15? //.1 so ends don't protrude
+			return -(drawingHeight - yScale(tops[index])); 
 
 		});
-
 
 }
  

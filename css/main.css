@@ -2,7 +2,32 @@
     font-family: "Avenir Next", Calibri, sans-serif;
 }
 
-/* STYLY THE GLYPHPLOT */
+form#visualizationType {
+    float: right;
+    color: white;
+}
+
+input[type="radio"] {
+    margin-right: 5px;
+}
+
+.leftSplit { 
+    width: 50%;
+    float: left;
+}
+
+.rightSplit { 
+    width: 50%;
+    float: right;
+    padding-right: 5px;
+}
+
+/*#visualizationType label { 
+    padding-left: 10;
+}*/
+
+
+/* STYLE THE GLYPHPLOT */
 
 g.legend .star-label {
     font-size: 11px; 
@@ -55,7 +80,7 @@ svg.starplot {
     background: #191a1b !important;
 }
 
-#visualizer div { 
+#visualizer > div { 
 
     background: #22262d;
 

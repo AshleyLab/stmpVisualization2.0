@@ -95,13 +95,7 @@ d3.starPlot = function() {
         pathData.push([r, scale(d(datum))]);
         r += radians;
 
-      //added by Charlie: spokes from origin to corners
-
     });
-
-    console.log("adding");
-
-    console.log(pathData);
       
     g.selectAll("line.spoke")
         .data(pathData)
@@ -136,7 +130,6 @@ d3.starPlot = function() {
         .text(title(datum))
         .style('text-anchor', 'middle')
 
-        console.log("end draw chart");
   }
 
   function nop() {
