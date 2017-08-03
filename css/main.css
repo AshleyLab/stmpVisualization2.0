@@ -12,7 +12,7 @@ g.legend .star-label {
 g.legend .star-axis { 
     stroke: #ccc;
     stroke-width: 2px;
-    stroke-dasharray: 4 5;
+    stroke-dasharray: 10000 0;
 }
 
 g.legend .star-origin { 

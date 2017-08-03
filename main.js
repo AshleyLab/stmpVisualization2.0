@@ -8,15 +8,15 @@ $(function() {
 
 	var sampleData = [
 		
-		{"key" : "key1", "xyz" : {"A" : 3,"B" : 2, "C" : 4, "D" : 5}},
-		{"key" : "key2", "xyz" : {"A" : 2,"B" : 4, "C" : 3, "D" : 1}},
-        {"key" : "key3", "xyz" : {"A" : 4,"B" : 3, "C" : 1, "D" : 4}},
-        {"key" : "key4", "xyz" : {"A" : 1,"B" : 5, "C" : 2, "D" : 3}},
-        {"key" : "key5", "xyz" : {"A" : 5,"B" : 4, "C" : 3, "D" : 2}},
-        {"key" : "key6", "xyz" : {"A" : 1,"B" : 2, "C" : 2, "D" : 5}},
-		{"key" : "key7", "xyz" : {"A" : 2,"B" : 3, "C" : 4, "D" : 3}},
-        {"key" : "key8", "xyz" : {"A" : 4,"B" : 1, "C" : 5, "D" : 2}},
-        {"key" : "key9", "xyz" : {"A" : 3,"B" : 3, "C" : 1, "D" : 4}}
+		{"key" : "key1", "xyz" : {"A" : 3,"B" : 2, "C" : 4, "D" : 5, "E" : 2, "F": 4}},
+		{"key" : "key2", "xyz" : {"A" : 2,"B" : 4, "C" : 3, "D" : 1, "E" : 3, "F": 1}},
+        {"key" : "key3", "xyz" : {"A" : 4,"B" : 3, "C" : 1, "D" : 4, "E" : 4, "F": 3}},
+        {"key" : "key4", "xyz" : {"A" : 1,"B" : 5, "C" : 2, "D" : 3, "E" : 1, "F": 4}},
+        {"key" : "key5", "xyz" : {"A" : 5,"B" : 4, "C" : 3, "D" : 2, "E" : 4, "F": 2}},
+        {"key" : "key6", "xyz" : {"A" : 1,"B" : 2, "C" : 2, "D" : 5, "E" : 3, "F": 2}},
+		{"key" : "key7", "xyz" : {"A" : 2,"B" : 3, "C" : 4, "D" : 3, "E" : 2, "F": 1}},
+        {"key" : "key8", "xyz" : {"A" : 4,"B" : 1, "C" : 5, "D" : 2, "E" : 5, "F": 3}},
+        {"key" : "key9", "xyz" : {"A" : 3,"B" : 3, "C" : 1, "D" : 4, "E" : 1, "F": 2}}
 
 	];
 
@@ -203,7 +203,7 @@ function parseXLSX(XLSX) {
 
 function renderGlyphplot(data) { 
 
-	var forKey = {"key" : "keyX", "xyz" : {"A" : 0, "B" : 0, "C": 0, "D": 0}};
+	var forKey = {"key" : "keyX", "xyz" : {"A" : 0, "B" : 0, "C": 0, "D": 0, "E" : 0, "F" : 0}};
 	data.unshift(forKey);
 
 	var margin = {
@@ -226,17 +226,20 @@ function renderGlyphplot(data) {
 	        function(d) { return scale(d.A); },
 	        function(d) { return scale(d.B); },
 	        function(d) { return scale(d.C); },
-	        function(d) { return scale(d.D); }
+	        function(d) { return scale(d.D); }, 
+	        function(d) { return scale(d.E); },
+	        function(d) { return scale(d.F); }
       	])
       	.labels([
 	        "A",
 	        "B",
 	        "C",
-	        "D"
+	        "D", 
+	        "E", 
+	        "F"
       	])
-      	.title(function(datum, index) { return "TITLE"; })
 	    .margin(margin)
-		.labelMargin(8);
+		.labelMargin(4);
 
     data.forEach(function(datum, index) {
 
