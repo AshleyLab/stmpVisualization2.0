@@ -22,7 +22,9 @@ $(function() {
 
 	data = sampleData; 
 
-	pathClicks = Array.apply(null, Array(4)).map(Number.prototype.valueOf,0); 
+	var features = Object.keys(sampleData[0].xyz).length; 
+
+	pathClicks = Array.apply(null, Array(features)).map(Number.prototype.valueOf,0); 
 	//keep track of how many times a layer is clicked so know how to sort it
 
 	data = renderVisualization(true, element, data); //weird things happen if renderVisualization doesn't return... ??
@@ -292,14 +294,11 @@ function renderStreamgraph(element, unpaddedData) {
 
 	element = "#" + id;
 
-	// console.log(unpaddedData);
 	data = deepClone(unpaddedData);
 
 	//add baseline data so no variants are on the egde of the graph 
-	data.unshift({"key" : "keyX", "xyz" : {"A" : 0, "B" : 0, "C" : 0, "D" : 0}}); 
-	data.push({"key" : "keyX", "xyz" : {"A" : 0, "B" : 0, "C" : 0, "D" : 0}});
-
-	// console.log(unpaddedData);
+	data.unshift({"key" : "keyX", "xyz" : {"A" : 0, "B" : 0, "C" : 0, "D" : 0, "E" : 0, "F" : 0}}); 
+	data.push({"key" : "keyX", "xyz" : {"A" : 0, "B" : 0, "C" : 0, "D" : 0, "E" : 0, "F" : 0}});
 
 	d3.select(element).html("");
 
@@ -310,7 +309,9 @@ function renderStreamgraph(element, unpaddedData) {
 		return element.xyz; 
 	}); 
 
-	var stacker = d3.stack().keys(["A", "B", "C", "D"]).offset(d3.stackOffsetNone);
+	var features = Object.keys(data[0].xyz);
+
+	var stacker = d3.stack().keys(features).offset(d3.stackOffsetNone);
 	var stacked = stacker(flattened);
 
 	var tops = $.map(stacked[stacked.length - 1], function(element, index) {
