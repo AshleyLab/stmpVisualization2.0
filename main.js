@@ -1,4 +1,4 @@
-var element, data, axisSpace, pathClicks; 
+var element, axisSpace, pathClicks; 
 
 $(function() {
 
@@ -25,7 +25,7 @@ $(function() {
 	pathClicks = Array.apply(null, Array(4)).map(Number.prototype.valueOf,0); 
 	//keep track of how many times a layer is clicked so know how to sort it
 
-	renderVisualization(true, element, data)
+	data = renderVisualization(true, element, data); //weird things happen if renderVisualization doesn't return... ??
 
 	$("#uploadLink").on("click", function(event){
 
@@ -53,7 +53,7 @@ $(function() {
 
 	$("input[type=radio]").change(function() { 
 
-		renderVisualization(this.value == "stream", element, data)
+		data = renderVisualization(this.value == "stream", element, data)
 
 	});
 
@@ -203,19 +203,30 @@ function parseXLSX(XLSX) {
 
 } 
 
-function renderVisualization(isStreamgraph, element, data) {
+function renderVisualization(isStreamgraph, element, localData) {
+
+	console.log(localData);
 
 	if (isStreamgraph) {
-		renderStreamgraph("#masterSVG", data); 
+
+		streamData = deepClone(localData);
+
+		renderStreamgraph("#masterSVG", streamData); 
+
 	} else { 
-		renderGlyphplot(element, data); 
+
+		renderGlyphplot(element, localData); 
+
 	}
+
+	return localData;
 
 }
 
 function renderGlyphplot(element, data) { 
 
-	console.log(data);
+	// console.log(data);
+	return; 
 
 	var forKey = {"key" : "keyX", "xyz" : {"A" : 0, "B" : 0, "C": 0, "D": 0, "E" : 0, "F" : 0}};
 	data.unshift(forKey);
@@ -270,13 +281,23 @@ function renderGlyphplot(element, data) {
 
 }
 
-function renderStreamgraph(element, data) {
+function deepClone(thing) {
+	return JSON.parse(JSON.stringify(thing));
+}
 
-	d3.select(element).html("");
+function renderStreamgraph(element, unpaddedData) {
+
+	// console.log(unpaddedData);
+	data = deepClone(unpaddedData);
 
 	//add baseline data so no variants are on the egde of the graph 
 	data.unshift({"key" : "keyX", "xyz" : {"A" : 0, "B" : 0, "C" : 0, "D" : 0}}); 
 	data.push({"key" : "keyX", "xyz" : {"A" : 0, "B" : 0, "C" : 0, "D" : 0}});
+
+	// console.log(unpaddedData);
+
+
+	d3.select(element).html("");
 
 	var h = $(element).height(); 
    	var w = $(element).width(); 
@@ -347,7 +368,6 @@ function renderStreamgraph(element, data) {
 		}).on("mouseover", function(datum, index) {
 
 			lastHTML = $("span#masterText").html(); 
-
 			var info = pathClicks[index] == 0 ? "<span id=\"sortInfo\">click to sort</span>" : ""; 
 			$("span#masterText").html(datum.key + info);
 
@@ -361,19 +381,9 @@ function renderStreamgraph(element, data) {
 		.append("g")
 		.attr("class", "xAxis")
 		.attr("transform", "translate(0," + (h - axisSpace) + ")")
-		.call(xAxis());
+		.call(xAxis(xScale, data));
 
 	var clipTicks = true; 
-
-	function xAxis() {		
-    	return d3.axisBottom(xScale)
-    		.tickSize(0) //custom resize later
-			.tickFormat(function(datum, index) {
-
-    			return index == 0 || index == data.length - 1 ? "" : data[index].key; 
-
-    		}); 
-    }
 
     resizeTicks(tops, yScale, h - axisSpace);
 
@@ -391,6 +401,18 @@ function renderStreamgraph(element, data) {
 
     // haze(element); 
 
+    console.log(unpaddedData);
+
+}
+
+function xAxis(xScale, data) {		
+	return d3.axisBottom(xScale)
+		.tickSize(0) //custom resize later
+		.tickFormat(function(datum, index) {
+
+			return index == 0 || index == data.length - 1 ? "" : data[index].key; 
+
+		}); 
 }
 
 function resizeTicks(tops, yScale, drawingHeight) { 
@@ -401,8 +423,6 @@ function resizeTicks(tops, yScale, drawingHeight) {
 			if (index == 0 || index == data.length - 1) {
 				return 0; 
 			}
-
-			console.log(tops[index] + " : " + yScale(tops[index]));
 
 			return -(drawingHeight - yScale(tops[index])); 
 
