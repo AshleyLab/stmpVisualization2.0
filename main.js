@@ -205,8 +205,6 @@ function parseXLSX(XLSX) {
 
 function renderVisualization(isStreamgraph, element, localData) {
 
-	console.log(localData);
-
 	if (isStreamgraph) {
 
 		streamData = deepClone(localData);
@@ -225,7 +223,6 @@ function renderVisualization(isStreamgraph, element, localData) {
 
 function renderGlyphplot(element, data) { 
 
-	// console.log(data);
 	return; 
 
 	var forKey = {"key" : "keyX", "xyz" : {"A" : 0, "B" : 0, "C": 0, "D": 0, "E" : 0, "F" : 0}};
@@ -287,6 +284,14 @@ function deepClone(thing) {
 
 function renderStreamgraph(element, unpaddedData) {
 
+	element = "#graphics";
+	id = "masterSVG";
+	d3.select(element)
+		.append("svg")
+		.attr("id", id);
+
+	element = "#" + id;
+
 	// console.log(unpaddedData);
 	data = deepClone(unpaddedData);
 
@@ -295,7 +300,6 @@ function renderStreamgraph(element, unpaddedData) {
 	data.push({"key" : "keyX", "xyz" : {"A" : 0, "B" : 0, "C" : 0, "D" : 0}});
 
 	// console.log(unpaddedData);
-
 
 	d3.select(element).html("");
 
