@@ -201,7 +201,7 @@ function parseXLSX(XLSX) {
 
 } 
 
-function renderGlyphplot(data) { 
+function renderGlyphplotSample(data) { 
 
 	var margin = {
 	  top: 20,
@@ -263,14 +263,9 @@ d3.csv("whiskies.csv")
       return d;
 
   }).get(function(error, rows) {
-  	console.log(error);
-
-    console.log(rows);
 
     rows.forEach(function(d, i) {
       star.includeLabels(i % 4 === 0 ? true : false);
-
-        console.log(d);
 
       d3.select('#graphics').append('svg')
         .attr('class', 'chart')
@@ -281,6 +276,54 @@ d3.csv("whiskies.csv")
           .call(star)
     });
   });
+
+}
+
+function renderGlyphplot(data) { 
+
+	var margin = {
+	  top: 20,
+	  right: 20,
+	  bottom: 20,
+	  left: 20
+	};
+
+	var width = 240 - margin.left - margin.right;
+	var height = 240 - margin.top - margin.bottom;
+
+	var scale = d3.scaleLinear()
+		.domain([0, 6])
+		.range([0, 200]);
+
+	var star = d3.starPlot()
+      	.width(width)
+      	.accessors([
+	        function(d) { return scale(d.A); },
+	        function(d) { return scale(d.B); },
+	        function(d) { return scale(d.C); },
+	        function(d) { return scale(d.D); }
+      	])
+      	.labels([
+	        'A',
+	        'B',
+	        'C',
+	        'D'
+      	])
+	    .title(function(d) { return "TITLE"})
+	    .margin(margin)
+		.labelMargin(8);
+
+    data.forEach(function(datum, index) {
+
+      d3.select('#graphics').append("svg")
+        .attr('class', 'chart')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', width + margin.top + margin.bottom)
+        .append("g")
+          .datum(datum.xyz)
+          .call(star)
+
+    });
 
 }
 
