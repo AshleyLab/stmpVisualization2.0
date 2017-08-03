@@ -282,10 +282,10 @@ d3.csv("whiskies.csv")
 function renderGlyphplot(data) { 
 
 	var margin = {
-	  top: 20,
-	  right: 20,
+	  top: 36,
+	  right: 50,
 	  bottom: 20,
-	  left: 20
+	  left: 50
 	};
 
 	var width = 240 - margin.left - margin.right;
@@ -293,7 +293,7 @@ function renderGlyphplot(data) {
 
 	var scale = d3.scaleLinear()
 		.domain([0, 6])
-		.range([0, 200]);
+		.range([0, 100]);
 
 	var star = d3.starPlot()
       	.width(width)
@@ -304,21 +304,21 @@ function renderGlyphplot(data) {
 	        function(d) { return scale(d.D); }
       	])
       	.labels([
-	        'A',
-	        'B',
-	        'C',
-	        'D'
+	        "A",
+	        "B",
+	        "C",
+	        "D"
       	])
-	    .title(function(d) { return "TITLE"})
+	    .title(function(d) { console.log(d); return "TITLE"; })
 	    .margin(margin)
 		.labelMargin(8);
 
     data.forEach(function(datum, index) {
 
-      d3.select('#graphics').append("svg")
-        .attr('class', 'chart')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', width + margin.top + margin.bottom)
+      d3.select("#graphics").append("svg")
+        .attr("class", "starplot")
+        .attr("width", width + margin.left + margin.right - 10)
+        .attr("height", width + margin.top + margin.bottom)
         .append("g")
           .datum(datum.xyz)
           .call(star)

@@ -2,13 +2,37 @@
     font-family: "Avenir Next", Calibri, sans-serif;
 }
 
-/*svg.starplot { 
-    background-color: white;
-    margin: 20px;
-}*/
+/* STYLY THE GLYPHPLOT */
 
-svg.chart { 
+svg.starplot { 
+    margin: 60px;
     background-color: white !important;
+    margin-bottom: 40px !important;
+}
+
+.star-title { 
+    font-size: 14px;
+}
+
+.star-label { 
+    font-size: 11px;
+}
+
+.star-origin { 
+    fill: #333;
+}
+
+.star-axis { 
+    stroke: #ccc;
+    stroke-width: 2px;
+    stroke-dasharray: 4 5;
+}
+
+.star-path { 
+    stroke: #444 !important;
+    stroke-width: 2px; 
+    fll: #709CB1;
+    fill-opacity: 0.6;
 }
 
 #uploadInput { 
