@@ -284,9 +284,35 @@ function deepClone(thing) {
 	return JSON.parse(JSON.stringify(thing));
 }
 
+function getColor(index, total, highlight) {
+
+	if (!highlight) {
+		return d3.interpolateSpectral(index / (total - 1));
+	} else {
+
+		var rgb = d3.interpolateSpectral(index / (total - 1)).replace(/ /g, ""); 
+		var rgbValues = rgb.substring(rgb.indexOf("(") + 1, rgb.length - 2); 
+		
+		var r = parseInt(rgbValues.split(",")[0]); 
+		var g = parseInt(rgbValues.split(",")[1]); 
+		var b = parseInt(rgbValues.split(",")[2]); 
+
+		var hsvOriginal = RGBtoHSV(r, g, b); 
+		var h = hsvOriginal.h; 
+		var v = hsvOriginal.v; 
+
+		var finalRGB = HSVtoRGB(h / 360, 100 / 100, v / 100);
+
+		return "rgb(" + finalRGB.r + "," + finalRGB.g + "," + finalRGB.b + ")";
+
+	}
+
+}
+
 function renderStreamgraph(element, unpaddedData) {
 
 	element = "#graphics";
+
 	id = "masterSVG";
 	d3.select(element)
 		.append("svg")
@@ -295,6 +321,8 @@ function renderStreamgraph(element, unpaddedData) {
 	element = "#" + id;
 
 	data = deepClone(unpaddedData);
+
+	var nVariants = data.length; 
 
 	//add baseline data so no variants are on the egde of the graph 
 	data.unshift({"key" : "keyX", "xyz" : {"A" : 0, "B" : 0, "C" : 0, "D" : 0, "E" : 0, "F" : 0}}); 
@@ -305,18 +333,14 @@ function renderStreamgraph(element, unpaddedData) {
 	var h = $(element).height(); 
    	var w = $(element).width(); 
 
-	var flattened = $.map(data, function(element, index) {
-		return element.xyz; 
-	}); 
+	var flattened = $.map(data, d => d.xyz); 
 
 	var features = Object.keys(data[0].xyz);
 
 	var stacker = d3.stack().keys(features).offset(d3.stackOffsetNone);
 	var stacked = stacker(flattened);
 
-	var tops = $.map(stacked[stacked.length - 1], function(element, index) {
-		return element[1];
-	});
+	var tops = $.map(stacked[stacked.length - 1], d => d[1]); 
 
 	var xScale = d3.scaleLinear() 
    		.domain([0, flattened.length - 1])
@@ -339,21 +363,16 @@ function renderStreamgraph(element, unpaddedData) {
 
 			var area = d3.area()
 				.curve(d3.curveCardinal)
-				.x(function(d, i) { 
-					return xScale(i); 
-				}).y0(function(d, i) { 
+				.x( (d, i) => xScale(i) )
+				.y0( d => yScale(d[0]) )
+				.y1( d => yScale(d[1]) );
 
-					return yScale(d[0]); 
-
-				}).y1(function(d, i) { 
-
-					return yScale(d[1]); 
-
-				});
 
 			return area(datum, index);
 
-		}).attr("fill", getRandomColor)
+		}).attr("fill", (d, i) => getColor(i, nVariants, false) )
+
+		
 		.on("click", function(datum, index) {
 
 			pathClicks[index]++; 
@@ -372,11 +391,17 @@ function renderStreamgraph(element, unpaddedData) {
 
 		}).on("mouseover", function(datum, index) {
 
+			d3.select(this)
+				.attr("fill", getColor(index, nVariants, true));
+
 			lastHTML = $("span#masterText").html(); 
 			var info = pathClicks[index] == 0 ? "<span id=\"sortInfo\">click to sort</span>" : ""; 
 			$("span#masterText").html(datum.key + info);
 
 		}).on("mouseout", function(datum, index) {
+
+			d3.select(this)
+				.attr("fill", getColor(index, nVariants, false));
 
 			$("span#masterText").html(lastHTML);
 
@@ -391,7 +416,15 @@ function renderStreamgraph(element, unpaddedData) {
 	var clipTicks = true; 
 
     resizeTicks(tops, yScale, h - axisSpace);
+    setTicks(); 
 
+    // haze(element); 
+
+}
+
+function setTicks() { 
+
+	
     d3.selectAll(".tick line")
     	.attr("id", function(datum, index) {
 
@@ -404,9 +437,6 @@ function renderStreamgraph(element, unpaddedData) {
 
     	});
 
-    // haze(element); 
-
-    console.log(unpaddedData);
 
 }
 
@@ -569,4 +599,69 @@ function scrollToElement(element) {
         scrollTop: $(element).offset().top
     }, 2000);
 
+}
+
+function HSVtoRGB(h, s, v) {
+    var r, g, b, i, f, p, q, t;
+    if (arguments.length === 1) {
+        s = h.s, v = h.v, h = h.h;
+    }
+    i = Math.floor(h * 6);
+    f = h * 6 - i;
+    p = v * (1 - s);
+    q = v * (1 - f * s);
+    t = v * (1 - (1 - f) * s);
+    switch (i % 6) {
+        case 0: r = v, g = t, b = p; break;
+        case 1: r = q, g = v, b = p; break;
+        case 2: r = p, g = v, b = t; break;
+        case 3: r = p, g = q, b = v; break;
+        case 4: r = t, g = p, b = v; break;
+        case 5: r = v, g = p, b = q; break;
+    }
+    return {
+        r: Math.round(r * 255),
+        g: Math.round(g * 255),
+        b: Math.round(b * 255)
+    };
+}
+
+function RGBtoHSV () {
+    var rr, gg, bb,
+        r = arguments[0] / 255,
+        g = arguments[1] / 255,
+        b = arguments[2] / 255,
+        h, s,
+        v = Math.max(r, g, b),
+        diff = v - Math.min(r, g, b),
+        diffc = function(c){
+            return (v - c) / 6 / diff + 1 / 2;
+        };
+
+    if (diff == 0) {
+        h = s = 0;
+    } else {
+        s = diff / v;
+        rr = diffc(r);
+        gg = diffc(g);
+        bb = diffc(b);
+
+        if (r === v) {
+            h = bb - gg;
+        }else if (g === v) {
+            h = (1 / 3) + rr - bb;
+        }else if (b === v) {
+            h = (2 / 3) + gg - rr;
+        }
+        if (h < 0) {
+            h += 1;
+        }else if (h > 1) {
+            h -= 1;
+        }
+    }
+    return {
+        h: Math.round(h * 360),
+        s: Math.round(s * 100),
+        v: Math.round(v * 100)
+    };
 }

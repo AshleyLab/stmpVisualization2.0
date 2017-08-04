@@ -146,10 +146,6 @@ path:not(.domain) {
     stroke: white;
 }
 
-path:hover:not(.domain) { 
-    fill: grey;
-}
-
 g.tick line { 
     stroke-width: 8;
     opacity: .1;
