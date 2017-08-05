@@ -510,9 +510,14 @@ function renderRadar() {
 
 	var element = "detailSVG";
 
-	d3.select(outerElement)
-		.append("svg")
-		.attr("id", element); 
+	if (d3.select("#" + element).size() == 0) { 
+
+		d3.select(outerElement)
+			.append("svg")
+			.attr("id", element); 
+
+	}
+
 
 	element = "#" + element;
 
