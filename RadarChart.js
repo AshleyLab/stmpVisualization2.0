@@ -157,6 +157,7 @@ function RadarChart(id, data, options) {
 	blobWrapper
 		.append("path")
 		.attr("class", "radarArea")
+		.attr("colorIndex", (d, i) => i)
 		.attr("d", function(d,i) { return radarLine(d); })
 		.style("fill", function(d,i) { return cfg.color(i); })
 		.style("fill-opacity", cfg.opacityArea)
@@ -192,9 +193,19 @@ function RadarChart(id, data, options) {
 		.enter().append("circle")
 		.attr("class", "radarCircle")
 		.attr("r", cfg.dotRadius)
+		.attr("colorIndex", (d, i, j) => j)
 		.attr("cx", function(d,i){ return rScale(d.value) * Math.cos(angleSlice*i - Math.PI/2); })
 		.attr("cy", function(d,i){ return rScale(d.value) * Math.sin(angleSlice*i - Math.PI/2); })
-		.style("fill", function(d,i,j) { return cfg.color(j); })
+		.style("fill", function(d,i,j) { 
+
+			console.log("finding fill");
+
+			var colorIndex = d3.select(this.parentNode).select(".radarArea").attr("colorIndex");
+			console.log(colorIndex);
+
+			return cfg.color(colorIndex); 
+
+		})
 		.style("fill-opacity", 0.8);
 
 	/////////////////////////////////////////////////////////
@@ -225,6 +236,7 @@ function RadarChart(id, data, options) {
 				.attr('x', newX)
 				.attr('y', newY)
 				.text(d.value)
+				.style("fill", "white")
 				.transition().duration(200)
 				.style('opacity', 1);
 		})
