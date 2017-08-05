@@ -1,4 +1,4 @@
-var element, axisSpace, pathClicks; 
+var element, axisSpace, pathClicks, outerElement, data; 
 
 $(function() {
 
@@ -21,6 +21,7 @@ $(function() {
 	];
 
 	data = sampleData; 
+	outerElement = "#graphics";
 
 	var features = Object.keys(sampleData[0].xyz).length; 
 
@@ -205,16 +206,27 @@ function parseXLSX(XLSX) {
 
 } 
 
+function removeSVGs(element) {
+
+	d3.select(element)
+		.selectAll("svg")
+		.remove(); 
+
+}
+
 function renderVisualization(isStreamgraph, element, localData) {
 
 	if (isStreamgraph) {
 
-		streamData = deepClone(localData);
+		removeSVGs(element);
 
-		renderStreamgraph("#masterSVG", streamData); 
+		streamData = prepareDataForStreamGraph(localData);
+		renderStreamgraph("#graphics", streamData); 
+		renderRadar();
 
 	} else { 
 
+		removeSVGs(element);
 		renderGlyphplot(element, localData); 
 
 	}
@@ -309,37 +321,35 @@ function getColor(index, total, highlight) {
 
 }
 
-function renderStreamgraph(element, unpaddedData) {
+function prepareDataForStreamGraph(d) {
 
-	element = "#graphics";
-
-	id = "masterSVG";
-	d3.select(element)
-		.append("svg")
-		.attr("id", id);
-
-	element = "#" + id;
-
-	data = deepClone(unpaddedData);
-
-	var nVariants = data.length; 
+	data = deepClone(d);
 
 	//add baseline data so no variants are on the egde of the graph 
 	data.unshift({"key" : "keyX", "xyz" : {"A" : 0, "B" : 0, "C" : 0, "D" : 0, "E" : 0, "F" : 0}}); 
 	data.push({"key" : "keyX", "xyz" : {"A" : 0, "B" : 0, "C" : 0, "D" : 0, "E" : 0, "F" : 0}});
 
-	d3.select(element).html("");
+	return data; 
+}
+
+function renderStreamgraph(outerElement, data) {
+
+	var features = Object.keys(data[2].xyz); //get keys from nondummy elements (there for now)
+	var nVariants = data.length - 2; //subtract dummy elements (there for now) 
+
+	var element = "masterSVG";
+
+	d3.select(outerElement)
+		.append("svg")
+		.attr("id", element);
+
+	element = "#" + element; 
 
 	var h = $(element).height(); 
    	var w = $(element).width(); 
 
 	var flattened = $.map(data, d => d.xyz); 
-
-	var features = Object.keys(data[0].xyz);
-
-	var stacker = d3.stack().keys(features).offset(d3.stackOffsetNone);
-	var stacked = stacker(flattened);
-
+	var stacked = d3.stack().keys(features).offset(d3.stackOffsetNone)(flattened);
 	var tops = $.map(stacked[stacked.length - 1], d => d[1]); 
 
 	var xScale = d3.scaleLinear() 
@@ -354,25 +364,30 @@ function renderStreamgraph(element, unpaddedData) {
 
    	var lastHTML = ""; 
 
+   	var area = d3.area()
+		.curve(d3.curveCardinal)
+		.x(function(datum, index) {
+
+			var pos = xScale(index);
+
+			// if (index == 0) { 
+			// 	pos = pos + (xScale(1) - pos) / 2; 
+			// } else if (index == nVariants - 1) {
+			// 	pos = pos - (pos - xScale(nVariants - 2)) / 2; 
+			// }
+
+			return pos;
+
+		}).y0( d => yScale(d[0]) )
+		.y1( d => yScale(d[1]) );
+
 	d3.select(element)
 		.selectAll("path")
 		.data(stacked)
 		.enter()
 		.append("path")
-		.attr("d", function(datum, index) {
-
-			var area = d3.area()
-				.curve(d3.curveCardinal)
-				.x( (d, i) => xScale(i) )
-				.y0( d => yScale(d[0]) )
-				.y1( d => yScale(d[1]) );
-
-
-			return area(datum, index);
-
-		}).attr("fill", (d, i) => getColor(i, nVariants, false) )
-
-		
+		.attr("d", area)
+		.attr("fill", (d, i) => getColor(i, nVariants, false) )
 		.on("click", function(datum, index) {
 
 			pathClicks[index]++; 
@@ -387,7 +402,6 @@ function renderStreamgraph(element, unpaddedData) {
 			$("span#masterText").html(finalHTML); 
 
 			renderStreamgraph(element, newData);
-
 
 		}).on("mouseover", function(datum, index) {
 
@@ -413,8 +427,6 @@ function renderStreamgraph(element, unpaddedData) {
 		.attr("transform", "translate(0," + (h - axisSpace) + ")")
 		.call(xAxis(xScale, data));
 
-	var clipTicks = true; 
-
     resizeTicks(tops, yScale, h - axisSpace);
     setTicks(); 
 
@@ -424,7 +436,6 @@ function renderStreamgraph(element, unpaddedData) {
 
 function setTicks() { 
 
-	
     d3.selectAll(".tick line")
     	.attr("id", function(datum, index) {
 
@@ -433,10 +444,12 @@ function setTicks() {
     	}).on("click", function(datum, index) {
 
     		d3.select(this).classed("selectedForRadar", !d3.select(this).classed("selectedForRadar")); //toggle the class
-    		updateRadar(); 
+
+    		console.log("render radar"); 
+
+    		renderRadar(); 
 
     	});
-
 
 }
 
@@ -493,30 +506,34 @@ function haze(element) {
 
 }
 
-function updateRadar() { 
+function renderRadar() { 
 
-	var selectedVariants = []; 
+	var element = "detailSVG";
+
+	d3.select(outerElement)
+		.append("svg")
+		.attr("id", element); 
+
+	element = "#" + element;
+
+	//get data
+
+	var keys = [];
 
 	d3.selectAll(".selectedForRadar").each(function(element, index){
 
 		var id = d3.select(this).attr("id");
-		selectedVariants.push(parseInt(id.substring(id.indexOf("e") + 1))); //TODO: actually get key
+		keys.push(parseInt(id.substring(id.indexOf("e") + 1))); //TODO: actually get key
 
 	});
 
-	var selectedData = $.map(selectedVariants, function(element, index) {
-		return data[element];
-	});
+	var selectedData = $.map(keys, key => data[key]); //the data actually selected by the user
 
-	// renderRadar(element, selectedData);
+	console.log(selectedData);
+	
+	//end get data
 
-}
-
-function renderRadar(element, data) { 
-
-	data = data.slice(0, 3)
-
-	var formatted = $.map(data, function(variant, index) {
+	var formatted = $.map(selectedData, function(variant, index) {
 		var toPlot = []; 
 		for (var key in variant.xyz) {
 			toPlot.push({
