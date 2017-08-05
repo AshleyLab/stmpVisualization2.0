@@ -65,10 +65,10 @@ function RadarChart(id, data, options) {
 	
 	//Filter for the outside glow
 	var filter = g.append('defs').append('filter').attr('id','glow'),
-		feGaussianBlur = filter.append('feGaussianBlur').attr('stdDeviation','2.5').attr('result','coloredBlur'),
-		feMerge = filter.append('feMerge'),
-		feMergeNode_1 = feMerge.append('feMergeNode').attr('in','coloredBlur'),
-		feMergeNode_2 = feMerge.append('feMergeNode').attr('in','SourceGraphic');
+		// feGaussianBlur = filter.append('feGaussianBlur').attr('stdDeviation','2.5').attr('result','coloredBlur'),
+		feMerge = filter.append('feMerge');
+		// feMergeNode_1 = feMerge.append('feMergeNode').attr('in','coloredBlur');
+		feMergeNode_2 = feMerge.append('feMergeNode');//attr('in','SourceGraphic');
 
 	/////////////////////////////////////////////////////////
 	/////////////// Draw the Circular grid //////////////////
@@ -84,9 +84,9 @@ function RadarChart(id, data, options) {
 		.append("circle")
 		.attr("class", "gridCircle")
 		.attr("r", function(d, i){return radius/cfg.levels*d;})
-		.style("fill", "#CDCDCD")
 		.style("stroke", "#CDCDCD")
-		.style("fill-opacity", cfg.opacityCircles)
+		.style("stroke-width", 2)
+		.style("fill-opacity", 0)
 		.style("filter" , "url(#glow)");
 
 	//Text indicating at what % each level is
@@ -99,7 +99,7 @@ function RadarChart(id, data, options) {
 	   .attr("dy", "0.4em")
 	   .style("font-size", "10px")
 	   .attr("fill", "#737373")
-	   .text(function(d,i) { return "X"; /*Format(maxValue * d/cfg.levels);*/ });
+	   .text(function(d,i) { return d; });
 
 	/////////////////////////////////////////////////////////
 	//////////////////// Draw the axes //////////////////////
@@ -127,6 +127,7 @@ function RadarChart(id, data, options) {
 		.style("font-size", "11px")
 		.attr("text-anchor", "middle")
 		.attr("dy", "0.35em")
+		.style("fill", "white")
 		.attr("x", function(d, i){ return rScale(maxValue * cfg.labelFactor) * Math.cos(angleSlice*i - Math.PI/2); })
 		.attr("y", function(d, i){ return rScale(maxValue * cfg.labelFactor) * Math.sin(angleSlice*i - Math.PI/2); })
 		.text(function(d){return d})
@@ -161,13 +162,13 @@ function RadarChart(id, data, options) {
 		.style("fill-opacity", cfg.opacityArea)
 		.on('mouseover', function (d,i){
 			//Dim all blobs
-			d3.selectAll(".radarArea")
-				.transition().duration(200)
-				.style("fill-opacity", 0.1); 
+			// d3.selectAll(".radarArea")
+			// 	.transition().duration(200)
+			// 	.style("fill-opacity", 0.1); 
 			//Bring back the hovered over blob
-			d3.select(this)
-				.transition().duration(200)
-				.style("fill-opacity", 0.7);	
+			// d3.select(this)
+			// 	.transition().duration(200)
+			// 	.style("fill-opacity", 0.7);	
 		})
 		.on('mouseout', function(){
 			//Bring back all blobs
@@ -223,7 +224,7 @@ function RadarChart(id, data, options) {
 			tooltip
 				.attr('x', newX)
 				.attr('y', newY)
-				.text(Format(d.value))
+				.text(d.value)
 				.transition().duration(200)
 				.style('opacity', 1);
 		})
