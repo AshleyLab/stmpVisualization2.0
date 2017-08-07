@@ -22,9 +22,13 @@ input[type="radio"] {
     padding-right: 5px;
 }
 
-/*#visualizationType label { 
-    padding-left: 10;
-}*/
+.rightSplit label {
+  margin-right: .5rem;
+}
+
+.rightSplit label input { 
+  margin-right: .5rem;
+}
 
 
 /* STYLE THE GLYPHPLOT */

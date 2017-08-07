@@ -20,6 +20,8 @@ $(function() {
 
 	];
 
+	console.log(sampleData);
+
 	data = sampleData; 
 	outerElement = "#graphics";
 
@@ -214,7 +216,9 @@ function removeSVGs(element) {
 
 }
 
-function renderVisualization(isStreamgraph, element, localData) {
+function renderVisualization(isStreamgraph, element, lD) {
+
+	var localData = deepClone(lD);
 
 	if (isStreamgraph) {
 
@@ -231,13 +235,13 @@ function renderVisualization(isStreamgraph, element, localData) {
 
 	}
 
-	return localData;
+	return lD;
 
 }
 
 function renderGlyphplot(element, data) { 
 
-	return; 
+	console.log("rendering glyphplot"); 
 
 	var forKey = {"key" : "keyX", "xyz" : {"A" : 0, "B" : 0, "C": 0, "D": 0, "E" : 0, "F" : 0}};
 	data.unshift(forKey);
@@ -332,12 +336,24 @@ function prepareDataForStreamgraph(d) {
 	return data; 
 }
 
+var counter = 0; 
+
 function renderStreamgraph(outerElement, data) {
+
+	counter++; 
+
+
+	console.log(data);
 
 	var features = Object.keys(data[2].xyz); //get keys from nondummy elements (there for now)
 	var nVariants = data.length - 2; //subtract dummy elements (there for now) 
 
 	var element = "masterSVG";
+
+	d3.select("#" + element)
+		.selectAll("*").remove();
+
+	console.log(d3.select("#" + element).selectAll("*").size());
 
 	d3.select(outerElement)
 		.append("svg")
@@ -462,8 +478,15 @@ function xAxis(xScale, data) {
 
 function resizeTicks(tops, yScale, drawingHeight) { 
 
+	console.log(tops);
+
+	console.log(d3.selectAll("g.xAxis g.tick line").size());
+
 	d3.selectAll("g.xAxis g.tick line")
 		.attr("y2", function(datum, index) {
+
+			console.log(datum); 
+			console.log(index);
 
 			if (index == 0 || index == data.length - 1) {
 				return 0; 
@@ -472,6 +495,8 @@ function resizeTicks(tops, yScale, drawingHeight) {
 			return -(drawingHeight - yScale(tops[index])); 
 
 		});
+
+
 
 }
  
@@ -594,7 +619,7 @@ function getRadarData() {
 
 function sortOnKeys(data, keys, increasing) { 
 
-	return data.sort(function(a, b) {
+	var sorted = data.sort(function(a, b) {
 
 		var aEl = a; 
 		var bEl = b; 
@@ -608,6 +633,10 @@ function sortOnKeys(data, keys, increasing) {
 
 	}); 
 
+	sorted.unshift({"key" : "keyX", "xyz" : {"A" : 0, "B" : 0, "C" : 0, "D" : 0, "E" : 0, "F" : 0}}); 
+	sorted.push({"key" : "keyX", "xyz" : {"A" : 0, "B" : 0, "C" : 0, "D" : 0, "E" : 0, "F" : 0}});
+
+	return sorted; 
 }
 
 function getRandomColor() {
