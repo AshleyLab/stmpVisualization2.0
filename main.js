@@ -521,24 +521,13 @@ function renderRadar() {
 
 	element = "#" + element;
 
-	//get data
+	var data = getRadarData(); 
 
-	var keys = [];
-
-	d3.selectAll(".selectedForRadar").each(function(element, index){
-
-		var id = d3.select(this).attr("id");
-		keys.push(parseInt(id.substring(id.indexOf("e") + 1))); //TODO: actually get key
-
-	});
-
-	var selectedData = $.map(keys, key => data[key]); //the data actually selected by the user
-
-	console.log(selectedData);
+	if (data.length == 0) {
+		return d3.select(element).selectAll("*").remove(); 
+	}
 	
-	//end get data
-
-	var formatted = $.map(selectedData, function(variant, index) {
+	var formatted = $.map(data, function(variant, index) {
 		var toPlot = []; 
 		for (var key in variant.xyz) {
 			toPlot.push({
@@ -559,13 +548,29 @@ function renderRadar() {
 		w: 200,
 		h: 200,
 		margin: margin,
-		maxValue: 6,
 	  	levels: 5,
 	  	roundStrokes: true,
 	  	color: color
 	};
 
 	RadarChart(element, formatted, radarChartOptions);
+
+}
+
+function getRadarData() { 
+
+	var keys = [];
+
+	d3.selectAll(".selectedForRadar").each(function(element, index){
+
+		var id = d3.select(this).attr("id");
+		keys.push(parseInt(id.substring(id.indexOf("e") + 1))); //TODO: actually get key
+
+	});
+
+	var selectedData = $.map(keys, key => data[key]); //the data actually selected by the user
+
+	return selectedData;
 
 }
 

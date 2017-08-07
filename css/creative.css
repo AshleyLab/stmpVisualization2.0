@@ -77,6 +77,10 @@ img::-moz-selection {
   color: white;
   background: transparent; }
 
+.navbar-shrink li a { 
+  color: #f05f40 !important;
+}
+
 body {
   -webkit-tap-highlight-color: #222222; }
 

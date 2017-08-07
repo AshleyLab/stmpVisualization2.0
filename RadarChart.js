@@ -21,6 +21,9 @@ function RadarChart(id, data, options) {
 	 roundStrokes: false,	//If true the area and stroke will follow a round path (cardinal-closed)
 	 color: d3.scaleOrdinal(d3.schemeCategory10)	//Color function
 	};
+
+		console.log(cfg.maxValue);
+
 	
 	//Put all of the options into a variable called cfg
 	if('undefined' !== typeof options){
@@ -29,8 +32,29 @@ function RadarChart(id, data, options) {
 	  }//for i
 	}//if
 	
+
 	//If the supplied maxValue is smaller than the actual one, replace by the max in the data
-	var maxValue = Math.max(cfg.maxValue, d3.max(data, function(i){return d3.max(i.map(function(o){return o.value;}))}));
+
+	console.log(data);
+
+	console.log(cfg.maxValue);
+	var maxValue = Math.max(cfg.maxValue, 
+		d3.max(data, 
+			function(i){
+				return d3.max(
+					i.map(
+						function(o){
+							console.log(o.value);
+							return o.value;
+						}
+					)
+				)
+			}
+		)
+	);
+
+	console.log(maxValue);
+	maxValue = 5; 
 		
 	var allAxis = (data[0].map(function(i, j){return i.axis})),	//Names of each axis
 		total = allAxis.length,					//The number of different axes
@@ -98,8 +122,8 @@ function RadarChart(id, data, options) {
 	   .attr("y", function(d){return -d*radius/cfg.levels;})
 	   .attr("dy", "0.4em")
 	   .style("font-size", "10px")
-	   .attr("fill", "#737373")
-	   .text(function(d,i) { return d; });
+	   .attr("fill", "white")
+	   .text(function(d,i) { return ""; /*d;*/ });
 
 	/////////////////////////////////////////////////////////
 	//////////////////// Draw the axes //////////////////////
@@ -158,7 +182,7 @@ function RadarChart(id, data, options) {
 		.append("path")
 		.attr("class", "radarArea")
 		.attr("colorIndex", (d, i) => i)
-		.attr("d", function(d,i) { return radarLine(d); })
+		.attr("d", function(d,i) { console.log(d); return radarLine(d); })
 		.style("fill", function(d,i) { return cfg.color(i); })
 		.style("fill-opacity", cfg.opacityArea)
 		.on('mouseover', function (d,i){
@@ -198,10 +222,7 @@ function RadarChart(id, data, options) {
 		.attr("cy", function(d,i){ return rScale(d.value) * Math.sin(angleSlice*i - Math.PI/2); })
 		.style("fill", function(d,i,j) { 
 
-			console.log("finding fill");
-
 			var colorIndex = d3.select(this.parentNode).select(".radarArea").attr("colorIndex");
-			console.log(colorIndex);
 
 			return cfg.color(colorIndex); 
 
