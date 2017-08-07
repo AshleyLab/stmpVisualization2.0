@@ -220,7 +220,7 @@ function renderVisualization(isStreamgraph, element, localData) {
 
 		removeSVGs(element);
 
-		streamData = prepareDataForStreamGraph(localData);
+		streamData = prepareDataForStreamgraph(localData);
 		renderStreamgraph("#graphics", streamData); 
 		renderRadar();
 
@@ -321,7 +321,7 @@ function getColor(index, total, highlight) {
 
 }
 
-function prepareDataForStreamGraph(d) {
+function prepareDataForStreamgraph(d) {
 
 	data = deepClone(d);
 
@@ -444,9 +444,6 @@ function setTicks() {
     	}).on("click", function(datum, index) {
 
     		d3.select(this).classed("selectedForRadar", !d3.select(this).classed("selectedForRadar")); //toggle the class
-
-    		console.log("render radar"); 
-
     		renderRadar(); 
 
     	});
@@ -458,7 +455,7 @@ function xAxis(xScale, data) {
 		.tickSize(0) //custom resize later
 		.tickFormat(function(datum, index) {
 
-			return index == 0 || index == data.length - 1 ? "" : data[index].key; 
+			return index == 0 || index == data.length - 1 ? "" : data[index].key; //subtract one to account for ghost data
 
 		}); 
 }
@@ -521,13 +518,13 @@ function renderRadar() {
 
 	element = "#" + element;
 
-	var data = getRadarData(); 
+	var radarData = getRadarData(); 
 
-	if (data.length == 0) {
+	if (radarData.length == 0) {
 		return d3.select(element).selectAll("*").remove(); 
 	}
 	
-	var formatted = $.map(data, function(variant, index) {
+	var formatted = $.map(radarData, function(variant, index) {
 		var toPlot = []; 
 		for (var key in variant.xyz) {
 			toPlot.push({
@@ -538,6 +535,8 @@ function renderRadar() {
 
 		return [toPlot]; 
 	}); 
+
+	console.log(formatted);
 
 	var color = d3.scaleLinear()
 				.range(["#EDC951","#CC333F","#00A0B0"]);
@@ -557,6 +556,8 @@ function renderRadar() {
 
 }
 
+var lastRadarData = []; 
+
 function getRadarData() { 
 
 	var keys = [];
@@ -564,13 +565,30 @@ function getRadarData() {
 	d3.selectAll(".selectedForRadar").each(function(element, index){
 
 		var id = d3.select(this).attr("id");
-		keys.push(parseInt(id.substring(id.indexOf("e") + 1))); //TODO: actually get key
+		keys.push(parseInt(id.substring(id.indexOf("e") + 1)) - 1); //TODO: actually get key
 
 	});
 
 	var selectedData = $.map(keys, key => data[key]); //the data actually selected by the user
+	var indexOfLatestItem; 
 
-	return selectedData;
+	//make sure latest add is last in array
+	var finalData = [];
+
+	$.grep(lastRadarData, function(element) {
+        if ($.inArray(element, selectedData) != -1) { 
+        	finalData.push(element);
+        } 
+	});
+
+	$.grep(selectedData, function(element) {
+		if ($.inArray(element, lastRadarData) == -1) { //put this new element at the end
+			finalData.push(element);
+		};
+	});
+
+	lastRadarData = finalData; 
+	return finalData;
 
 }
 
