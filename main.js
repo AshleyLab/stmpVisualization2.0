@@ -478,7 +478,7 @@ function renderStreamgraph(outerElement, data) {
 
 	console.log(d3.selectAll(".tick").size());
 
-    // resizeTicks(tops, yScale, h - axisSpace);
+    resizeTicks(tops, yScale, h - axisSpace);
     // setTicks(); 
 
     // haze(element); 
@@ -507,6 +507,7 @@ function xAxis(xScale, data) {
 
 	return d3.axisBottom(xScale)
 		.tickSize(0) //custom resize later
+		.ticks(data.length)
 		.tickFormat(function(datum, index) {
 
 			console.log(d3.selectAll(".tick").size());
@@ -538,7 +539,10 @@ function resizeTicks(tops, yScale, drawingHeight) {
 
 		});
 
+	d3.selectAll("g.tick text")
+		.attr("transform","rotate(90)");
 
+	console.log(d3.selectAll("g.xAxis text").size());
 
 }
  
