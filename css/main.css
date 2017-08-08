@@ -1,15 +1,182 @@
+* {
+    font-family: "Avenir Next", Calibri, sans-serif;
+}
+
+form#visualizationType {
+    float: right;
+    color: white;
+}
+
+input[type="radio"] {
+    margin-right: 5px;
+}
+
+.leftSplit { 
+    width: 50%;
+    float: left;
+}
+
+.rightSplit { 
+    width: 50%;
+    float: right;
+    padding-right: 5px;
+}
+
+.rightSplit label {
+  margin-right: .5rem;
+}
+
+.rightSplit label input { 
+  margin-right: .5rem;
+}
+
+
+/* STYLE THE GLYPHPLOT */
+
+g.legend .star-label {
+    font-size: 11px; 
+    fill: white ;
+}
+
+g.legend .star-axis { 
+    stroke: #ccc;
+    stroke-width: 2px;
+    stroke-dasharray: 10000 0;
+}
+
+g.legend .star-origin { 
+    fill: white;
+}
+
+.star-label { 
+    font-size: 0px;
+}
+
+.star-axis .star-axis { 
+    stroke-width: 0px;
+}
+
+svg.starplot { 
+    background-color: #22262d;
+    margin: 10px;
+    display: inline-block;
+    border: 2px solid white;
+}
+
+.star-path, .spoke { 
+    stroke: white;
+    stroke-width: 1.5px; 
+}
+
+.star-path { 
+    fill: white;
+    fill-opacity: 0;
+}
+
 #uploadInput { 
 	display: none;
 }
 
-.row { 
-	background: green;
+#visualizer { 
+    border: 0px solid white;
+    border-top-width: 4px;
+    padding: 20px;
+    background: #191a1b !important;
 }
 
-svg { 
-	background: red;
-	width: 100%;
+#visualizer > div { 
+
+    background: #22262d;
+
+    border: 0px solid white;
+    border-left-width: 2px;
+    border-radius: 3px;
+
 }
+
+span#masterText { 
+    display: block;
+    height: 40px;
+    font-size: 15px !important;
+}
+
+span#sortInfo { 
+    font-size: 10px;
+    padding-left: 0px !important;
+    font-style: italic;
+}
+
+span#overview { 
+
+    font-size: 20px;
+    
+}
+
+#textContainer span {
+    display: block;
+    color: white;
+    padding-left: 20px;
+    font-size: 30px;
+}
+
+#graphics span { 
+    display: block;
+    color: white;
+        padding-left: 5px;
+
+}
+
+#graphics {
+    padding-top: 10px;
+    margin-top: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+#masterSVG { 
+	background: #22262d;
+    width: 100%;
+    display: block;
+/*    height: 200px;
+*/}
+
+#detailSVG { 
+    margin-top: 20px;
+    border: 2px solid white;
+    height: 600px;
+}
+
+path:not(.domain) {
+    stroke: white;
+}
+
+g.tick line { 
+    stroke-width: 8;
+    opacity: .1;
+    stroke: white;
+}
+
+g.tick text { 
+    fill: white;
+}
+
+
+g.xAxis path.domain { 
+    /*opacity: .2;
+    stroke-width: 10;*/
+    /*fill: orange;*/
+    stroke: white;
+}
+
+g.tick line:hover, 
+g.tick line.selectedForRadar { 
+    stroke: orange; 
+}
+
+g.tick text:hover { 
+    fill: orange;
+/*    dy: 4em !important;
+*/}
 
 /*SPINNER*/
 #spinnerContainer { 
