@@ -220,6 +220,10 @@ function parse_crude_json(crudeJson){
 		//alert we should change to a system based on indexing variants on a unique key
 		if(includedSpreadsheetColumns.length > 0){
 			visualizationJson[i] = variantJson;
+			console.log("marsielles");
+		}
+		else{
+			console.log("paris");
 		}
 	}
 
