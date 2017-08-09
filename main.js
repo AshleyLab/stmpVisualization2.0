@@ -47,7 +47,7 @@ $(function() {
 
 	];
 
-	console.log(sampleData);
+	// console.log(sampleData);
 
 	data = sampleData; 
 	outerElement = "#graphics";
@@ -76,7 +76,7 @@ $(function() {
 
 		} else { 
 
-			showError(); 
+			// showError(); 
 
 		}
 
@@ -96,7 +96,9 @@ function validateXLSX(file) {
 
 	var extension = file.name.split(".").slice(-1)[0]; 
 
-	return extension == ".xlsx" || extension == ".xls"; 
+	// return extension == ".xlsx" || extension == ".xls"; 
+
+	return true; 
 
 }
 
@@ -129,6 +131,7 @@ function readXls(xls) {
 }
 
 function turn_workbook_into_json(workbook){
+	console.log("turn_workbook")
 	var sheetNames = workbook.SheetNames;
 	console.log(sheetNames);
 	for(i in sheetNames){
@@ -219,7 +222,10 @@ function parse_crude_json(crudeJson){
 			visualizationJson[i] = variantJson;
 		}
 	}
-	return visualizationJson;
+
+	console.log("at end of parse_crude_json");
+	
+	console.log(visualizationJson);
 }
 
 function initialize_variant_json_struct(){
@@ -455,7 +461,7 @@ function renderStreamgraph(outerElement, data) {
 	counter++; 
 
 
-	console.log(data);
+	// console.log(data);
 
 	var features = Object.keys(data[2].xyz); //get keys from nondummy elements (there for now)
 	var nVariants = data.length - 2; //subtract dummy elements (there for now) 
@@ -465,7 +471,7 @@ function renderStreamgraph(outerElement, data) {
 	d3.select("#" + element)
 		.selectAll("*").remove();
 
-	console.log(d3.select("#" + element).selectAll("*").size());
+	// console.log(d3.select("#" + element).selectAll("*").size());
 
 	d3.select(outerElement)
 		.append("svg")
@@ -549,19 +555,19 @@ function renderStreamgraph(outerElement, data) {
 
 		});
 
-	console.log(data);
+	// console.log(data);
 
 	d3.select(element)
 		.append("g")
 		.attr("class", "xAxis")
 		.attr("transform", "translate(0," + (h - axisSpace) + ")"); 
 
-	console.log(d3.selectAll(".tick").size());
+	// console.log(d3.selectAll(".tick").size());
 
 	d3.select(".xAxis")
 		.call(xAxis(xScale, data));
 
-	console.log(d3.selectAll(".tick").size());
+	// console.log(d3.selectAll(".tick").size());
 
     resizeTicks(tops, yScale, h - axisSpace);
     // setTicks(); 
@@ -588,7 +594,7 @@ function setTicks() {
 
 function xAxis(xScale, data) {	
 
-	console.log(d3.selectAll(".tick").size());
+	// console.log(d3.selectAll(".tick").size());
 
 	return d3.axisBottom(xScale)
 		.tickSize(0) //custom resize later
@@ -600,21 +606,21 @@ function xAxis(xScale, data) {
 
 		}); 
 
-	console.log(d3.selectAll(".tick").size());
+	// console.log(d3.selectAll(".tick").size());
 
 }
 
 function resizeTicks(tops, yScale, drawingHeight) { 
 
-	console.log(tops);
+	// console.log(tops);
 
-	console.log(d3.selectAll("g.xAxis g.tick line").size());
+	// console.log(d3.selectAll("g.xAxis g.tick line").size());
 
 	d3.selectAll("g.xAxis g.tick line")
 		.attr("y2", function(datum, index) {
 
-			console.log(datum); 
-			console.log(index);
+			// console.log(datum); 
+			// console.log(index);
 
 			if (index == 0 || index == data.length - 1) {
 				return 0; 
@@ -692,7 +698,7 @@ function renderRadar() {
 		return [toPlot]; 
 	}); 
 
-	console.log(formatted);
+	// console.log(formatted);
 
 	var color = d3.scaleLinear()
 				.range(["#EDC951","#CC333F","#00A0B0"]);
@@ -782,7 +788,7 @@ function renderJSON(JSON) {
 
 function showSpinner() { 
 
-	console.log("showing");
+	// console.log("showing");
 
 	$("#spinnerContainer").show()
 	$("#inputContainer").hide()
@@ -791,7 +797,7 @@ function showSpinner() {
 
 function hideSpinner() {
 
-	console.log("hiding");
+	// console.log("hiding");
 
 	$("#spinnerContainer").hide()
 	$("#inputContainer").show()
