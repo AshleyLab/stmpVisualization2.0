@@ -167,6 +167,7 @@ function parse_crude_json(crudeJson){
 	visualizationJson = {};
 	for(i in crudeJson){
 		var row = crudeJson[i];
+		//ALERT
 		var variantJson = initialize_variant_json_struct(); //initialize the structure of the json for a single variant
 		var includedSpreadsheetColumns = [];
 		//get the correct key to access the proper part of the json
@@ -217,19 +218,36 @@ function parse_crude_json(crudeJson){
 				variantJson.coreAnnotation.otherFields[colName] = init_other_field(val);
 			}
 		}
-		//alert we should change to a system based on indexing variants on a unique key
-		if(includedSpreadsheetColumns.length > 0){
-			visualizationJson[i] = variantJson;
-			console.log("marsielles");
-		}
-		else{
-			console.log("paris");
+		var key = get_chrom_pos_key(row, infoColumnCorrespondences)
+		if(key != -1){
+			visualizationJson[key] = variantJson;
 		}
 	}
 
 	console.log("at end of parse_crude_json");
 	
 	console.log(visualizationJson);
+}
+
+function get_chrom_pos_key(row, infoColumnCorrespondences){
+	var key = "";
+	for(var v in infoColumnCorrespondences["chromosome"]){
+		var chrom = row[infoColumnCorrespondences["chromosome"][v]];
+		if(chrom != null){
+			key = key.concat(chrom).concat(":");
+			break;
+		}
+		return -1;
+	}
+	for(var v in infoColumnCorrespondences["pos"]){
+		var pos = row[infoColumnCorrespondences["pos"][v]];
+		if(pos != null){
+			key = key.concat(pos);
+			break;
+		}
+		return -1;
+	}
+	return key;
 }
 
 function initialize_variant_json_struct(){
