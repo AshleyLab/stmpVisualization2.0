@@ -180,10 +180,10 @@ function parseCrude(crude){
 
 	var forVisualization = {};
 
-	for (i in crude) { //for each row 
-
+	for(i in crude){
 		var row = crude[i];
-
+		crudeJSON = crude; 
+		//ALERT
 		var variantJson = {
 			"coreAnnotation" : {
 				"infoFields" : {},
@@ -198,9 +198,8 @@ function parseCrude(crude){
 					"notes" : ""
 				}
 			}
-		}; 
-		//initialize the structure of the json for a single variant
-
+		};
+		
 		var includedSpreadsheetColumns = [];
 		
 		//get the correct key to access the proper part of the json
@@ -258,17 +257,36 @@ function parseCrude(crude){
 			}
 		}
 		//alert we should change to a system based on indexing variants on a unique key
-		if(includedSpreadsheetColumns.length > 0){
-			forVisualization[i] = variantJson;
-			console.log("marsielles");
-		}
-		else{
-			console.log("paris");
+		var key = get_chrom_pos_key(row, infoColumnCorrespondences)
+		if(key != -1){
+			visualizationJson[key] = variantJson;
 		}
 	}
 
 	console.log("at end of parseCrudeJSON");
 	console.log(forVisualization);
+
+}
+
+function get_chrom_pos_key(row, infoColumnCorrespondences){
+	var key = "";
+	for(var v in infoColumnCorrespondences["chromosome"]){
+		var chrom = row[infoColumnCorrespondences["chromosome"][v]];
+		if(chrom != null){
+			key = key.concat(chrom).concat(":");
+			break;
+		}
+		return -1;
+	}
+	for(var v in infoColumnCorrespondences["pos"]){
+		var pos = row[infoColumnCorrespondences["pos"][v]];
+		if(pos != null){
+			key = key.concat(pos);
+			break;
+		}
+		return -1;
+	}
+	return key;
 }
 
 //functions for initializing the different types of fields for variant annotation
