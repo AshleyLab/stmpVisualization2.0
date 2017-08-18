@@ -140,25 +140,22 @@ function readXls(xls) {
 
 function turn_workbook_into_json(workbook){
 
-	console.log("turn_workbook")
 	var sheetNames = workbook.SheetNames;
-	console.log(sheetNames);
 
 	for (i in sheetNames){
 
 		var sheet = sheetNames[i];
 
+		console.log("parsing sheet: " + sheet);
 		crude = XLSX.utils.sheet_to_json(workbook.Sheets[sheet]); //this function gives us a crude json object that we then parse further
-		
-		parsedSheetJson = parseCrude(crude);
+		parsedSheet = parse_crude_json(crude);
 
-		//do visualizations with each individual parsed sheet json, maybe different depending on the type of curation
+		//visualize each parsed sheet, maybe different depending on the type of curation
 	}
 }
 
 //parses the "crude json" which is sheetJS's export of an xls row to a json
-//returns a json
-function parseCrude(crude){
+function parse_crude_json(crudeJson){
 
 	//Essential maps over values
 	var infoColumnCorrespondences = {
@@ -178,40 +175,17 @@ function parseCrude(crude){
 		"clinvar" : ["clinvar_clinical_significance"]
 	};
 
-	var forVisualization = {};
-
-	for(i in crude){
-		var row = crude[i];
-		crudeJSON = crude; 
-		//ALERT
-		var variantJson = {
-			"coreAnnotation" : {
-				"infoFields" : {},
-				"numericFields" : {}, 
-				"stringFields" : {}, 
-				"otherFields" : {}
-			}, "metadata" : {
-				"metrics" : {
-					"nTimesClicked" : 0
-				}, "workflow" : {
-					"curationMode" : "Sheetname", 
-					"notes" : ""
-				}
-			}
-		};
-		
+	visualizationJson = {};
+	for(i in crudeJson){
+		var row = crudeJson[i];
+		var variantJson = initialize_variant_json_struct(); //initialize the structure of the json for a single variant
 		var includedSpreadsheetColumns = [];
-		
 		//get the correct key to access the proper part of the json
 		//we repeat this three times to make sure we put the proper values in the proper places
 		//////////////////////////info fields
-
-		for (var infoColName in infoColumnCorrespondences) {
-
+		for(var infoColName in infoColumnCorrespondences){
 			var spreadsheetColNames = infoColumnCorrespondences[infoColName];
-
-			for(var spreadsheetColName in spreadsheetColNames) { 
-
+			for(var spreadsheetColName in spreadsheetColNames){ 
 				var spreadsheetKey = spreadsheetColNames[spreadsheetColName];
 				var value = row[spreadsheetKey];
 				if(value != null){
@@ -221,15 +195,13 @@ function parseCrude(crude){
 				}
 			}
 		}
-
-
 		////////////////////////////////numeric fields
 		for(var numericColName in numericColumnCorrespondences){
 			var spreadsheetColNames = numericColumnCorrespondences[numericColName];
 			for(var spreadsheetColName in spreadsheetColNames){ 
 				var spreadsheetKey = spreadsheetColNames[spreadsheetColName];
 				var value = row[spreadsheetKey];
-				if (value != null){
+				if(value != null){
 					//variantJson.coreAnnotationFields.infoFields.val = value;
 					variantJson.coreAnnotation.numericFields[numericColName] = init_numeric_field(value);
 					includedSpreadsheetColumns.push(spreadsheetColNames[spreadsheetColName]);
@@ -242,7 +214,7 @@ function parseCrude(crude){
 			for(var spreadsheetColName in spreadsheetColNames){ 
 				var spreadsheetKey = spreadsheetColNames[spreadsheetColName];
 				var value = row[spreadsheetKey];
-				if (value != null){
+				if(value != null){
 					//variantJson.coreAnnotationFields.infoFields.val = value;
 					variantJson.coreAnnotation.stringFields[stringColName] = init_string_field(value);
 					includedSpreadsheetColumns.push(spreadsheetColNames[spreadsheetColName]);
@@ -257,36 +229,59 @@ function parseCrude(crude){
 			}
 		}
 		//alert we should change to a system based on indexing variants on a unique key
-		var key = get_chrom_pos_key(row, infoColumnCorrespondences)
-		if(key != -1){
-			visualizationJson[key] = variantJson;
+		if(includedSpreadsheetColumns.length > 0){
+			visualizationJson[i] = variantJson;
+			console.log("marsielles");
+		}
+		else{
+			console.log("paris");
 		}
 	}
 
-	console.log("at end of parseCrudeJSON");
-	console.log(forVisualization);
+	console.log("at end of parse_crude_json");
+	
+	console.log(visualizationJson);
+}
+
+
+function getKey(variant){
+
+	console.log(variant);
+
+	var chromosome = variant.coreAnnotation.infoFields.chromosome.val; 
+	var position = variant.coreAnnotation.infoFields.pos.val; 
+
+	if (!chromosome || !position) {
+
+		return 0; 
+
+	}
+
+	return chromosome + ":" + position; 
 
 }
 
-function get_chrom_pos_key(row, infoColumnCorrespondences){
-	var key = "";
-	for(var v in infoColumnCorrespondences["chromosome"]){
-		var chrom = row[infoColumnCorrespondences["chromosome"][v]];
-		if(chrom != null){
-			key = key.concat(chrom).concat(":");
-			break;
-		}
-		return -1;
-	}
-	for(var v in infoColumnCorrespondences["pos"]){
-		var pos = row[infoColumnCorrespondences["pos"][v]];
-		if(pos != null){
-			key = key.concat(pos);
-			break;
-		}
-		return -1;
-	}
-	return key;
+
+function initialize_variant_json_struct(){
+	var variantJson = {};
+	var coreAnnotationFieldTemplate = {
+		"infoFields" : {},
+		"numericFields" : {}, 
+		"stringFields" : {}, 
+		"otherFields" : {}
+	};
+	variantJson.coreAnnotation = coreAnnotationFieldTemplate;
+	variantJson.metadata = initalizeVariantMetadata("Alert add proper sheet name processing")
+	return variantJson;
+}
+
+function initalizeVariantMetadata(sheetName) {
+		variantMetadataStruct = {};
+		metricsDict = {"numTimesClicked" : ""};
+		workflowDict = {"curationMode" : sheetName, "freeTextNotes" : "enter any notes here"}
+		variantMetadataStruct.metrics = metricsDict
+		variantMetadataStruct.workflow = workflowDict 
+		return variantMetadataStruct; 
 }
 
 //functions for initializing the different types of fields for variant annotation
@@ -427,7 +422,9 @@ function renderGlyphplot(element, data) {
 }
 
 function deepClone(thing) {
+
 	return JSON.parse(JSON.stringify(thing));
+
 }
 
 function getColor(index, total, highlight) {
@@ -468,14 +465,7 @@ function prepareDataForStreamgraph(d) {
 	return data; 
 }
 
-var counter = 0; 
-
 function renderStreamgraph(outerElement, data) {
-
-	counter++; 
-
-
-	// console.log(data);
 
 	var features = Object.keys(data[2].xyz); //get keys from nondummy elements (there for now)
 	var nVariants = data.length - 2; //subtract dummy elements (there for now) 
@@ -484,8 +474,6 @@ function renderStreamgraph(outerElement, data) {
 
 	d3.select("#" + element)
 		.selectAll("*").remove();
-
-	// console.log(d3.select("#" + element).selectAll("*").size());
 
 	d3.select(outerElement)
 		.append("svg")
@@ -569,19 +557,13 @@ function renderStreamgraph(outerElement, data) {
 
 		});
 
-	// console.log(data);
-
 	d3.select(element)
 		.append("g")
 		.attr("class", "xAxis")
 		.attr("transform", "translate(0," + (h - axisSpace) + ")"); 
 
-	// console.log(d3.selectAll(".tick").size());
-
 	d3.select(".xAxis")
 		.call(xAxis(xScale, data));
-
-	// console.log(d3.selectAll(".tick").size());
 
     resizeTicks(tops, yScale, h - axisSpace);
     setTicks(); 
@@ -608,8 +590,6 @@ function setTicks() {
 
 function xAxis(xScale, data) {	
 
-	// console.log(d3.selectAll(".tick").size());
-
 	return d3.axisBottom(xScale)
 		.tickSize(0) //custom resize later
 		.ticks(data.length)
@@ -620,21 +600,12 @@ function xAxis(xScale, data) {
 
 		}); 
 
-	// console.log(d3.selectAll(".tick").size());
-
 }
 
 function resizeTicks(tops, yScale, drawingHeight) { 
 
-	// console.log(tops);
-
-	// console.log(d3.selectAll("g.xAxis g.tick line").size());
-
 	d3.selectAll("g.xAxis g.tick line")
 		.attr("y2", function(datum, index) {
-
-			// console.log(datum); 
-			// console.log(index);
 
 			if (index == 0 || index == data.length - 1) {
 				return 0; 
@@ -646,8 +617,6 @@ function resizeTicks(tops, yScale, drawingHeight) {
 
 	d3.selectAll("g.tick text")
 		.attr("transform","rotate(90)");
-
-	console.log(d3.selectAll("g.xAxis text").size());
 
 }
  
@@ -683,8 +652,6 @@ function renderRadar() {
 
 	var element = "detailSVG";
 
-	console.log("Rendering radar")
-
 	if (d3.select("#" + element).size() == 0) { 
 
 		d3.select(outerElement)
@@ -713,8 +680,6 @@ function renderRadar() {
 
 		return [toPlot]; 
 	}); 
-
-	// console.log(formatted);
 
 	var color = d3.scaleLinear()
 				.range(["#EDC951","#CC333F","#00A0B0"]);
@@ -797,14 +762,7 @@ function getRandomColor() {
 	return "#" + Math.floor(Math.random() * 16777215).toString(16);
 }
 
-function renderJSON(JSON) {
-
-
-}
-
 function showSpinner() { 
-
-	// console.log("showing");
 
 	$("#spinnerContainer").show()
 	$("#inputContainer").hide()
@@ -812,8 +770,6 @@ function showSpinner() {
 }
 
 function hideSpinner() {
-
-	// console.log("hiding");
 
 	$("#spinnerContainer").hide()
 	$("#inputContainer").show()
@@ -829,15 +785,20 @@ function scrollToElement(element) {
 }
 
 function HSVtoRGB(h, s, v) {
+
     var r, g, b, i, f, p, q, t;
+
     if (arguments.length === 1) {
         s = h.s, v = h.v, h = h.h;
     }
+
     i = Math.floor(h * 6);
+
     f = h * 6 - i;
     p = v * (1 - s);
     q = v * (1 - f * s);
     t = v * (1 - (1 - f) * s);
+
     switch (i % 6) {
         case 0: r = v, g = t, b = p; break;
         case 1: r = q, g = v, b = p; break;
@@ -846,6 +807,7 @@ function HSVtoRGB(h, s, v) {
         case 4: r = t, g = p, b = v; break;
         case 5: r = v, g = p, b = q; break;
     }
+
     return {
         r: Math.round(r * 255),
         g: Math.round(g * 255),
@@ -854,6 +816,7 @@ function HSVtoRGB(h, s, v) {
 }
 
 function RGBtoHSV () {
+
     var rr, gg, bb,
         r = arguments[0] / 255,
         g = arguments[1] / 255,
@@ -866,8 +829,11 @@ function RGBtoHSV () {
         };
 
     if (diff == 0) {
+
         h = s = 0;
+
     } else {
+
         s = diff / v;
         rr = diffc(r);
         gg = diffc(g);
@@ -875,17 +841,19 @@ function RGBtoHSV () {
 
         if (r === v) {
             h = bb - gg;
-        }else if (g === v) {
+        } else if (g === v) {
             h = (1 / 3) + rr - bb;
-        }else if (b === v) {
+        } else if (b === v) {
             h = (2 / 3) + gg - rr;
         }
+        
         if (h < 0) {
             h += 1;
-        }else if (h > 1) {
+        } else if (h > 1) {
             h -= 1;
         }
     }
+
     return {
         h: Math.round(h * 360),
         s: Math.round(s * 100),
