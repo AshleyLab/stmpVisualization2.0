@@ -178,7 +178,23 @@ function parse_crude_json(crudeJson){
 	visualizationJson = {};
 	for(i in crudeJson){
 		var row = crudeJson[i];
-		var variantJson = initialize_variant_json_struct(); //initialize the structure of the json for a single variant
+		
+		var variantJson = {
+			"core" : {
+				"infoFields" : {},
+				"numericFields" : {}, 
+				"stringFields" : {}, 
+				"otherFields" : {}
+			}, "metadata" : {
+				"metrics": {
+					"nTimesClicked" : 0
+				}, "workflow": { 
+					"curationMode" : "Sheetname", 
+					"notes" : "notes"
+				}
+			}
+		}; 
+
 		var includedSpreadsheetColumns = [];
 		//get the correct key to access the proper part of the json
 		//we repeat this three times to make sure we put the proper values in the proper places
@@ -189,8 +205,8 @@ function parse_crude_json(crudeJson){
 				var spreadsheetKey = spreadsheetColNames[spreadsheetColName];
 				var value = row[spreadsheetKey];
 				if(value != null){
-					//variantJson.coreAnnotationFields.infoFields.val = value;
-					variantJson.coreAnnotation.infoFields[infoColName] = init_info_field(value);
+					//variantJson.core.infoFields.val = value;
+					variantJson.core.infoFields[infoColName] = init_info_field(value);
 					includedSpreadsheetColumns.push(spreadsheetColNames[spreadsheetColName]);
 				}
 			}
@@ -202,8 +218,8 @@ function parse_crude_json(crudeJson){
 				var spreadsheetKey = spreadsheetColNames[spreadsheetColName];
 				var value = row[spreadsheetKey];
 				if(value != null){
-					//variantJson.coreAnnotationFields.infoFields.val = value;
-					variantJson.coreAnnotation.numericFields[numericColName] = init_numeric_field(value);
+					//variantJson.core.infoFields.val = value;
+					variantJson.core.numericFields[numericColName] = init_numeric_field(value);
 					includedSpreadsheetColumns.push(spreadsheetColNames[spreadsheetColName]);
 				}
 			}
@@ -215,8 +231,8 @@ function parse_crude_json(crudeJson){
 				var spreadsheetKey = spreadsheetColNames[spreadsheetColName];
 				var value = row[spreadsheetKey];
 				if(value != null){
-					//variantJson.coreAnnotationFields.infoFields.val = value;
-					variantJson.coreAnnotation.stringFields[stringColName] = init_string_field(value);
+					//variantJson.core.infoFields.val = value;
+					variantJson.core.stringFields[stringColName] = init_string_field(value);
 					includedSpreadsheetColumns.push(spreadsheetColNames[spreadsheetColName]);
 				}
 			}
@@ -225,7 +241,7 @@ function parse_crude_json(crudeJson){
 		for(var colName in row){
 			var val = row[colName];
 			if($.inArray(colName, includedSpreadsheetColumns) == -1){
-				variantJson.coreAnnotation.otherFields[colName] = init_other_field(val);
+				variantJson.core.otherFields[colName] = init_other_field(val);
 			}
 		}
 		//alert we should change to a system based on indexing variants on a unique key
@@ -248,8 +264,8 @@ function getKey(variant){
 
 	console.log(variant);
 
-	var chromosome = variant.coreAnnotation.infoFields.chromosome.val; 
-	var position = variant.coreAnnotation.infoFields.pos.val; 
+	var chromosome = variant.core.infoFields.chromosome.val; 
+	var position = variant.core.infoFields.pos.val; 
 
 	if (!chromosome || !position) {
 
@@ -259,29 +275,6 @@ function getKey(variant){
 
 	return chromosome + ":" + position; 
 
-}
-
-
-function initialize_variant_json_struct(){
-	var variantJson = {};
-	var coreAnnotationFieldTemplate = {
-		"infoFields" : {},
-		"numericFields" : {}, 
-		"stringFields" : {}, 
-		"otherFields" : {}
-	};
-	variantJson.coreAnnotation = coreAnnotationFieldTemplate;
-	variantJson.metadata = initalizeVariantMetadata("Alert add proper sheet name processing")
-	return variantJson;
-}
-
-function initalizeVariantMetadata(sheetName) {
-		variantMetadataStruct = {};
-		metricsDict = {"numTimesClicked" : ""};
-		workflowDict = {"curationMode" : sheetName, "freeTextNotes" : "enter any notes here"}
-		variantMetadataStruct.metrics = metricsDict
-		variantMetadataStruct.workflow = workflowDict 
-		return variantMetadataStruct; 
 }
 
 //functions for initializing the different types of fields for variant annotation
