@@ -109,42 +109,56 @@ function fixdata(data) {
 	  return o;
 }
 
-function readXls(xls) { 
-		var reader = new FileReader();
-		reader.onload = function(e) { 
-			var data = e.target.result;
-			var rABS = false;
-			var workbook;
-			if(rABS) {
-			    /* if binary string, read with type 'binary' */
-			    workbook = XLSX.read(data, {type: 'binary'});
-			}
-			else {
-			    /* if array buffer, convert to base64 */
-			    var arr = fixdata(data);
-			    workbook = XLSX.read(btoa(arr), {type: 'base64'});
-			    turn_workbook_into_json(workbook);
-			}
-		};
-		reader.readAsArrayBuffer(xls);
-		//reader.readAsBinaryString(xls);	
+function readXls(xls) {
+
+	var reader = new FileReader();
+
+	reader.onload = function(e) { 
+
+		var data = e.target.result;
+		var rABS = false; //actually determine this instead of just setting it statically
+		var workbook;
+
+		if (rABS) {
+
+		    // if binary string, read with type "binary"
+		    workbook = XLSX.read(data, {type: "binary"});
+
+		} else {
+
+		    // if array buffer, convert to base64 
+		    var arr = fixdata(data);
+		    workbook = XLSX.read(btoa(arr), {type: "base64"});
+		    turn_workbook_into_json(workbook); //probably want to call this outside the if statement?
+		}
+
+	};
+
+	reader.readAsArrayBuffer(xls);
+	//reader.readAsBinaryString(xls);	
 }
 
 function turn_workbook_into_json(workbook){
+
 	console.log("turn_workbook")
 	var sheetNames = workbook.SheetNames;
 	console.log(sheetNames);
-	for(i in sheetNames){
+
+	for (i in sheetNames){
+
 		var sheet = sheetNames[i];
-		crudeJson = XLSX.utils.sheet_to_json(workbook.Sheets[sheet]); //this function gives us a crude json object that we then parse further
-		parsedSheetJson = parse_crude_json(crudeJson);
+
+		crude = XLSX.utils.sheet_to_json(workbook.Sheets[sheet]); //this function gives us a crude json object that we then parse further
+		
+		parsedSheetJson = parseCrude(crude);
+
 		//do visualizations with each individual parsed sheet json, maybe different depending on the type of curation
 	}
 }
 
 //parses the "crude json" which is sheetJS's export of an xls row to a json
 //returns a json
-function parse_crude_json(crudeJson){
+function parseCrude(crude){
 
 	//Essential maps over values
 	var infoColumnCorrespondences = {
@@ -164,17 +178,41 @@ function parse_crude_json(crudeJson){
 		"clinvar" : ["clinvar_clinical_significance"]
 	};
 
-	visualizationJson = {};
-	for(i in crudeJson){
-		var row = crudeJson[i];
-		var variantJson = initialize_variant_json_struct(); //initialize the structure of the json for a single variant
+	var forVisualization = {};
+
+	for (i in crude) { //for each row 
+
+		var row = crude[i];
+
+		var variantJson = {
+			"coreAnnotation" : {
+				"infoFields" : {},
+				"numericFields" : {}, 
+				"stringFields" : {}, 
+				"otherFields" : {}
+			}, "metadata" : {
+				"metrics" : {
+					"nTimesClicked" : 0
+				}, "workflow" : {
+					"curationMode" : "Sheetname", 
+					"notes" : ""
+				}
+			}
+		}; 
+		//initialize the structure of the json for a single variant
+
 		var includedSpreadsheetColumns = [];
+		
 		//get the correct key to access the proper part of the json
 		//we repeat this three times to make sure we put the proper values in the proper places
 		//////////////////////////info fields
-		for(var infoColName in infoColumnCorrespondences){
+
+		for (var infoColName in infoColumnCorrespondences) {
+
 			var spreadsheetColNames = infoColumnCorrespondences[infoColName];
-			for(var spreadsheetColName in spreadsheetColNames){ 
+
+			for(var spreadsheetColName in spreadsheetColNames) { 
+
 				var spreadsheetKey = spreadsheetColNames[spreadsheetColName];
 				var value = row[spreadsheetKey];
 				if(value != null){
@@ -184,13 +222,15 @@ function parse_crude_json(crudeJson){
 				}
 			}
 		}
+
+
 		////////////////////////////////numeric fields
 		for(var numericColName in numericColumnCorrespondences){
 			var spreadsheetColNames = numericColumnCorrespondences[numericColName];
 			for(var spreadsheetColName in spreadsheetColNames){ 
 				var spreadsheetKey = spreadsheetColNames[spreadsheetColName];
 				var value = row[spreadsheetKey];
-				if(value != null){
+				if (value != null){
 					//variantJson.coreAnnotationFields.infoFields.val = value;
 					variantJson.coreAnnotation.numericFields[numericColName] = init_numeric_field(value);
 					includedSpreadsheetColumns.push(spreadsheetColNames[spreadsheetColName]);
@@ -203,7 +243,7 @@ function parse_crude_json(crudeJson){
 			for(var spreadsheetColName in spreadsheetColNames){ 
 				var spreadsheetKey = spreadsheetColNames[spreadsheetColName];
 				var value = row[spreadsheetKey];
-				if(value != null){
+				if (value != null){
 					//variantJson.coreAnnotationFields.infoFields.val = value;
 					variantJson.coreAnnotation.stringFields[stringColName] = init_string_field(value);
 					includedSpreadsheetColumns.push(spreadsheetColNames[spreadsheetColName]);
@@ -219,7 +259,7 @@ function parse_crude_json(crudeJson){
 		}
 		//alert we should change to a system based on indexing variants on a unique key
 		if(includedSpreadsheetColumns.length > 0){
-			visualizationJson[i] = variantJson;
+			forVisualization[i] = variantJson;
 			console.log("marsielles");
 		}
 		else{
@@ -227,26 +267,13 @@ function parse_crude_json(crudeJson){
 		}
 	}
 
-	console.log("at end of parse_crude_json");
-	
-	console.log(visualizationJson);
-}
-
-function initialize_variant_json_struct(){
-	var variantJson = {};
-	var coreAnnotationFieldTemplate = {
-		"infoFields" : {},
-		"numericFields" : {}, 
-		"stringFields" : {}, 
-		"otherFields" : {}
-	};
-	variantJson.coreAnnotation = coreAnnotationFieldTemplate;
-	variantJson.metadata = initalizeVariantMetadata("Alert add proper sheet name processing")
-	return variantJson;
+	console.log("at end of parseCrudeJSON");
+	console.log(forVisualization);
 }
 
 //functions for initializing the different types of fields for variant annotation
-function init_info_field(val){
+function init_info_field(val) {
+
 	var infoFieldTemplate = { 
 		"val" : val, 
 		"includeInDrawing" : false
@@ -254,7 +281,8 @@ function init_info_field(val){
 	return infoFieldTemplate;
 }
 
-function init_numeric_field(val){
+function init_numeric_field(val) {
+
 	var numericFieldTemplate = {
 		"val": val, 
 		"drawingValue": "", 
@@ -264,7 +292,8 @@ function init_numeric_field(val){
 	return numericFieldTemplate;
 }
 
-function init_string_field(val){
+function init_string_field(val) {
+
 	var stringAnnotationTemplate = {
 		"val": val, 
 		"drawingValue": "", 
@@ -284,49 +313,10 @@ function init_other_field(val){
 	return otherFieldTemplate;
 }
 
-function initalizeVariantMetadata(sheetName) {
-		variantMetadataStruct = {};
-		metricsDict = {"numTimesClicked" : ""};
-		workflowDict = {"curationMode" : sheetName, "freeTextNotes" : "enter any notes here"}
-		variantMetadataStruct.metrics = metricsDict
-		variantMetadataStruct.workflow = workflowDict 
-		return variantMetadataStruct; 
-}
-
 function parseXls(XLS) {
 
 	console.log("parsing", XLS);
 	readXls(XLS);
-	//var json = XLSX.utils.sheet_to_json(workbook.Sheets);
-
-
-	function getVariantInfo(variantLine, idxDict, variantRecord) { 
-
-		//this function is deprecated I think
-		for (column in placeholder) { 
-
-			value = variantLine[idxDict[column]] || "na";
-
-			if (column == "Gene_Summar") {
-				choices = ["OR2T35", "BRCA1", "AFF3", "MYO7B", "ZNF806", "NEB", "SP100", "SYN2"];
-				value = choices[Math.floor(Math.random() * choices.length)]; 
-			}
-
-		}
-
-	}
-
-
-	function structToJSON(JSON) {
-		parsed = json.loads(jsonFile);
-		console.log(json.dumps(parsed))
-	}
-
-	function writeJSON(fileName, parsedJSON) {
-		jsonFile = open(file, "w+")
-		jsonFile.write(json.dumps(parsedJSON));
-	}
-
 
 } 
 
@@ -425,7 +415,9 @@ function deepClone(thing) {
 function getColor(index, total, highlight) {
 
 	if (!highlight) {
+
 		return d3.interpolateSpectral(index / (total - 1));
+
 	} else {
 
 		var rgb = d3.interpolateSpectral(index / (total - 1)).replace(/ /g, ""); 
@@ -574,7 +566,7 @@ function renderStreamgraph(outerElement, data) {
 	// console.log(d3.selectAll(".tick").size());
 
     resizeTicks(tops, yScale, h - axisSpace);
-    // setTicks(); 
+    setTicks(); 
 
     // haze(element); 
 
@@ -672,6 +664,8 @@ function haze(element) {
 function renderRadar() { 
 
 	var element = "detailSVG";
+
+	console.log("Rendering radar")
 
 	if (d3.select("#" + element).size() == 0) { 
 
