@@ -142,9 +142,13 @@ function turn_workbook_into_json(workbook){
 
 	var sheetNames = workbook.SheetNames;
 
-	for (i in sheetNames){
+	for (i in sheetNames) {
 
 		var sheet = sheetNames[i];
+
+		// if (sheetNames[i] != "Ing_DeNovo") {
+		// 	continue; //just test with this sheet
+		// }
 
 		console.log("parsing sheet: " + sheet);
 		crude = XLSX.utils.sheet_to_json(workbook.Sheets[sheet]); //this function gives us a crude json object that we then parse further
@@ -157,29 +161,42 @@ function turn_workbook_into_json(workbook){
 //parses the "crude json" which is sheetJS's export of an xls row to a json
 function parse_crude_json(crudeJson){
 
-	//Essential maps over values
-	var infoColumnCorrespondences = {
-		"chromosome" : ["CHROM", "Chromosome"],
-		"ref" : ["REF", "Reference Allele", "Reference Nucleotide"],
-		"alt" : ["ALT", "Sample Allele", "Variant Nucleotide"],
-		"pos" : ["POS", "Position", "Start"]
-	};
+	//we're going to be rendering each different specifically
+	//i.e., we'll define a way to render the chromosome, and we'll be defining a way to render the clinvar data
+	//so is it really necessary to separate the different kinds of fields
 
-	var numericColumnCorrespondences = {
-		"fullExac" : ["hg19_popfreq_all_20150413_exac_all", "ExAC (AF%)", "ExAC (%)", "ExAC"],
-		"europeExac": ["ExAC European", "hg19_popfreq_all_20150413_exac_nfe"],
-		"1kgenomes": ["1000 Genomes", "hg19_popfreq_all_20150413_1000g_all"]
-	};
+	var infoColumnMaps = [
+		["chromosome", "Chromosome", "CHROM", "CHR", "Chr"], //store all of these in the final object as "chromosome"
+		["ref", "REF", "Reference Allele", "Reference Nucleotide"],
+		["alt", "ALT", "Sample Allele", "Sample Nucleotide", "Variant Allele", "Variant Nucleotide"], 
+		["pos", "POS", "Position", "Start"]
+	]; 
 
-	var stringColumnCorrespondences = {
-		"clinvar" : ["clinvar_clinical_significance"]
-	};
+	var numericColumnMaps = [
+		["fullExac", "hg19_popfreq_all_20150413_exac_all", "ExAC (AF%)", "ExAC (%)", "ExAC"], 
+		["europeExac", "ExAC European", "hg19_popfreq_all_20150413_exac_nfe"], 
+		["1kgenomes", "1000 Genomes", "hg19_popfreq_all_20150413_1000g_all"]
+	]; 
 
-	visualizationJson = {};
-	for(i in crudeJson){
+	var stringColumnMaps = [
+		["clinvar", "clinvar_clinical_significance"]
+	]; 
+
+	var allFlat = $.map(columnMaps, function(columnMap) {
+		return $.map(columnMap, function(columnList) { 
+			return columnList; 
+		}); 
+	});
+
+	var columnMaps = [infoColumnMaps, numericColumnMaps, stringColumnMaps];
+
+	var data = []; 
+
+	for (i in crudeJson){
+
 		var row = crudeJson[i];
-		
-		var variantJson = {
+
+		var variant = {
 			"core" : {
 				"infoFields" : {},
 				"numericFields" : {}, 
@@ -187,7 +204,7 @@ function parse_crude_json(crudeJson){
 				"otherFields" : {}
 			}, "metadata" : {
 				"metrics": {
-					"nTimesClicked" : 0
+					"nClicks" : 0
 				}, "workflow": { 
 					"curationMode" : "Sheetname", 
 					"notes" : "notes"
@@ -195,68 +212,90 @@ function parse_crude_json(crudeJson){
 			}
 		}; 
 
-		var includedSpreadsheetColumns = [];
-		//get the correct key to access the proper part of the json
-		//we repeat this three times to make sure we put the proper values in the proper places
-		//////////////////////////info fields
-		for(var infoColName in infoColumnCorrespondences){
-			var spreadsheetColNames = infoColumnCorrespondences[infoColName];
-			for(var spreadsheetColName in spreadsheetColNames){ 
-				var spreadsheetKey = spreadsheetColNames[spreadsheetColName];
-				var value = row[spreadsheetKey];
-				if(value != null){
-					//variantJson.core.infoFields.val = value;
-					variantJson.core.infoFields[infoColName] = init_info_field(value);
-					includedSpreadsheetColumns.push(spreadsheetColNames[spreadsheetColName]);
-				}
+		function fillTemplate(value) {
+			return {
+				"value": value || "", //if value is null, just assign empty string 
+				"drawingValue" : "", 
+				"associatedValues" : []
 			}
 		}
-		////////////////////////////////numeric fields
-		for(var numericColName in numericColumnCorrespondences){
-			var spreadsheetColNames = numericColumnCorrespondences[numericColName];
-			for(var spreadsheetColName in spreadsheetColNames){ 
-				var spreadsheetKey = spreadsheetColNames[spreadsheetColName];
-				var value = row[spreadsheetKey];
-				if(value != null){
-					//variantJson.core.infoFields.val = value;
-					variantJson.core.numericFields[numericColName] = init_numeric_field(value);
-					includedSpreadsheetColumns.push(spreadsheetColNames[spreadsheetColName]);
-				}
+
+		var includedSpreadsheetColumns = []; 
+
+		$.each(infoColumnMaps, function(index, columnMap) {
+
+			var key = columnMap[0];
+
+			var value = $.map(columnMap, function(mapItem) {
+
+				return row[mapItem] ? row[mapItem] : null;
+
+			}).pop(); 
+
+			variant.core.infoFields[key] = fillTemplate(value); 
+
+		}); 
+
+		$.each(numericColumnMaps, function(index, columnMap) {
+
+			var key = columnMap[0]; 
+
+			var value = $.map(columnMap, function(mapItem) {
+
+				return row[mapItem] ? row[mapItem] : null;
+
+			}).pop(); 
+
+			variant.core.numericFields[key] = fillTemplate(value)
+
+		});
+
+		$.each(stringColumnMaps, function(index, columnMap) {
+
+			var key = columnMap[0];
+
+			var value = $.map(columnMap, function(mapItem) {
+
+				return row[mapItem] ? row[mapItem] : null; 
+
+			})
+
+			variant.core.stringFields[key] = fillTemplate(value);
+ 
+		}); 
+
+		$.each(row, function(field, value) {
+			if ($.inArray(field, allFlat) == -1) {
+				variant.core.otherFields[field] = fillTemplate(value);
 			}
-		}
-		//////////////////////////////////string fields
-		for(var stringColName in stringColumnCorrespondences){
-			var spreadsheetColNames = stringColumnCorrespondences[stringColName];
-			for(var spreadsheetColName in spreadsheetColNames){ 
-				var spreadsheetKey = spreadsheetColNames[spreadsheetColName];
-				var value = row[spreadsheetKey];
-				if(value != null){
-					//variantJson.core.infoFields.val = value;
-					variantJson.core.stringFields[stringColName] = init_string_field(value);
-					includedSpreadsheetColumns.push(spreadsheetColNames[spreadsheetColName]);
-				}
-			}
-		}
-		///////////////////////////////////other fields: iterate over every spreadsheet column and add values in that werent already included elsewhere
-		for(var colName in row){
-			var val = row[colName];
-			if($.inArray(colName, includedSpreadsheetColumns) == -1){
-				variantJson.core.otherFields[colName] = init_other_field(val);
-			}
-		}
-		//alert we should change to a system based on indexing variants on a unique key
-		if(includedSpreadsheetColumns.length > 0){
-			visualizationJson[i] = variantJson;
-			console.log("marsielles");
-		}
-		else{
-			console.log("paris");
+		}); 
+
+		var key = generateKey(variant);
+
+		if (key != "") { 
+
+			var v = {}; 
+			v[key] = variant; 
+
+			visualizationJson.push({key : variant});
 		}
 	}
-
-	console.log("at end of parse_crude_json");
 	
 	console.log(visualizationJson);
+}
+
+function generateKey(variant) {
+
+	var chromosome = variant.core.infoFields.chromosome.value; 
+	var position = variant.core.infoFields.pos.value; 
+
+	if (!chromosome || !position) {
+		return 0; 
+	}
+
+	var key = chromosome + ":" + position; 
+	return key; 
+
 }
 
 
@@ -277,37 +316,6 @@ function getKey(variant){
 
 }
 
-//functions for initializing the different types of fields for variant annotation
-function init_info_field(val) {
-
-	var infoFieldTemplate = { 
-		"val" : val, 
-		"includeInDrawing" : false
-	};
-	return infoFieldTemplate;
-}
-
-function init_numeric_field(val) {
-
-	var numericFieldTemplate = {
-		"val": val, 
-		"drawingValue": "", 
-		"includeInDrawing": false, 
-		"associatedValues": []
-	};
-	return numericFieldTemplate;
-}
-
-function init_string_field(val) {
-
-	var stringAnnotationTemplate = {
-		"val": val, 
-		"drawingValue": "", 
-		"includeInDrawing": false, 
-		"associatedValues": []
-	};
-	return stringAnnotationTemplate;
-}
 
 function init_other_field(val){
 	var otherFieldTemplate = {
