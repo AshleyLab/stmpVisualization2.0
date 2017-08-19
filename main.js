@@ -289,10 +289,10 @@ function renderGlyphplot(element, data) {
 	data.unshift(forKey);
 
 	var margin = {
-	  top: 20,
-	  right: 20,
-	  bottom: 20,
-	  left: 20
+	 	top: 20,
+	  	right: 20,
+	 	bottom: 20,
+	  	left: 20
 	};
 
 	var width = 120 - margin.left - margin.right;
@@ -325,7 +325,7 @@ function renderGlyphplot(element, data) {
 
     data.forEach(function(datum, index) {
 
-      d3.select("#graphics").append("svg")
+    d3.select("#graphics").append("svg")
         .attr("class", "starplot")
         .attr("width", width + margin.left + margin.right)
         .attr("height", width + margin.top + margin.bottom)
@@ -345,6 +345,9 @@ function deepClone(thing) {
 }
 
 function getColor(index, total, highlight) {
+
+	console.log(index);
+	console.log(total);
 
 	if (!highlight) {
 
@@ -385,6 +388,7 @@ function prepareDataForStreamgraph(d) {
 function renderStreamgraph(outerElement, data) {
 
 	var features = Object.keys(data[2].xyz); //get keys from nondummy elements (there for now)
+	var nFeatures = features.length; 
 	var nVariants = data.length - 2; //subtract dummy elements (there for now) 
 
 	var element = "masterSVG";
@@ -440,7 +444,7 @@ function renderStreamgraph(outerElement, data) {
 		.enter()
 		.append("path")
 		.attr("d", area)
-		.attr("fill", (d, i) => getColor(i, nVariants, false) )
+		.attr("fill", (d, i) => getColor(i, nFeatures, false) )
 		.on("click", function(datum, index) {
 
 			pathClicks[index]++; 
@@ -459,7 +463,7 @@ function renderStreamgraph(outerElement, data) {
 		}).on("mouseover", function(datum, index) {
 
 			d3.select(this)
-				.attr("fill", getColor(index, nVariants, true));
+				.attr("fill", getColor(index, nFeatures, true));
 
 			lastHTML = $("span#masterText").html(); 
 			var info = pathClicks[index] == 0 ? "<span id=\"sortInfo\">click to sort</span>" : ""; 
@@ -468,7 +472,7 @@ function renderStreamgraph(outerElement, data) {
 		}).on("mouseout", function(datum, index) {
 
 			d3.select(this)
-				.attr("fill", getColor(index, nVariants, false));
+				.attr("fill", getColor(index, nFeatures, false));
 
 			$("span#masterText").html(lastHTML);
 
