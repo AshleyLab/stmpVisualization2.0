@@ -192,6 +192,8 @@ function parse_crude_json(crudeJson){
 
 	var data = []; 
 
+	var visualizationData = []; 
+
 	for (i in crudeJson){
 
 		var row = crudeJson[i];
@@ -272,16 +274,16 @@ function parse_crude_json(crudeJson){
 
 		var key = generateKey(variant);
 
-		if (key != "") { 
+		if (key != 0) { 
 
 			var v = {}; 
 			v[key] = variant; 
 
-			visualizationJson.push({key : variant});
+			visualizationData.push(v);
 		}
 	}
 	
-	console.log(visualizationJson);
+	console.log(visualizationData);
 }
 
 function generateKey(variant) {
@@ -297,25 +299,6 @@ function generateKey(variant) {
 	return key; 
 
 }
-
-
-function getKey(variant){
-
-	console.log(variant);
-
-	var chromosome = variant.core.infoFields.chromosome.val; 
-	var position = variant.core.infoFields.pos.val; 
-
-	if (!chromosome || !position) {
-
-		return 0; 
-
-	}
-
-	return chromosome + ":" + position; 
-
-}
-
 
 function init_other_field(val){
 	var otherFieldTemplate = {
