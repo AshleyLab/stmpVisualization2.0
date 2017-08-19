@@ -72,7 +72,7 @@ $(function() {
 		if (validateXLSX(file)) {
 
 			showSpinner(); 
-			parseXls(file); 
+			parseXLS(file); 
 
 		} else { 
 
@@ -102,14 +102,7 @@ function validateXLSX(file) {
 
 }
 
-function fixdata(data) {
-	  var o = "", l = 0, w = 10240;
-	  for(; l<data.byteLength/w; ++l) o+=String.fromCharCode.apply(null,new Uint8Array(data.slice(l*w,l*w+w)));
-	  o+=String.fromCharCode.apply(null, new Uint8Array(data.slice(l*w)));
-	  return o;
-}
-
-function readXls(xls) {
+function parseXLS(XLS) {
 
 	var reader = new FileReader();
 
@@ -129,16 +122,17 @@ function readXls(xls) {
 		    // if array buffer, convert to base64 
 		    var arr = fixdata(data);
 		    workbook = XLSX.read(btoa(arr), {type: "base64"});
-		    turn_workbook_into_json(workbook); //probably want to call this outside the if statement?
+
 		}
+		    
+		encodeWorkbook(workbook);
 
 	};
 
-	reader.readAsArrayBuffer(xls);
-	//reader.readAsBinaryString(xls);	
+	reader.readAsArrayBuffer(XLS);
 }
 
-function turn_workbook_into_json(workbook){
+function encodeWorkbook(workbook){
 
 	var sheetNames = workbook.SheetNames;
 
@@ -151,23 +145,23 @@ function turn_workbook_into_json(workbook){
 		// }
 
 		console.log("parsing sheet: " + sheet);
-		crude = XLSX.utils.sheet_to_json(workbook.Sheets[sheet]); //this function gives us a crude json object that we then parse further
-		parsedSheet = parse_crude_json(crude);
+		crudeData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet]); //this function gives us a crude json object that we then parse further
+		parsedSheet = parseCrude(crudeData);
 
 		//visualize each parsed sheet, maybe different depending on the type of curation
 	}
 }
 
 //parses the "crude json" which is sheetJS's export of an xls row to a json
-function parse_crude_json(crudeJson){
+function parseCrude(crudeData){
 
-	//we're going to be rendering each different specifically
+	//we're going to be rendering each different field specifically
 	//i.e., we'll define a way to render the chromosome, and we'll be defining a way to render the clinvar data
-	//so is it really necessary to separate the different kinds of fields
+	//so is it really necessary to separate the different kinds of fields?
 
 	var columnMaps = [
 		["chromosome", "Chromosome", "CHROM", "CHR", "Chr"], //store all of these in the final object as "chromosome"
-		["ref", "REF", "Reference Allele", "Reference Nucleotide"],
+		["ref", "REF", "Reference Allele", "Reference Nucleotide"], // '' as "ref"
 		["alt", "ALT", "Sample Allele", "Sample Nucleotide", "Variant Allele", "Variant Nucleotide"], 
 		["pos", "POS", "Position", "Start"],
 		["fullExac", "hg19_popfreq_all_20150413_exac_all", "ExAC (AF%)", "ExAC (%)", "ExAC"], 
@@ -176,15 +170,15 @@ function parse_crude_json(crudeJson){
 		["clinvar", "clinvar_clinical_significance"]
 	]; 
 
-	var allFlat = $.map(columnMaps, function(columnMap) {
+	var allFlat = $.map(columnMaps, function(columnMap) { //convert columnMaps from a nested array to a flat, 1D one
 		return columnMap; 
 	});
 
 	var visualizationData = []; 
 
-	for (i in crudeJson) {
+	for (i in crudeData) {
 
-		var row = crudeJson[i];
+		var row = crudeData[i];
 
 		var variant = {
 			"core" : {}, 
@@ -208,24 +202,23 @@ function parse_crude_json(crudeJson){
 		}
 
 		//add all the stuff in the colum map
-		$.each(columnMaps, function(index, columnMap) {
+		$.each(columnMaps, function(index, columnMap) { //for each subarray of column maps—each field we want to capture
 
-			var key = columnMap[0];
+			var key = columnMap[0]; //use the first alias in the list as the key
 
-			var value = $.map(columnMap, function(mapItem) {
+			var value = $.map(columnMap, function(mapItem) { //map each alias which could be the header for the data in the XLSX
 
-				return row[mapItem] ? row[mapItem] : null;
+				return row[mapItem] ? row[mapItem] : null; //to the value it might hold in the XLSX (nulls are removed)
 
-			}).pop(); 
+			}).pop(); //get the value, if any exists
 
 			variant.core[key] = fillTemplate(value); 
 
 		}); 
 
-		//add anything we missed
 		$.each(row, function(field, value) {
-			if ($.inArray(field, allFlat) == -1) {
-				variant.extra[field] = fillTemplate(value);
+			if ($.inArray(field, allFlat) == -1) { //if this is a field we haven't seen before
+				variant.extra[field] = fillTemplate(value); //add it in the extra category
 			}
 		}); 
 
@@ -248,7 +241,7 @@ function generateKey(variant) {
 	var chromosome = variant.core.chromosome.value; 
 	var position = variant.core.pos.value; 
 
-	if (!chromosome || !position) {
+	if (!chromosome || !position) { //if either chromosome or position is undefined, return 0
 		return 0; 
 	}
 
@@ -256,23 +249,6 @@ function generateKey(variant) {
 	return key; 
 
 }
-
-function init_other_field(val){
-	var otherFieldTemplate = {
-		"val": val, 
-		"drawingValue": "", 
-		"includeInDrawing": false, 
-		"associatedValues": []
-	};
-	return otherFieldTemplate;
-}
-
-function parseXls(XLS) {
-
-	console.log("parsing", XLS);
-	readXls(XLS);
-
-} 
 
 function removeSVGs(element) {
 
@@ -756,13 +732,13 @@ function HSVtoRGB(h, s, v) {
     };
 }
 
-function RGBtoHSV () {
+function RGBtoHSV() {
 
     var rr, gg, bb,
         r = arguments[0] / 255,
         g = arguments[1] / 255,
         b = arguments[2] / 255,
-        h, s,
+        h, s, 
         v = Math.max(r, g, b),
         diff = v - Math.min(r, g, b),
         diffc = function(c){
@@ -800,4 +776,11 @@ function RGBtoHSV () {
         s: Math.round(s * 100),
         v: Math.round(v * 100)
     };
+}
+
+function fixdata(data) { //copied from?
+	var o = "", l = 0, w = 10240;
+	for(; l<data.byteLength/w; ++l) o+=String.fromCharCode.apply(null,new Uint8Array(data.slice(l*w,l*w+w)));
+	o+=String.fromCharCode.apply(null, new Uint8Array(data.slice(l*w)));
+	return o;
 }
