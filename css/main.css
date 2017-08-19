@@ -30,7 +30,6 @@ input[type="radio"] {
   margin-right: .5rem;
 }
 
-
 /* STYLE THE GLYPHPLOT */
 
 g.legend .star-label {
@@ -136,14 +135,15 @@ span#overview {
 #masterSVG { 
 	background: #22262d;
     width: 100%;
+    height: 200px;
     display: block;
 /*    height: 200px;
 */}
 
 #detailSVG { 
     margin-top: 20px;
-    border: 2px solid white;
-    height: 600px;
+/*    border: 2px solid white;
+*/    height: 600px;
 }
 
 path:not(.domain) {
@@ -151,8 +151,8 @@ path:not(.domain) {
 }
 
 g.tick line { 
-    stroke-width: 8;
-    opacity: .1;
+    stroke-width: 2;
+    opacity: 1;
     stroke: white;
 }
 
@@ -162,21 +162,14 @@ g.tick text {
 
 
 g.xAxis path.domain { 
-    /*opacity: .2;
-    stroke-width: 10;*/
-    /*fill: orange;*/
+
     stroke: white;
 }
 
-g.tick line:hover, 
-g.tick line.selectedForRadar { 
-    stroke: orange; 
-}
 
 g.tick text:hover { 
-    fill: orange;
-/*    dy: 4em !important;
-*/}
+
+}
 
 /*SPINNER*/
 #spinnerContainer { 

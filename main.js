@@ -346,9 +346,6 @@ function deepClone(thing) {
 
 function getColor(index, total, highlight) {
 
-	console.log(index);
-	console.log(total);
-
 	if (!highlight) {
 
 		return d3.interpolateSpectral(index / (total - 1));
@@ -417,7 +414,7 @@ function renderStreamgraph(outerElement, data) {
    		.domain([
    			d3.min(stacked, function(layer) { return d3.min(layer, function(d) { return d[0]; }); }), 
    			d3.max(stacked, function(layer) { return d3.max(layer, function(d) { return d[1]; }); })
-   		]).range([h - axisSpace, 10]); //leave space for axis //leave space at top?
+   		]).range([h - axisSpace, 40]); //leave space for axis //leave space at top?
 
    	var lastHTML = ""; 
 
@@ -488,8 +485,43 @@ function renderStreamgraph(outerElement, data) {
 
     resizeTicks(tops, yScale, h - axisSpace);
     setTicks(); 
+    raiseText(tops, yScale, h - axisSpace); 
 
-    // haze(element); 
+    addButtons(); 
+
+    // haze(element, nVariants + 2); //account for dummy elements with haze
+
+}
+
+function addButtons(height) { 
+	
+	var topMargin = 12; 
+
+	d3.selectAll(".tick")
+		.append("circle")
+		.attr("fill", "white")
+		.attr("r", function(datum, index) {
+
+			return index == 0 || index == data.length - 1 ? "" : 3; 
+
+		}).attr("cx", 0)
+		.attr("cy", 0 + topMargin)
+		.on("click", function(datum, index) {
+
+			var siblingLine = d3.select(this.parentNode).select("line"); //set the class on the line (that's what has the id that gives the datum)
+    		siblingLine.classed("selectedForRadar", !siblingLine.classed("selectedForRadar")); //toggle the class
+
+    		renderRadar(); 
+
+    	}).on("mouseover", function(element, index) {
+
+    		d3.select(this).attr("fill", "orange");
+
+    	}).on("mouseout", function(element, index) {
+
+    		d3.select(this).attr("fill", "white");
+
+    	})
 
 }
 
@@ -500,23 +532,17 @@ function setTicks() {
 
     		return "axisLine" + index; 
 
-    	}).on("click", function(datum, index) {
-
-    		d3.select(this).classed("selectedForRadar", !d3.select(this).classed("selectedForRadar")); //toggle the class
-    		renderRadar(); 
-
     	});
 
 }
 
 function xAxis(xScale, data) {	
 
-	return d3.axisBottom(xScale)
+	return d3.axisTop(xScale)
 		.tickSize(0) //custom resize later
 		.ticks(data.length)
 		.tickFormat(function(datum, index) {
 
-			console.log(d3.selectAll(".tick").size());
 			return index == 0 || index == data.length - 1 ? "" : data[index].key;
 
 		}); 
@@ -536,14 +562,35 @@ function resizeTicks(tops, yScale, drawingHeight) {
 
 		});
 
+
+}
+
+function raiseText(tops, yScale, drawingHeight) { 
+
 	d3.selectAll("g.tick text")
-		.attr("transform","rotate(90)");
+		.attr("transform", function(datum, index) {
+
+			var textLengthOffset = 25; 
+			var textWidthOffset = 6; 
+
+			var bar = d3.min(tops, function(item) { return yScale(item); }); 
+			console.log(bar)
+
+			var dist = (drawingHeight - bar) + textLengthOffset;
+			// var dist = (drawingHeight - yScale(tops[index])) + textLengthOffset; //to position the text dynamically
+
+			if (index == 0 || index == data.length - 1) {
+				dist = 0; 
+			}
+
+			return "rotate(-90) translate(" + dist + "," + textWidthOffset + ")";
+
+		}) //rotating also rotates the coordiante system
 
 }
  
-function haze(element) { 
+function haze(element, nVariants) { 
 
-	var nVariants = 11;
 	var buffer = 1;
 
 	var h = $(element).height() - axisSpace; 
@@ -564,7 +611,7 @@ function haze(element) {
 		.attr("y", 0)
 		.attr("width", w - (buffer * 2))
 		.attr("height", h)
-		.attr("opacity", .6)
+		.attr("opacity", .3)
 		.attr("stroke", "black");
 
 }
