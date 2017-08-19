@@ -165,46 +165,31 @@ function parse_crude_json(crudeJson){
 	//i.e., we'll define a way to render the chromosome, and we'll be defining a way to render the clinvar data
 	//so is it really necessary to separate the different kinds of fields
 
-	var infoColumnMaps = [
+	var columnMaps = [
 		["chromosome", "Chromosome", "CHROM", "CHR", "Chr"], //store all of these in the final object as "chromosome"
 		["ref", "REF", "Reference Allele", "Reference Nucleotide"],
 		["alt", "ALT", "Sample Allele", "Sample Nucleotide", "Variant Allele", "Variant Nucleotide"], 
-		["pos", "POS", "Position", "Start"]
-	]; 
-
-	var numericColumnMaps = [
+		["pos", "POS", "Position", "Start"],
 		["fullExac", "hg19_popfreq_all_20150413_exac_all", "ExAC (AF%)", "ExAC (%)", "ExAC"], 
 		["europeExac", "ExAC European", "hg19_popfreq_all_20150413_exac_nfe"], 
-		["1kgenomes", "1000 Genomes", "hg19_popfreq_all_20150413_1000g_all"]
-	]; 
-
-	var stringColumnMaps = [
+		["1kgenomes", "1000 Genomes", "hg19_popfreq_all_20150413_1000g_all"],
 		["clinvar", "clinvar_clinical_significance"]
 	]; 
 
 	var allFlat = $.map(columnMaps, function(columnMap) {
-		return $.map(columnMap, function(columnList) { 
-			return columnList; 
-		}); 
+		return columnMap; 
 	});
-
-	var columnMaps = [infoColumnMaps, numericColumnMaps, stringColumnMaps];
-
-	var data = []; 
 
 	var visualizationData = []; 
 
-	for (i in crudeJson){
+	for (i in crudeJson) {
 
 		var row = crudeJson[i];
 
 		var variant = {
-			"core" : {
-				"infoFields" : {},
-				"numericFields" : {}, 
-				"stringFields" : {}, 
-				"otherFields" : {}
-			}, "metadata" : {
+			"core" : {}, 
+			"extra" : {}, 
+			"metadata" : {
 				"metrics": {
 					"nClicks" : 0
 				}, "workflow": { 
@@ -222,9 +207,8 @@ function parse_crude_json(crudeJson){
 			}
 		}
 
-		var includedSpreadsheetColumns = []; 
-
-		$.each(infoColumnMaps, function(index, columnMap) {
+		//add all the stuff in the colum map
+		$.each(columnMaps, function(index, columnMap) {
 
 			var key = columnMap[0];
 
@@ -234,41 +218,14 @@ function parse_crude_json(crudeJson){
 
 			}).pop(); 
 
-			variant.core.infoFields[key] = fillTemplate(value); 
+			variant.core[key] = fillTemplate(value); 
 
 		}); 
 
-		$.each(numericColumnMaps, function(index, columnMap) {
-
-			var key = columnMap[0]; 
-
-			var value = $.map(columnMap, function(mapItem) {
-
-				return row[mapItem] ? row[mapItem] : null;
-
-			}).pop(); 
-
-			variant.core.numericFields[key] = fillTemplate(value)
-
-		});
-
-		$.each(stringColumnMaps, function(index, columnMap) {
-
-			var key = columnMap[0];
-
-			var value = $.map(columnMap, function(mapItem) {
-
-				return row[mapItem] ? row[mapItem] : null; 
-
-			})
-
-			variant.core.stringFields[key] = fillTemplate(value);
- 
-		}); 
-
+		//add anything we missed
 		$.each(row, function(field, value) {
 			if ($.inArray(field, allFlat) == -1) {
-				variant.core.otherFields[field] = fillTemplate(value);
+				variant.extra[field] = fillTemplate(value);
 			}
 		}); 
 
@@ -288,8 +245,8 @@ function parse_crude_json(crudeJson){
 
 function generateKey(variant) {
 
-	var chromosome = variant.core.infoFields.chromosome.value; 
-	var position = variant.core.infoFields.pos.value; 
+	var chromosome = variant.core.chromosome.value; 
+	var position = variant.core.pos.value; 
 
 	if (!chromosome || !position) {
 		return 0; 
