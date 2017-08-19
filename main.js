@@ -361,9 +361,10 @@ function getColor(index, total, highlight) {
 
 		var hsvOriginal = RGBtoHSV(r, g, b); 
 		var h = hsvOriginal.h; 
+		var s = hsvOriginal.s; 
 		var v = hsvOriginal.v; 
 
-		var finalRGB = HSVtoRGB(h / 360, 100 / 100, v / 100);
+		var finalRGB = HSVtoRGB(h / 360, 0 / 100, 100 / 100); //white (for now)
 
 		return "rgb(" + finalRGB.r + "," + finalRGB.g + "," + finalRGB.b + ")";
 
@@ -481,13 +482,14 @@ function renderStreamgraph(outerElement, data) {
 		.attr("transform", "translate(0," + (h - axisSpace) + ")"); 
 
 	d3.select(".xAxis")
-		.call(xAxis(xScale, data));
+		.call(xAxis(xScale, data, element));
 
     resizeTicks(tops, yScale, h - axisSpace);
     setTicks(); 
     raiseText(tops, yScale, h - axisSpace); 
 
     addButtons(); 
+    drawLinesBetween(data, element, xScale, h - axisSpace);
 
     // haze(element, nVariants + 2); //account for dummy elements with haze
 
@@ -521,7 +523,72 @@ function addButtons(height) {
 
     		d3.select(this).attr("fill", "white");
 
-    	})
+    	});
+
+}
+
+function drawLinesBetween(data, element, xScale, realHeight) { //NEW
+
+	//Where before vertical lines were being drawn to indicate where a variant was centered, 
+	//effectively covering the important information, 
+	//now draw vertical lines between the variants, focusing attention on the data. 
+
+	var paths = d3.select(element)
+		.selectAll("path"); 
+
+	var features = Object.keys(data[2].xyz); //get keys from nondummy elements (there for now)
+	var nFeatures = features.length; 
+
+	//find how high the lines should reach
+	var highestPath = paths.nodes()[nFeatures - 1]; 
+
+	for (var i = 0; i < data.length - 1; i++) { 
+
+		j = i + 1; 
+
+		var midX = (xScale(i) + xScale(j)) / 2; 
+
+		var midY = getHeightAtPointOnPath(midX, highestPath, element, realHeight);
+
+		d3.select(element)
+			.append("circle")
+			.attr("r", 2)
+			.attr("cx", midX)
+			.attr("cy", midY);
+
+	}
+
+	// var flattened = data.length - 1; 
+
+	// d3.select(element)
+	// 	.selectAll("line.divider")
+	// 	.data(data)
+	// 	.enter()
+	// 	.append("line")
+	// 	.attr("class", "divider")
+	// 	.attr("fill", "white")
+
+}
+
+function getHeightAtPointOnPath(x, path, element, realHeight) {
+
+	//the path is a closed loop,
+	//so before we look for a point with a specific X, 
+	//find the region we're searching in 
+
+	var leftCorner = path.getElementAtLength(0);
+
+	//get the bottom right corner of the graph
+	var startLength = 0; 
+	var endLength = path.getTotalLength(); 
+	var halfLength = endLength / 2; 
+
+
+
+	//the top of the path is longer than the bottom
+	//so the length the right corner is at is between halfLength and endLength
+
+
 
 }
 
@@ -536,7 +603,7 @@ function setTicks() {
 
 }
 
-function xAxis(xScale, data) {	
+function xAxis(xScale, data, element) {	
 
 	return d3.axisTop(xScale)
 		.tickSize(0) //custom resize later
