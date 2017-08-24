@@ -542,6 +542,12 @@ function drawLinesBetween(data, element, xScale, realHeight) { //NEW
 	//find how high the lines should reach
 	var highestPath = paths.nodes()[nFeatures - 1]; 
 
+	d3.select(element)
+		.append("circle")
+		.attr("r", 2)
+		.attr("cx", 0)
+		.attr("cy", 0);
+
 	for (var i = 0; i < data.length - 1; i++) { 
 
 		j = i + 1; 
@@ -555,6 +561,15 @@ function drawLinesBetween(data, element, xScale, realHeight) { //NEW
 			.attr("r", 2)
 			.attr("cx", midX)
 			.attr("cy", midY);
+
+		d3.select(element)
+			.append("line")
+			.attr("class", "divider")
+			.attr("x1", midX)
+			.attr("x2", midX)
+			.attr("y1", realHeight)
+			.attr("y2", midY)
+			.attr("stroke", "white");
 
 	}
 
@@ -572,7 +587,6 @@ function drawLinesBetween(data, element, xScale, realHeight) { //NEW
 
 function getHeightAtPointOnPath(x, path) {
 
-	var startLength = 0; 
 	var endLength = path.getTotalLength();
 
 	var testLength = 0; 
@@ -587,9 +601,6 @@ function getHeightAtPointOnPath(x, path) {
 
 		if (testPoint.x <= x && nextPoint.x >= x) {
 
-			//we found the right interval 
-			//now binary search in here 
-			console.log(" interval for xs" + testPoint.x + " , " + nextPoint.x + " in search for " + x);
 			interval = [testLength, testLength + lengthStep];
 			break; 
 
@@ -601,34 +612,19 @@ function getHeightAtPointOnPath(x, path) {
 	}
 
 	//binary search in interval for point with x that matches x
-	var start = interval[0]; 
-	var end = interval[1];
-
-	var testLength = interval[0];
-	var lastLength = testLength;
-
-	console.log("looking in interval");
-	console.log(interval);
-
 	var counter = 0; 
-
-	var precision = .01; 
-
-	var length = binarySearch(interval[0], interval[1], x, precision);
+	var length = binarySearch(interval[0], interval[1], x, .01, 100);
 
 	var midPoint = path.getPointAtLength(length);
 
-	console.log("looking for " + x + " found " + midPoint.x);
+	function binarySearch(startLength, endLength, targetX, precision, bailAfter) {
 
-	function binarySearch(startLength, endLength, targetX, precision) {
-
-		console.log("search round " + counter);
 		counter++; 
 
 		var midLength = (startLength + endLength) / 2; 
 		var midX = path.getPointAtLength(midLength).x; 
 
-		if (counter > 100) {
+		if (counter > bailAfter) {
 			return midLength;
 		}
 
