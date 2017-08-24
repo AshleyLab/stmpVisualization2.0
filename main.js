@@ -12,38 +12,38 @@ $(function() {
 		{"key" : "key2", "xyz" : {"A" : 2,"B" : 4, "C" : 3, "D" : 1, "E" : 3, "F": 1}},
         {"key" : "key3", "xyz" : {"A" : 4,"B" : 3, "C" : 1, "D" : 4, "E" : 4, "F": 3}},
         {"key" : "key4", "xyz" : {"A" : 1,"B" : 5, "C" : 2, "D" : 3, "E" : 1, "F": 4}},
-        {"key" : "key5", "xyz" : {"A" : 5,"B" : 4, "C" : 3, "D" : 2, "E" : 4, "F": 2}},
-        {"key" : "key6", "xyz" : {"A" : 1,"B" : 2, "C" : 2, "D" : 5, "E" : 3, "F": 2}},
-		{"key" : "key7", "xyz" : {"A" : 2,"B" : 3, "C" : 4, "D" : 3, "E" : 2, "F": 1}},
-        {"key" : "key8", "xyz" : {"A" : 4,"B" : 1, "C" : 5, "D" : 2, "E" : 5, "F": 3}},
-        {"key" : "key9", "xyz" : {"A" : 3,"B" : 3, "C" : 1, "D" : 4, "E" : 1, "F": 2}},
-        {"key" : "key10", "xyz" : {"A" : 3,"B" : 2, "C" : 4, "D" : 5, "E" : 2, "F": 4}},
-		{"key" : "key11", "xyz" : {"A" : 2,"B" : 4, "C" : 3, "D" : 1, "E" : 3, "F": 1}},
-        {"key" : "key12", "xyz" : {"A" : 4,"B" : 3, "C" : 1, "D" : 4, "E" : 4, "F": 3}},
-        {"key" : "key13", "xyz" : {"A" : 1,"B" : 5, "C" : 2, "D" : 3, "E" : 1, "F": 4}},
-        {"key" : "key14", "xyz" : {"A" : 5,"B" : 4, "C" : 3, "D" : 2, "E" : 4, "F": 2}},
-        {"key" : "key15", "xyz" : {"A" : 1,"B" : 2, "C" : 2, "D" : 5, "E" : 3, "F": 2}},
-		{"key" : "key16", "xyz" : {"A" : 2,"B" : 3, "C" : 4, "D" : 3, "E" : 2, "F": 1}},
-        {"key" : "key17", "xyz" : {"A" : 4,"B" : 1, "C" : 5, "D" : 2, "E" : 5, "F": 3}},
-        {"key" : "key18", "xyz" : {"A" : 3,"B" : 3, "C" : 1, "D" : 4, "E" : 1, "F": 2}},
-        {"key" : "key19", "xyz" : {"A" : 3,"B" : 2, "C" : 4, "D" : 5, "E" : 2, "F": 4}},
-		{"key" : "key20", "xyz" : {"A" : 2,"B" : 4, "C" : 3, "D" : 1, "E" : 3, "F": 1}},
-        {"key" : "key21", "xyz" : {"A" : 4,"B" : 3, "C" : 1, "D" : 4, "E" : 4, "F": 3}},
-        {"key" : "key22", "xyz" : {"A" : 1,"B" : 5, "C" : 2, "D" : 3, "E" : 1, "F": 4}},
-        {"key" : "key23", "xyz" : {"A" : 5,"B" : 4, "C" : 3, "D" : 2, "E" : 4, "F": 2}},
-        {"key" : "key24", "xyz" : {"A" : 1,"B" : 2, "C" : 2, "D" : 5, "E" : 3, "F": 2}},
-		{"key" : "key25", "xyz" : {"A" : 2,"B" : 3, "C" : 4, "D" : 3, "E" : 2, "F": 1}},
-        {"key" : "key26", "xyz" : {"A" : 4,"B" : 1, "C" : 5, "D" : 2, "E" : 5, "F": 3}},
-        {"key" : "key27", "xyz" : {"A" : 3,"B" : 3, "C" : 1, "D" : 4, "E" : 1, "F": 2}},
-        {"key" : "key28", "xyz" : {"A" : 3,"B" : 2, "C" : 4, "D" : 5, "E" : 2, "F": 4}},
-		{"key" : "key29", "xyz" : {"A" : 2,"B" : 4, "C" : 3, "D" : 1, "E" : 3, "F": 1}},
-        {"key" : "key30", "xyz" : {"A" : 4,"B" : 3, "C" : 1, "D" : 4, "E" : 4, "F": 3}},
-        {"key" : "key31", "xyz" : {"A" : 1,"B" : 5, "C" : 2, "D" : 3, "E" : 1, "F": 4}},
-        {"key" : "key32", "xyz" : {"A" : 5,"B" : 4, "C" : 3, "D" : 2, "E" : 4, "F": 2}},
-        {"key" : "key33", "xyz" : {"A" : 1,"B" : 2, "C" : 2, "D" : 5, "E" : 3, "F": 2}},
-		{"key" : "key34", "xyz" : {"A" : 2,"B" : 3, "C" : 4, "D" : 3, "E" : 2, "F": 1}},
-        {"key" : "key35", "xyz" : {"A" : 4,"B" : 1, "C" : 5, "D" : 2, "E" : 5, "F": 3}},
-        {"key" : "key36", "xyz" : {"A" : 3,"B" : 3, "C" : 1, "D" : 4, "E" : 1, "F": 2}}
+  //       {"key" : "key5", "xyz" : {"A" : 5,"B" : 4, "C" : 3, "D" : 2, "E" : 4, "F": 2}},
+  //       {"key" : "key6", "xyz" : {"A" : 1,"B" : 2, "C" : 2, "D" : 5, "E" : 3, "F": 2}},
+		// {"key" : "key7", "xyz" : {"A" : 2,"B" : 3, "C" : 4, "D" : 3, "E" : 2, "F": 1}},
+  //       {"key" : "key8", "xyz" : {"A" : 4,"B" : 1, "C" : 5, "D" : 2, "E" : 5, "F": 3}},
+  //       {"key" : "key9", "xyz" : {"A" : 3,"B" : 3, "C" : 1, "D" : 4, "E" : 1, "F": 2}},
+  //       {"key" : "key10", "xyz" : {"A" : 3,"B" : 2, "C" : 4, "D" : 5, "E" : 2, "F": 4}},
+		// {"key" : "key11", "xyz" : {"A" : 2,"B" : 4, "C" : 3, "D" : 1, "E" : 3, "F": 1}},
+  //       {"key" : "key12", "xyz" : {"A" : 4,"B" : 3, "C" : 1, "D" : 4, "E" : 4, "F": 3}},
+  //       {"key" : "key13", "xyz" : {"A" : 1,"B" : 5, "C" : 2, "D" : 3, "E" : 1, "F": 4}},
+  //       {"key" : "key14", "xyz" : {"A" : 5,"B" : 4, "C" : 3, "D" : 2, "E" : 4, "F": 2}},
+  //       {"key" : "key15", "xyz" : {"A" : 1,"B" : 2, "C" : 2, "D" : 5, "E" : 3, "F": 2}},
+		// {"key" : "key16", "xyz" : {"A" : 2,"B" : 3, "C" : 4, "D" : 3, "E" : 2, "F": 1}},
+  //       {"key" : "key17", "xyz" : {"A" : 4,"B" : 1, "C" : 5, "D" : 2, "E" : 5, "F": 3}},
+  //       {"key" : "key18", "xyz" : {"A" : 3,"B" : 3, "C" : 1, "D" : 4, "E" : 1, "F": 2}},
+  //       {"key" : "key19", "xyz" : {"A" : 3,"B" : 2, "C" : 4, "D" : 5, "E" : 2, "F": 4}},
+		// {"key" : "key20", "xyz" : {"A" : 2,"B" : 4, "C" : 3, "D" : 1, "E" : 3, "F": 1}},
+  //       {"key" : "key21", "xyz" : {"A" : 4,"B" : 3, "C" : 1, "D" : 4, "E" : 4, "F": 3}},
+  //       {"key" : "key22", "xyz" : {"A" : 1,"B" : 5, "C" : 2, "D" : 3, "E" : 1, "F": 4}},
+  //       {"key" : "key23", "xyz" : {"A" : 5,"B" : 4, "C" : 3, "D" : 2, "E" : 4, "F": 2}},
+  //       {"key" : "key24", "xyz" : {"A" : 1,"B" : 2, "C" : 2, "D" : 5, "E" : 3, "F": 2}},
+		// {"key" : "key25", "xyz" : {"A" : 2,"B" : 3, "C" : 4, "D" : 3, "E" : 2, "F": 1}},
+  //       {"key" : "key26", "xyz" : {"A" : 4,"B" : 1, "C" : 5, "D" : 2, "E" : 5, "F": 3}},
+  //       {"key" : "key27", "xyz" : {"A" : 3,"B" : 3, "C" : 1, "D" : 4, "E" : 1, "F": 2}},
+  //       {"key" : "key28", "xyz" : {"A" : 3,"B" : 2, "C" : 4, "D" : 5, "E" : 2, "F": 4}},
+		// {"key" : "key29", "xyz" : {"A" : 2,"B" : 4, "C" : 3, "D" : 1, "E" : 3, "F": 1}},
+  //       {"key" : "key30", "xyz" : {"A" : 4,"B" : 3, "C" : 1, "D" : 4, "E" : 4, "F": 3}},
+  //       {"key" : "key31", "xyz" : {"A" : 1,"B" : 5, "C" : 2, "D" : 3, "E" : 1, "F": 4}},
+  //       {"key" : "key32", "xyz" : {"A" : 5,"B" : 4, "C" : 3, "D" : 2, "E" : 4, "F": 2}},
+  //       {"key" : "key33", "xyz" : {"A" : 1,"B" : 2, "C" : 2, "D" : 5, "E" : 3, "F": 2}},
+		// {"key" : "key34", "xyz" : {"A" : 2,"B" : 3, "C" : 4, "D" : 3, "E" : 2, "F": 1}},
+  //       {"key" : "key35", "xyz" : {"A" : 4,"B" : 1, "C" : 5, "D" : 2, "E" : 5, "F": 3}},
+  //       {"key" : "key36", "xyz" : {"A" : 3,"B" : 3, "C" : 1, "D" : 4, "E" : 1, "F": 2}}
 
 	];
 
@@ -570,25 +570,79 @@ function drawLinesBetween(data, element, xScale, realHeight) { //NEW
 
 }
 
-function getHeightAtPointOnPath(x, path, element, realHeight) {
+function getHeightAtPointOnPath(x, path) {
 
-	//the path is a closed loop,
-	//so before we look for a point with a specific X, 
-	//find the region we're searching in 
-
-	var leftCorner = path.getElementAtLength(0);
-
-	//get the bottom right corner of the graph
 	var startLength = 0; 
-	var endLength = path.getTotalLength(); 
-	var halfLength = endLength / 2; 
+	var endLength = path.getTotalLength();
 
+	var testLength = 0; 
+	var lengthStep = 5; 
 
+	var interval = []; 
 
-	//the top of the path is longer than the bottom
-	//so the length the right corner is at is between halfLength and endLength
+	while (true) {
 
+		var testPoint = path.getPointAtLength(testLength);
+		var nextPoint = path.getPointAtLength(testLength + lengthStep);  
 
+		if (testPoint.x <= x && nextPoint.x >= x) {
+
+			//we found the right interval 
+			//now binary search in here 
+			console.log(" interval for xs" + testPoint.x + " , " + nextPoint.x + " in search for " + x);
+			interval = [testLength, testLength + lengthStep];
+			break; 
+
+		} else { 
+
+			testLength += lengthStep; 
+
+		}
+	}
+
+	//binary search in interval for point with x that matches x
+	var start = interval[0]; 
+	var end = interval[1];
+
+	var testLength = interval[0];
+	var lastLength = testLength;
+
+	console.log("looking in interval");
+	console.log(interval);
+
+	var counter = 0; 
+
+	var precision = .01; 
+
+	var length = binarySearch(interval[0], interval[1], x, precision);
+
+	var midPoint = path.getPointAtLength(length);
+
+	console.log("looking for " + x + " found " + midPoint.x);
+
+	function binarySearch(startLength, endLength, targetX, precision) {
+
+		console.log("search round " + counter);
+		counter++; 
+
+		var midLength = (startLength + endLength) / 2; 
+		var midX = path.getPointAtLength(midLength).x; 
+
+		if (counter > 100) {
+			return midLength;
+		}
+
+		if (Math.abs(midX - targetX) <= precision) {
+			return midLength; 
+		} else if (midX < targetX) {
+			return binarySearch(midLength, endLength, targetX, precision)
+		} else { 
+			return binarySearch(startLength, midLength, targetX, precision);
+		}
+
+	}
+
+	return path.getPointAtLength(length).y;
 
 }
 
