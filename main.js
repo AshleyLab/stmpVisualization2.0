@@ -305,13 +305,17 @@ function renderTracks(element, data) {
 			.enter()
 			.append("rect")
 			.attr("x", (d, i) => i * widthStep)
-			.attr("y", 150)
+			.attr("y", 150 + index * 10)
 			.attr("width", widthStep)
 			.attr("height", 10)
-			.attr("fill", getRandomColor);
+			.attr("fill", (d, i) => fillForTrackDatum(d));
 
 	}); 
 
+}
+
+function fillForTrackDatum(d) {
+	return getRandomColor(); 
 }
 
 function renderGlyphplot(element, data) { 
