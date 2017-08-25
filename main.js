@@ -288,7 +288,7 @@ function renderTracks(element, data) {
 
 	var keysForTracks = ["C", "D"];
 
-	var widthStep = $(element).width() / data.length; 
+	var widthStep = $(element).width() / (data.length + 1); 
 
 	$.each(keysForTracks, (index, key) => { //it drives me insane that the parameters are passed in different orders in $.each() and $.map()
 
@@ -304,11 +304,26 @@ function renderTracks(element, data) {
 			.data(trackData)
 			.enter()
 			.append("rect")
-			.attr("x", (d, i) => i * widthStep)
+			.attr("x", (d, i) => (i + 0.5) * widthStep)
 			.attr("y", 150 + index * 10)
 			.attr("width", widthStep)
 			.attr("height", 10)
-			.attr("fill", (d, i) => fillForTrackDatum(d));
+			.attr("fill", (d, i) => fillForTrackDatum(d))
+
+		d3.select(element)
+			.append("g")
+			.attr("class", key + "text")
+			.selectAll("text")
+			.data(trackData)
+			.enter()
+			.append("text")
+			.attr("x",(d, i) => (i + 1) * widthStep)
+			.attr("y", 150 + index * 10 + 5 + 1)
+			.style("font-size", 9)
+			.style("alignment-baseline", "middle")
+			.text(d => d)
+			.style("text-anchor", "middle")
+
 
 	}); 
 
