@@ -262,26 +262,88 @@ function renderVisualization(isStreamgraph, element, lD) {
 
 	var localData = deepClone(lD);
 
-	if (isStreamgraph) {
+	renderSpiralgram(getSpiralData(10, 10), "#graphics");
 
-		removeSVGs(element);
+	// if (isStreamgraph) {
 
-		streamData = prepareDataForStreamgraph(localData);
-		renderStreamgraph("#graphics", streamData); 
-		renderTracks("#masterSVG", lD);
-		renderRadar();
+	// 	removeSVGs(element);
 
-	} else { 
+	// 	streamData = prepareDataForStreamgraph(localData);
+	// 	renderStreamgraph("#graphics", streamData); 
+	// 	renderTracks("#masterSVG", lD);
+	// 	renderRadar();
 
-		removeSVGs(element);
-		renderGlyphplot(element, localData); 
+	// } else { 
 
-	}
+	// 	removeSVGs(element);
+	// 	renderGlyphplot(element, localData); 
+
+	// }
 
 	return lD;
 
 }
 
+function renderSpiralgram(data, outerElement) {
+
+	var element = "masterSVG"; 
+
+	d3.select(outerElement)
+		.append("svg")
+		.attr("id", element);
+
+	element = "#" + element; 
+
+	console.log("rendering");
+
+	var nVariants = data.length; 
+	var nSpiralAnnotations = data[0].length; 
+
+	var width = $(element).width(); 
+	var height = $(element).height(); 
+
+	var center = [width / 2, height / 2];
+
+	var buffer = 10; 
+
+	var maxRadius = Math.min(width, height) / 2 - buffer; 
+	var minRadius = 25; 
+
+	var radiusStep = (maxRadius - minRadius) / (nSpiralAnnotations - 1); 
+
+	var rotationScale = d3.scaleLinear()
+		.domain([0, nVariants])
+		.range([0, 360])
+
+	d3.select(element)
+		.selectAll("g")
+		.data(data)
+		.enter()
+		.append("g")
+		.attr("transform", (_, i) => "translate(" + center[0] + "," + center[1] + ") rotate(" + rotationScale(i) + ")");
+
+	d3.select(element)
+		.selectAll("g")
+		.append("line")
+		.attr("x1", minRadius)
+		.attr("y1", 0)
+		.attr("x2", maxRadius)
+		.attr("y2", 0)
+		.attr("class", "spindle")
+		.attr("stroke", colorForSpindle);
+
+	d3.select(element)
+		.selectAll("g")
+		.selectAll("circle")
+		.data(d => d)
+		.enter()
+		.append("circle")
+		.attr("cx", (_, i) => minRadius + i * radiusStep)
+		.attr("cy", 0)
+		.attr("r", d => d == -1 ? 0 : d * 4)
+		.attr("fill", (d, i) => colorForAnnotation(d, i, nSpiralAnnotations));
+
+}
 function renderTracks(element, data) {
 
 	console.log(data);
@@ -323,7 +385,6 @@ function renderTracks(element, data) {
 			.style("alignment-baseline", "middle")
 			.text(d => d)
 			.style("text-anchor", "middle")
-
 
 	}); 
 
@@ -981,6 +1042,34 @@ function RGBtoHSV() {
         s: Math.round(s * 100),
         v: Math.round(v * 100)
     };
+}
+
+function colorForSpindle() { 
+
+	return "darkgrey";
+
+}
+
+function colorForAnnotation(datum, index, nSpiralAnnotations) { 
+
+	return "#" + Math.floor(index / (nSpiralAnnotations + 1) * 16777215).toString(16);
+
+}
+
+function getSpiralData(nVariants, nSpiralAnnotations) {
+
+	var emptyProbability = .25;
+
+	return $.map(new Array(nVariants), function(index, element) {
+
+		return [$.map(new Array(nSpiralAnnotations), function(i, e) {
+
+			return Math.random() > emptyProbability ? parseFloat(Math.random().toFixed(3)) : -1; 
+
+		})];
+
+	});
+
 }
 
 function fixdata(data) { //copied from?
