@@ -342,8 +342,6 @@ function renderSpiralgram(data, outerElement) {
 
 	element = "#" + element; 
 
-	console.log("rendering");
-
 	var nVariants = data.length; 
 	var nSpiralAnnotations = data[0].length; 
 
@@ -352,85 +350,190 @@ function renderSpiralgram(data, outerElement) {
 
 	var center = [width / 2, height / 2];
 
-	var buffer = 10; 
-
-	console.log("width: " + width);
-	console.log("height: " + height);
-
-	var maxRadius = Math.min(width, height) / 2 - buffer; 
-	var minRadius = 50; 
-
-	var radiusStep = (maxRadius - minRadius) / (nSpiralAnnotations - 1); 
+	var outerBuffer = 10; 
+	var tracksWidth = 50; 
+	var spindlesToTracksBuffer = 20; 
+	var innerBuffer = 50; 
 
 	var rotationScale = d3.scaleLinear()
 		.domain([0, nVariants])
 		.range([0, 360])
 
-	d3.select(element)
-		.append("text")
-		.attr("id", "info")
-		.attr("x", center[0])
-		.attr("y", center[1])
-		.attr("text-anchor", "middle")
-		.attr("font-family", "sans-serif")
-		.attr("font-size", "20px")
-		.attr("fill", "red");
+	function addText() {
 
-	d3.select(element)
-		.selectAll("g")
-		.data(data)
-		.enter()
-		.append("g")
-		.attr("transform", (_, i) => "translate(" + center[0] + "," + center[1] + ") rotate(" + rotationScale(i) + ")");
+		d3.select(element)
+			.append("text")
+			.attr("id", "info")
+			.attr("x", center[0])
+			.attr("y", center[1])
+			.attr("text-anchor", "middle")
+			.attr("font-family", "sans-serif")
+			.attr("font-size", "20px")
+			.attr("fill", "red");
 
-	d3.select(element)
-		.selectAll("g")
-		.append("line")
-		.attr("x1", minRadius)
-		.attr("y1", 0)
-		.attr("x2", maxRadius)
-		.attr("y2", 0)
-		.attr("class", "spindle")
-		.attr("stroke", colorForSpindle);
+	}
 
-	d3.select(element)
-		.selectAll("g")
-		.selectAll("circle")
-		.data(d => d)
-		.enter()
-		.append("circle")
-		.attr("cx", (_, i) => minRadius + i * radiusStep)
-		.attr("cy", 0)
-		.attr("r", d => d == -1 ? 0 : d * 10)
-		.attr("fill", (d, i) => colorForAnnotation(d, i, nSpiralAnnotations))
-		.on("mouseover", function(d, i) { //need to use explicit function() because arrow notation uses lexical this
+	function addSpindles() {
 
-			d3.select(element)
-				.selectAll("g")
-				.selectAll("circle")
-				.filter((_, index) => i == index)
-				.attr("fill", "white"); 
+		var maxRadius = Math.min(width, height) / 2 - outerBuffer - tracksWidth; 
 
-			d3.select("#info")
-				.text(i);
+		var radiusStep = (maxRadius - innerBuffer) / (nSpiralAnnotations - 1); 
 
-		}).on("mouseout", function(d, i) {
+		d3.select(element)
+			.selectAll("g")
+			.data(data)
+			.enter()
+			.append("g")
+			.attr("transform", (_, i) => "translate(" + center[0] + "," + center[1] + ") rotate(" + rotationScale(i) + ")");
 
-			d3.select(element)
-				.selectAll("g")
-				.selectAll("circle")
-				.filter((_, index) => i == index)				
-				.attr("fill", colorForAnnotation(d, i, nSpiralAnnotations))
+		d3.select(element)
+			.selectAll("g")
+			.append("line")
+			.attr("x1", innerBuffer)
+			.attr("y1", 0)
+			.attr("x2", maxRadius)
+			.attr("y2", 0)
+			.attr("class", "spindle")
+			.attr("stroke", colorForSpindle);
 
-			d3.select("#info")
-				.text("")
+		d3.select(element)
+			.selectAll("g")
+			.selectAll("circle")
+			.data(d => d)
+			.enter()
+			.append("circle")
+			.attr("cx", (_, i) => innerBuffer + i * radiusStep)
+			.attr("cy", 0)
+			.attr("r", d => d == -1 ? 0 : d * 10)
+			.attr("fill", (d, i) => colorForAnnotation(d, i, nSpiralAnnotations))
+			.on("mouseover", function(d, i) { //need to use explicit function() because arrow notation uses lexical this
 
-		});
+				d3.select(element)
+					.selectAll("g")
+					.selectAll("circle")
+					.filter((_, index) => i == index)
+					.attr("fill", "white"); 
 
+				d3.select("#info")
+					.text(i);
+
+			}).on("mouseout", function(d, i) {
+
+				d3.select(element)
+					.selectAll("g")
+					.selectAll("circle")
+					.filter((_, index) => i == index)				
+					.attr("fill", colorForAnnotation(d, i, nSpiralAnnotations))
+
+				d3.select("#info")
+					.text("")
+
+			});
+
+	}
+
+	function addTracks() { 
+
+		var innerRadius = Math.min(width, height) / 2 - outerBuffer - tracksWidth + spindlesToTracksBuffer; 
+		var outerRadius = Math.min(width, height) / 2 - outerBuffer;    
+
+		var nTracks = 3; 
+
+		var trackWidth = (outerRadius - innerRadius) / nTracks; 
+
+		var innerRadiusScale = d3.scaleLinear()
+			.domain([0, nTracks])
+			.range([innerRadius, outerRadius]);
+
+		var trackData = [
+
+			["1", "7", "9", "3", "5", "X", "9", "2", "10", "Y"],
+
+			["A", "T", "C", "G", "A", "T", "C", "T", "C", "G"], 
+
+			["T", "C", "G", "C", "T", "A", "G", "A", "G", "T"]
+
+		]; 
+
+		var rotationScale = d3.scaleLinear()
+			.domain([0, nVariants])
+			.range([0, Math.PI * 2]);
+
+		var angularWidth = Math.PI * 2 / 10; 
+
+		d3.select(element)
+			.selectAll("g.track")
+			.data(trackData)
+			.enter()
+			.append("g")
+			.attr("class", "track")
+			.attr("trackIndex", (_, i) => i)
+			.attr("transform", "translate(" + center[0] + "," + center[1] + ")"); 
+
+		d3.select(element)
+			.selectAll("g.track")
+			.selectAll("path")
+			.data(d => d)
+			.enter()
+			.append("path")
+			.attr("d", function(d, i) {
+
+				var trackIndex = d3.select(this.parentNode).attr("trackIndex");
+
+				var iR = innerRadiusScale(trackIndex); 
+				var oR = innerRadiusScale(trackIndex) + trackWidth; 
+
+				console.log(iR + ", " + oR);
+
+				var sA = rotationScale(i);
+				var eA = rotationScale(i) + angularWidth;
+
+				var arc = d3.arc()
+					.innerRadius(iR)
+					.outerRadius(oR)
+					.startAngle(sA)
+					.endAngle(eA);
+
+				return arc(); 
+
+			}).attr("fill", getRandomColor); 
+
+		d3.select(element)
+			.selectAll("g.track")
+			.selectAll("text")
+			.data(d => d)
+			.enter()
+			.append("text")
+			.text(d => d)
+			.attr("transform", function(d, i) {
+
+				var trackIndex = d3.select(this.parentNode).attr("trackIndex");
+
+				var sA = rotationScale(i);
+				var eA = rotationScale(i) + angularWidth;
+
+				var iR = innerRadiusScale(trackIndex); 
+				var oR = innerRadiusScale(trackIndex) + trackWidth; 	
+
+				var theta = (sA + eA) / 2; 
+				var r = (iR + oR) / 2; 
+
+				console.log(theta);
+
+				return "rotate(" + theta * (180 / Math.PI) + ") translate(" + r + "," + 0 + ")"
+
+			})/*.attr("text-anchor", "middle")*/
+			.attr("fill", "white")
+
+	}
+
+	addText(); 
+	addSpindles(); 
+	addTracks(); 
+	
 }
-function renderTracks(element, data) {
 
-	console.log(data);
+function renderTracks(element, data) {
 
 	var keysForTracks = ["C", "D"];
 
@@ -438,10 +541,7 @@ function renderTracks(element, data) {
 
 	$.each(keysForTracks, (index, key) => { //it drives me insane that the parameters are passed in different orders in $.each() and $.map()
 
-		console.log(key);
-
 		var trackData = $.map(data, (datum, index) => datum.xyz[key] );
-		console.log(trackData);
 
 		d3.select(element)
 			.append("g")
@@ -1135,8 +1235,6 @@ function colorForSpindle() {
 }
 
 function colorForAnnotation(datum, index, nSpiralAnnotations) { 
-
-	console.log(datum + " : " + index + " : " + nSpiralAnnotations)
 
 	return "#" + Math.floor(index / (nSpiralAnnotations + 1) * 16777215).toString(16);
 
