@@ -520,7 +520,7 @@ function renderSpiralgram(data, outerElement) {
 
 				console.log(theta);
 
-				return "rotate(" + theta * (180 / Math.PI) + ") translate(" + r + "," + 0 + ")"
+				return "translate(" + Math.sin(theta) * r + "," + Math.cos(theta) * r + ")" + "rotate(" + (theta - Math.PI / 2) * (180 / Math.PI)  + ")" ; 
 
 			})/*.attr("text-anchor", "middle")*/
 			.attr("fill", "white")
