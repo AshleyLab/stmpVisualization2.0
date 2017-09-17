@@ -262,7 +262,10 @@ function renderVisualization(isStreamgraph, element, lD) {
 
 	var localData = deepClone(lD);
 
-	renderSpiralgram(getSpiralData(10, 10), "#graphics");
+	var sD = getSpiralData(10, 10);
+
+	renderSpiralgram(sD, "#graphics");
+	renderStaff(sD[0], "#graphics");
 
 	// if (isStreamgraph) {
 
@@ -282,6 +285,51 @@ function renderVisualization(isStreamgraph, element, lD) {
 
 	return lD;
 
+}
+
+function renderStaff(data, outerElement) {
+
+	var element = "staff"; 
+
+	d3.select(outerElement)
+		.append("svg")
+		.attr("id", element);
+
+	element = "#" + element; 
+
+	console.log(data);
+
+	var width = $(element).width(); 
+	var height = $(element).height();
+
+	console.log(height);
+
+	var verticalBuffer = 20; 
+
+	var verticalScale = d3.scaleLinear()
+		.domain([0, data.length - 1])
+		.range([verticalBuffer, height - verticalBuffer])
+
+	d3.select(element)
+		.append("line")
+		.attr("x1", width / 2)
+		.attr("y1", verticalScale(0))
+		.attr("x2", width / 2)
+		.attr("y2", verticalScale(data.length - 1))
+		.attr("stroke", colorForSpindle); 
+
+	d3.select(element)
+		.append("g")
+		.attr("class", "circles")
+		.selectAll("circle")
+		.data(data)
+		.enter()
+		.append("circle")
+		.attr("cx", width / 2)
+		.attr("cy", (_, i) => verticalScale(i))
+		.attr("r", (d, i) => Math.abs(d) * 3)
+		.attr("fill", "blue")
+	
 }
 
 function renderSpiralgram(data, outerElement) {
@@ -306,14 +354,27 @@ function renderSpiralgram(data, outerElement) {
 
 	var buffer = 10; 
 
+	console.log("width: " + width);
+	console.log("height: " + height);
+
 	var maxRadius = Math.min(width, height) / 2 - buffer; 
-	var minRadius = 25; 
+	var minRadius = 50; 
 
 	var radiusStep = (maxRadius - minRadius) / (nSpiralAnnotations - 1); 
 
 	var rotationScale = d3.scaleLinear()
 		.domain([0, nVariants])
 		.range([0, 360])
+
+	d3.select(element)
+		.append("text")
+		.attr("id", "info")
+		.attr("x", center[0])
+		.attr("y", center[1])
+		.attr("text-anchor", "middle")
+		.attr("font-family", "sans-serif")
+		.attr("font-size", "20px")
+		.attr("fill", "red");
 
 	d3.select(element)
 		.selectAll("g")
@@ -340,8 +401,31 @@ function renderSpiralgram(data, outerElement) {
 		.append("circle")
 		.attr("cx", (_, i) => minRadius + i * radiusStep)
 		.attr("cy", 0)
-		.attr("r", d => d == -1 ? 0 : d * 4)
-		.attr("fill", (d, i) => colorForAnnotation(d, i, nSpiralAnnotations));
+		.attr("r", d => d == -1 ? 0 : d * 10)
+		.attr("fill", (d, i) => colorForAnnotation(d, i, nSpiralAnnotations))
+		.on("mouseover", function(d, i) { //need to use explicit function() because arrow notation uses lexical this
+
+			d3.select(element)
+				.selectAll("g")
+				.selectAll("circle")
+				.filter((_, index) => i == index)
+				.attr("fill", "white"); 
+
+			d3.select("#info")
+				.text(i);
+
+		}).on("mouseout", function(d, i) {
+
+			d3.select(element)
+				.selectAll("g")
+				.selectAll("circle")
+				.filter((_, index) => i == index)				
+				.attr("fill", colorForAnnotation(d, i, nSpiralAnnotations))
+
+			d3.select("#info")
+				.text("")
+
+		});
 
 }
 function renderTracks(element, data) {
@@ -1051,6 +1135,8 @@ function colorForSpindle() {
 }
 
 function colorForAnnotation(datum, index, nSpiralAnnotations) { 
+
+	console.log(datum + " : " + index + " : " + nSpiralAnnotations)
 
 	return "#" + Math.floor(index / (nSpiralAnnotations + 1) * 16777215).toString(16);
 
