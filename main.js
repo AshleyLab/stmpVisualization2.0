@@ -265,7 +265,7 @@ function renderVisualization(isStreamgraph, element, lD) {
 	var sD = getSpiralData(10, 10);
 
 	renderSpiralgram(sD, "#graphics");
-	renderStaff(sD[0], "#graphics");
+	renderStaff(sD[0], "#graphics", sD.length);
 
 	// if (isStreamgraph) {
 
@@ -287,7 +287,7 @@ function renderVisualization(isStreamgraph, element, lD) {
 
 }
 
-function renderStaff(data, outerElement) {
+function renderStaff(data, outerElement, nSA) {
 
 	var element = "staff"; 
 
@@ -307,7 +307,7 @@ function renderStaff(data, outerElement) {
 	var verticalBuffer = 20; 
 
 	var verticalScale = d3.scaleLinear()
-		.domain([0, data.length - 1])
+		.domain([data.length - 1, 0])
 		.range([verticalBuffer, height - verticalBuffer])
 
 	d3.select(element)
@@ -327,8 +327,8 @@ function renderStaff(data, outerElement) {
 		.append("circle")
 		.attr("cx", width / 2)
 		.attr("cy", (_, i) => verticalScale(i))
-		.attr("r", (d, i) => Math.abs(d) * 3)
-		.attr("fill", "blue")
+		.attr("r", (d, i) => d == -1 ? 0 : d * 10)
+		.attr("fill", (d, i) => colorForAnnotation(d, i, nSA));
 	
 }
 
@@ -522,7 +522,7 @@ function renderSpiralgram(data, outerElement) {
 
 				return "translate(" + Math.sin(theta) * r + "," + Math.cos(theta) * r + ")" + "rotate(" + (theta - Math.PI / 2) * (180 / Math.PI)  + ")" ; 
 
-			})/*.attr("text-anchor", "middle")*/
+			}).attr("text-anchor", "middle")
 			.attr("fill", "white")
 
 	}
@@ -1127,6 +1127,7 @@ function sortOnKeys(data, keys, increasing) {
 function getRandomColor() {
 
 	return "#" + Math.floor(Math.random() * 16777215).toString(16);
+	
 }
 
 function showSpinner() { 
@@ -1191,7 +1192,7 @@ function RGBtoHSV() {
         h, s, 
         v = Math.max(r, g, b),
         diff = v - Math.min(r, g, b),
-        diffc = function(c){
+        diffc = function(c) {
             return (v - c) / 6 / diff + 1 / 2;
         };
 
