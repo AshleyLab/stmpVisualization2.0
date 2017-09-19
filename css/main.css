@@ -30,6 +30,22 @@ input[type="radio"] {
   margin-right: .5rem;
 }
 
+/* STYLE THE SPIRALGRAM */
+
+.spiralComponent#masterSVG { 
+  width: 65%;
+  height: 0;
+  padding-bottom: 65%;
+  display: inline-block;
+}
+
+.spiralComponent#staff { 
+  width: 35%;
+  height: 0;
+  padding-bottom: 65%;
+  display: inline-block;
+}
+
 /* STYLE THE GLYPHPLOT */
 
 g.legend .star-label {
@@ -88,7 +104,7 @@ svg.starplot {
     background: #22262d;
 
     border: 0px solid white;
-    border-left-width: 2px;
+    border-left-width: 0px;
     border-radius: 3px;
 
 }

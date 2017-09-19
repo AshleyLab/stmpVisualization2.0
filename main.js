@@ -293,14 +293,15 @@ function renderStaff(data, outerElement, nSA) {
 
 	d3.select(outerElement)
 		.append("svg")
-		.attr("id", element);
+		.attr("id", element)
+		.attr("class", "spiralComponent");
 
 	element = "#" + element; 
 
 	console.log(data);
 
 	var width = $(element).width(); 
-	var height = $(element).height();
+	var height = width * 1.857142857; //$(element).height();
 
 	console.log(height);
 
@@ -338,7 +339,8 @@ function renderSpiralgram(data, outerElement) {
 
 	d3.select(outerElement)
 		.append("svg")
-		.attr("id", element);
+		.attr("id", element)
+		.attr("class","spiralComponent");
 
 	element = "#" + element; 
 
@@ -346,7 +348,9 @@ function renderSpiralgram(data, outerElement) {
 	var nSpiralAnnotations = data[0].length; 
 
 	var width = $(element).width(); 
-	var height = $(element).height(); 
+	var height = width;// $(element).height(); 
+
+	console.log(width);
 
 	var center = [width / 2, height / 2];
 
@@ -483,8 +487,6 @@ function renderSpiralgram(data, outerElement) {
 				var iR = innerRadiusScale(trackIndex); 
 				var oR = innerRadiusScale(trackIndex) + trackWidth; 
 
-				console.log(iR + ", " + oR);
-
 				var sA = rotationScale(i);
 				var eA = rotationScale(i) + angularWidth;
 
@@ -517,8 +519,6 @@ function renderSpiralgram(data, outerElement) {
 
 				var theta = (sA + eA) / 2; 
 				var r = (iR + oR) / 2; 
-
-				console.log(theta);
 
 				return "translate(" + Math.sin(theta) * r + "," + Math.cos(theta) * r + ")" + "rotate(" + (theta - Math.PI / 2) * (180 / Math.PI)  + ")" ; 
 
