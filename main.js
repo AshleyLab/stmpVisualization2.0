@@ -264,8 +264,7 @@ function renderVisualization(isStreamgraph, element, lD) {
 
 	var sD = getSpiralData(10, 10);
 
-	renderSpiralgram(sD, "#graphics");
-	renderStaff(sD[0], "#graphics", sD.length);
+	renderSpiralLayout(sD); 
 
 	// if (isStreamgraph) {
 
@@ -287,21 +286,39 @@ function renderVisualization(isStreamgraph, element, lD) {
 
 }
 
+function renderSpiralLayout(data) { 
+
+	var element = "#graphics";
+
+	d3.select(element)
+		.append("div")
+		.attr("id", "spiralLayoutContainer"); 
+
+	d3.select("#spiralLayoutContainer")
+		.append("div")
+		.attr("id", "innerSpiralLayoutContainer");
+
+	d3.select("#innerSpiralLayoutContainer")
+		.append("div")
+		.attr("id", "spiralContainer")
+		.append("svg")
+		.attr("id", "spiralElement"); 
+
+	d3.select("#innerSpiralLayoutContainer")
+		.append("div")
+		.attr("id", "staffContainer")
+		.append("svg")
+		.attr("id", "staffElement");
+
+	// renderSpiralgram("#spiralElement", data);
+	// renderStaff("#staffElement", data[0], data.length)
+
+}
+
 function renderStaff(data, outerElement, nSA) {
 
-	var element = "staff"; 
-
-	d3.select(outerElement)
-		.append("svg")
-		.attr("id", element)
-		.attr("class", "spiralComponent");
-
-	element = "#" + element; 
-
-	console.log(data);
-
 	var width = $(element).width(); 
-	var height = width * 1.857142857; //$(element).height();
+	var height = $(element).height();
 
 	console.log(height);
 
@@ -329,34 +346,37 @@ function renderStaff(data, outerElement, nSA) {
 		.attr("cx", width / 2)
 		.attr("cy", (_, i) => verticalScale(i))
 		.attr("r", (d, i) => d == -1 ? 0 : d * 10)
-		.attr("fill", (d, i) => colorForAnnotation(d, i, nSA));
-	
+		.attr("fill", (d, i) => "black" /*colorForAnnotation(d, i, nSA)*/);
+
+	d3.select(element)
+		.selectAll("circle")
+		.style("pointer-events", "visible")
+		.on("click", _ => console.log("clicked"));	
 }
 
-function renderSpiralgram(data, outerElement) {
+function colorForNucleotide(nucleotide) {
 
-	var element = "masterSVG"; 
+	var colors = {"A" : "red", "G" : "green", "T" : "yellow", "U" : "yellow", "C" : "blue"}; 
 
-	d3.select(outerElement)
-		.append("svg")
-		.attr("id", element)
-		.attr("class","spiralComponent");
+	return nucleotide in colors ? colors[nucleotide] : "darkgrey";
 
-	element = "#" + element; 
+}
+
+function renderSpiralgram(data, element) {
 
 	var nVariants = data.length; 
 	var nSpiralAnnotations = data[0].length; 
 
 	var width = $(element).width(); 
-	var height = width;// $(element).height(); 
+	var height = $(element).height();
 
 	console.log(width);
 
 	var center = [width / 2, height / 2];
 
 	var outerBuffer = 10; 
-	var tracksWidth = 50; 
-	var spindlesToTracksBuffer = 20; 
+	var tracksWidth = 70; 
+	var spindlesToTracksBuffer = 30; 
 	var innerBuffer = 50; 
 
 	var rotationScale = d3.scaleLinear()
@@ -410,7 +430,10 @@ function renderSpiralgram(data, outerElement) {
 			.attr("cy", 0)
 			.attr("r", d => d == -1 ? 0 : d * 10)
 			.attr("fill", (d, i) => colorForAnnotation(d, i, nSpiralAnnotations))
-			.on("mouseover", function(d, i) { //need to use explicit function() because arrow notation uses lexical this
+
+			.on("mouseover", function(d, i) { 
+
+				console.log("mouseover!");
 
 				d3.select(element)
 					.selectAll("g")
@@ -421,7 +444,7 @@ function renderSpiralgram(data, outerElement) {
 				d3.select("#info")
 					.text(i);
 
-			}).on("mouseout", function(d, i) {
+			})/*.on("mouseout", function(d, i) {
 
 				d3.select(element)
 					.selectAll("g")
@@ -432,7 +455,7 @@ function renderSpiralgram(data, outerElement) {
 				d3.select("#info")
 					.text("")
 
-			});
+			});*/
 
 	}
 
@@ -451,11 +474,11 @@ function renderSpiralgram(data, outerElement) {
 
 		var trackData = [
 
-			["1", "7", "9", "3", "5", "X", "9", "2", "10", "Y"],
-
 			["A", "T", "C", "G", "A", "T", "C", "T", "C", "G"], 
 
-			["T", "C", "G", "C", "T", "A", "G", "A", "G", "T"]
+			["T", "C", "G", "C", "T", "A", "G", "A", "G", "T"],
+
+			["1", "7", "9", "3", "5", "X", "9", "2", "10", "Y"]
 
 		]; 
 
@@ -498,7 +521,7 @@ function renderSpiralgram(data, outerElement) {
 
 				return arc(); 
 
-			}).attr("fill", getRandomColor); 
+			}).attr("fill", colorForNucleotide); 
 
 		d3.select(element)
 			.selectAll("g.track")
