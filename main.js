@@ -401,7 +401,9 @@ function renderSpiralgram(data, element) {
 
 		var maxRadius = Math.min(width, height) / 2 - outerBuffer - tracksWidth; 
 
-		var radiusStep = (maxRadius - innerBuffer) / (nSpiralAnnotations - 1); 
+		var tailLength = 50; //part of spindle there's no circles on
+
+		var radiusStep = (maxRadius - innerBuffer - tailLength) / (nSpiralAnnotations - 1); 
 
 		d3.select(element)
 			.selectAll("g")
@@ -418,7 +420,47 @@ function renderSpiralgram(data, element) {
 			.attr("x2", maxRadius)
 			.attr("y2", 0)
 			.attr("class", "spindle")
-			.attr("stroke", colorForSpindle);
+			.attr("stroke", colorForSpindle)
+			.attr("stroke-width", 2)
+			.attr("data-clicked", 0) //0 is falsey
+			.on("mouseover", function(d, i) {
+
+				d3.select(this)
+					.attr("stroke", highlightForSpindle);
+
+			}).on("mouseout", function(d, i) {
+
+				if (parseInt(d3.select(this).attr("data-clicked"))) {
+					return 
+				}
+
+				d3.select(this)
+					.attr("stroke", colorForSpindle);
+
+			}).on("click", function(d, i) {
+
+				var clicked = parseInt(d3.select(this).attr("data-clicked"));
+				console.log(clicked);
+
+				if (clicked) { 
+
+					console.log("regular")
+
+					d3.select(this)
+						.attr("stroke", colorForSpindle)
+
+				} else {
+
+					console.log("highlight");
+
+					d3.select(this)
+						.attr("stroke", highlightForSpindle); 
+
+				}
+
+				d3.select(this).attr("data-clicked", 1 - clicked)
+
+			})
 
 		d3.select(element)
 			.selectAll("g")
@@ -426,11 +468,10 @@ function renderSpiralgram(data, element) {
 			.data(d => d)
 			.enter()
 			.append("circle")
-			.attr("cx", (_, i) => innerBuffer + i * radiusStep)
+			.attr("cx", (_, i) => innerBuffer + tailLength + i * radiusStep)
 			.attr("cy", 0)
 			.attr("r", d => d == -1 ? 0 : d * 10)
 			.attr("fill", (d, i) => colorForAnnotation(d, i, nSpiralAnnotations))
-
 			.on("mouseover", function(d, i) { 
 
 				console.log("mouseover!");
@@ -444,7 +485,7 @@ function renderSpiralgram(data, element) {
 				d3.select("#info")
 					.text(i);
 
-			})/*.on("mouseout", function(d, i) {
+			}).on("mouseout", function(d, i) {
 
 				d3.select(element)
 					.selectAll("g")
@@ -455,7 +496,7 @@ function renderSpiralgram(data, element) {
 				d3.select("#info")
 					.text("")
 
-			});*/
+			});
 
 	}
 
@@ -1250,6 +1291,12 @@ function RGBtoHSV() {
         s: Math.round(s * 100),
         v: Math.round(v * 100)
     };
+}
+
+function highlightForSpindle() { 
+
+	return "white";
+
 }
 
 function colorForSpindle() { 
