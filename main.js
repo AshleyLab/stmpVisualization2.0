@@ -340,6 +340,8 @@ function renderStaff(data, element, nSA) {
 		.attr("y2", verticalScale(data.length - 1))
 		.attr("stroke", colorForSpindle); 
 
+	var spiralElement = "#spiralElement";
+
 	d3.select(element)
 		.append("g")
 		.attr("class", "circles")
@@ -350,12 +352,47 @@ function renderStaff(data, element, nSA) {
 		.attr("cx", width / 2)
 		.attr("cy", (_, i) => verticalScale(i))
 		.attr("r", (d, i) => d == -1 ? 0 : d * 10)
-		.attr("fill", (d, i) => colorForAnnotation(d, i, nSA));
+		.attr("data-index", (_, i) => i)
+		.attr("fill", (d, i) => colorForAnnotation(d, i, nSA))
+		.on("mouseenter", function(d, i) {
+
+			d3.select(this)	
+				.attr("fill", highlightForCircle); 
+
+			d3.select(spiralElement)
+				.selectAll("circle[data-index=\"" + i + "\"]") 
+				.attr("fill", highlightForCircle);
+				
+		}).on("mouseout", function(d, i) {
+
+			d3.select(this)	
+				.attr("fill", colorForAnnotation(d, i, nSA)); 
+
+			d3.select(spiralElement)
+				.selectAll("circle[data-index=\"" + i + "\"]") 
+				.attr("fill", colorForAnnotation(d, i, nSA))
+		
+		}); 
 
 	d3.select(element)
-		.selectAll("circle")
-		.style("pointer-events", "visible")
-		.on("click", _ => console.log("clicked"));	
+		.append("g")
+		.attr("class", "labels")
+		.selectAll("text")
+		.data(data)
+		.enter()
+		.append("text")
+		.text((d, i) => i + ": " + d)
+		.attr("x", width / 4)
+		.attr("y", (_, i) => verticalScale(i))
+		.attr("text-anchor", "middle")
+		.attr("dominant-baseline", "central") //centers text vertically at this y position
+		.attr("fill", "white")
+		.attr("font-size", "10px")
+
+	// d3.select(element)
+	// 	.selectAll("circle")
+	// 	.style("pointer-events", "visible")
+	// 	.on("click", _ => console.log("clicked"));
 }
 
 function colorForNucleotide(nucleotide) {
@@ -416,6 +453,8 @@ function renderSpiralgram(data, element) {
 			.append("g")
 			.attr("transform", (_, i) => "translate(" + center[0] + "," + center[1] + ") rotate(" + rotationScale(i) + ")");
 
+		var staffElement = "#staffElement";
+
 		d3.select(element)
 			.selectAll("g")
 			.append("line")
@@ -431,6 +470,7 @@ function renderSpiralgram(data, element) {
 
 				d3.select(this)
 					.attr("stroke", highlightForSpindle);
+
 
 			}).on("mouseout", function(d, i) {
 
@@ -479,16 +519,21 @@ function renderSpiralgram(data, element) {
 			.attr("cy", 0)
 			.attr("r", d => d == -1 ? 0 : d * 10)
 			.attr("fill", (d, i) => colorForAnnotation(d, i, nSpiralAnnotations))
+			.attr("data-index", (_, i) => i)
 			.on("mouseover", function(d, i) { 
-re
+
 				d3.select(element)
 					.selectAll("g")
 					.selectAll("circle")
 					.filter((_, index) => i == index)
-					.attr("fill", "white"); 
+					.attr("fill", highlightForCircle); 
 
 				d3.select("#info")
 					.text(i);
+
+				d3.select(staffElement)
+					.select("circle[data-index=\"" + i + "\"")
+					.attr("fill", highlightForSpindle);
 
 			}).on("mouseout", function(d, i) {
 
@@ -500,6 +545,10 @@ re
 
 				d3.select("#info")
 					.text(""); 
+
+				d3.select(staffElement)
+					.select("circle[data-index=\"" + i + "\"")
+					.attr("fill", colorForAnnotation(d, i, nSpiralAnnotations));
 
 			});
 
@@ -1310,9 +1359,17 @@ function colorForSpindle() {
 
 }
 
+function highlightForCircle() { 
+
+	return "white";
+
+}
+
 function colorForAnnotation(datum, index, nSpiralAnnotations) { 
 
-	return "#" + Math.floor(index / (nSpiralAnnotations + 1) * 16777215).toString(16);
+	// console.log(datum + " : " + index + " : " + nSpiralAnnotations);
+
+	return "#" + Math.floor((index + 1) / (nSpiralAnnotations + 1) * 16777215).toString(16);
 
 }
 
