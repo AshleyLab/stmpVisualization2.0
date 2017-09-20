@@ -310,12 +310,12 @@ function renderSpiralLayout(data) {
 		.append("svg")
 		.attr("id", "staffElement");
 
-	// renderSpiralgram("#spiralElement", data);
-	// renderStaff("#staffElement", data[0], data.length)
+	renderSpiralgram(data, "#spiralElement");
+	renderStaff(data[0], "#staffElement", data.length)
 
 }
 
-function renderStaff(data, outerElement, nSA) {
+function renderStaff(data, element, nSA) {
 
 	var width = $(element).width(); 
 	var height = $(element).height();
@@ -346,7 +346,7 @@ function renderStaff(data, outerElement, nSA) {
 		.attr("cx", width / 2)
 		.attr("cy", (_, i) => verticalScale(i))
 		.attr("r", (d, i) => d == -1 ? 0 : d * 10)
-		.attr("fill", (d, i) => "black" /*colorForAnnotation(d, i, nSA)*/);
+		.attr("fill", (d, i) => colorForAnnotation(d, i, nSA));
 
 	d3.select(element)
 		.selectAll("circle")
@@ -367,10 +367,10 @@ function renderSpiralgram(data, element) {
 	var nVariants = data.length; 
 	var nSpiralAnnotations = data[0].length; 
 
+	console.log(element);
+
 	var width = $(element).width(); 
 	var height = $(element).height();
-
-	console.log(width);
 
 	var center = [width / 2, height / 2];
 
