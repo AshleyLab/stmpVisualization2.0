@@ -329,6 +329,10 @@ function renderStaff(data, element, nSA) {
 		.range([verticalBuffer, height - verticalBuffer])
 
 	d3.select(element)
+		.selectAll("*")
+		.remove(); 
+
+	d3.select(element)
 		.append("line")
 		.attr("x1", width / 2)
 		.attr("y1", verticalScale(0))
@@ -440,27 +444,30 @@ function renderSpiralgram(data, element) {
 			}).on("click", function(d, i) {
 
 				var clicked = parseInt(d3.select(this).attr("data-clicked"));
-				console.log(clicked);
 
 				if (clicked) { 
-
-					console.log("regular")
 
 					d3.select(this)
 						.attr("stroke", colorForSpindle)
 
 				} else {
 
-					console.log("highlight");
-
 					d3.select(this)
 						.attr("stroke", highlightForSpindle); 
 
 				}
 
+				d3.select(element)
+					.selectAll("line")
+					.filter((_, index) => index != i)
+					.attr("data-clicked", 0)
+					.attr("stroke", colorForSpindle);
+
 				d3.select(this).attr("data-clicked", 1 - clicked)
 
-			})
+				renderStaff(data[i], "#staffElement", data.length);
+
+			}); 
 
 		d3.select(element)
 			.selectAll("g")
@@ -473,9 +480,7 @@ function renderSpiralgram(data, element) {
 			.attr("r", d => d == -1 ? 0 : d * 10)
 			.attr("fill", (d, i) => colorForAnnotation(d, i, nSpiralAnnotations))
 			.on("mouseover", function(d, i) { 
-
-				console.log("mouseover!");
-
+re
 				d3.select(element)
 					.selectAll("g")
 					.selectAll("circle")
@@ -491,10 +496,10 @@ function renderSpiralgram(data, element) {
 					.selectAll("g")
 					.selectAll("circle")
 					.filter((_, index) => i == index)				
-					.attr("fill", colorForAnnotation(d, i, nSpiralAnnotations))
+					.attr("fill", colorForAnnotation(d, i, nSpiralAnnotations)); 
 
 				d3.select("#info")
-					.text("")
+					.text(""); 
 
 			});
 
