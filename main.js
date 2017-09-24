@@ -125,60 +125,55 @@ function parseXLS(XLS) {
 
 		}
 		    
-		encodeWorkbook(workbook);
+		readWorkbook(workbook);
 
 	};
 
 	reader.readAsArrayBuffer(XLS);
 }
 
-function encodeWorkbook(workbook){
+function readWorkbook(workbook){
 
 	var sheetNames = workbook.SheetNames;
+
+	console.log(workbook); 
+	console.log(sheetNames);
 
 	for (i in sheetNames) {
 
 		var sheet = sheetNames[i];
 
-		// if (sheetNames[i] != "Ing_DeNovo") {
-		// 	continue; //just test with this sheet
-		// }
+		if (sheet == "Column Descriptions") {
+			console.log("skipping " + sheet);
+			continue; 
+		}
+	
+		crudeSheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheet]); 
+		parsedSheet = parseCrude(crudeSheet);
 
-		console.log("parsing sheet: " + sheet);
-		crudeData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet]); //this function gives us a crude json object that we then parse further
-		parsedSheet = parseCrude(crudeData);
-
-		//visualize each parsed sheet, maybe different depending on the type of curation
 	}
 }
 
 //parses the "crude json" which is sheetJS's export of an xls row to a json
-function parseCrude(crudeData){
+function parseCrude(sheet) {
 
 	//we're going to be rendering each different field specifically
 	//i.e., we'll define a way to render the chromosome, and we'll be defining a way to render the clinvar data
 	//so is it really necessary to separate the different kinds of fields?
 
-	var columnMaps = [
-		["chromosome", "Chromosome", "CHROM", "CHR", "Chr"], //store all of these in the final object as "chromosome"
-		["ref", "REF", "Reference Allele", "Reference Nucleotide"], // '' as "ref"
-		["alt", "ALT", "Sample Allele", "Sample Nucleotide", "Variant Allele", "Variant Nucleotide"], 
-		["pos", "POS", "Position", "Start"],
-		["fullExac", "hg19_popfreq_all_20150413_exac_all", "ExAC (AF%)", "ExAC (%)", "ExAC"], 
-		["europeExac", "ExAC European", "hg19_popfreq_all_20150413_exac_nfe"], 
-		["1kgenomes", "1000 Genomes", "hg19_popfreq_all_20150413_1000g_all"],
-		["clinvar", "clinvar_clinical_significance"]
-	]; 
-
-	var allFlat = $.map(columnMaps, function(columnMap) { //convert columnMaps from a nested array to a flat, 1D one
-		return columnMap; 
-	});
-
 	var visualizationData = []; 
 
-	for (i in crudeData) {
+	var columns = [
+		"CHROM", "POS", "REF", "ALT", "QUAL", "GT", //basic information
+		"NE" /*Polyphen*/, "?" /*CADD*/, "NC" /*SIFT*/, "?" /*RVIS*/, "NI" /*MutationTaster*/, "?" /*FATHMM*/, //model scores
+		"GNOMAD_Max_Allele_Freq" /*gnomAD*/, "KG_AF_POPMAX" /*1000G*/, //frequencies
+		"TIER"
+	]
 
-		var row = crudeData[i];
+	for (i in sheet) {
+
+		var row = sheet[i];
+		console.log(row);
 
 		var variant = {
 			"core" : {}, 
@@ -201,36 +196,16 @@ function parseCrude(crudeData){
 			}
 		}
 
-		//add all the stuff in the colum map
-		$.each(columnMaps, function(index, columnMap) { //for each subarray of column maps—each field we want to capture
+		$.each(columns, (_, column) => {
 
-			var key = columnMap[0]; //use the first alias in the list as the key
+			console.log(column);
 
-			var value = $.map(columnMap, function(mapItem) { //map each alias which could be the header for the data in the XLSX
-
-				return row[mapItem] ? row[mapItem] : null; //to the value it might hold in the XLSX (nulls are removed)
-
-			}).pop(); //get the value, if any exists
-
-			variant.core[key] = fillTemplate(value); 
+			variant.core[column] = fillTemplate(row[column]);
 
 		}); 
 
-		$.each(row, function(field, value) {
-			if ($.inArray(field, allFlat) == -1) { //if this is a field we haven't seen before
-				variant.extra[field] = fillTemplate(value); //add it in the extra category
-			}
-		}); 
-
-		var key = generateKey(variant);
-
-		if (key != 0) { 
-
-			var v = {}; 
-			v[key] = variant; 
-
-			visualizationData.push(v);
-		}
+		console.log(variant);
+		visualizationData.push(variant);
 	}
 	
 	console.log(visualizationData);
