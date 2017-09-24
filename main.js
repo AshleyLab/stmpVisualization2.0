@@ -187,7 +187,7 @@ function parseCrude(crudeData){
 				"metrics": {
 					"nClicks" : 0
 				}, "workflow": { 
-					"curationMode" : "Sheetname", 
+					"curationMode" : "sheetname", 
 					"notes" : "notes"
 				}
 			}
@@ -475,7 +475,7 @@ function renderSpiralgram(data, element) {
 			}).on("mouseout", function(d, i) {
 
 				if (parseInt(d3.select(this).attr("data-clicked"))) {
-					return 
+					return; 
 				}
 
 				d3.select(this)
@@ -488,7 +488,7 @@ function renderSpiralgram(data, element) {
 				if (clicked) { 
 
 					d3.select(this)
-						.attr("stroke", colorForSpindle)
+						.attr("stroke", colorForSpindle); 
 
 				} else {
 
