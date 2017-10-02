@@ -6,7 +6,7 @@ $(function() {
 
 	axisSpace = 15; 
 
-	var sampleData = [
+	/*var sampleData = [
 		
 		{"key" : "key1", "xyz" : {"A" : 3,"B" : 2, "C" : 4, "D" : 5, "E" : 2, "F": 4}},
 		{"key" : "key2", "xyz" : {"A" : 2,"B" : 4, "C" : 3, "D" : 1, "E" : 3, "F": 1}},
@@ -49,15 +49,15 @@ $(function() {
 
 	// console.log(sampleData);
 
-	data = sampleData; 
+	data = sampleData; */
 	outerElement = "#graphics";
 
-	var features = Object.keys(sampleData[0].xyz).length; 
+	// var features = Object.keys(sampleData[0].xyz).length; 
 
-	pathClicks = Array.apply(null, Array(features)).map(Number.prototype.valueOf,0); 
+	// pathClicks = Array.apply(null, Array(features)).map(Number.prototype.valueOf,0); 
 	//keep track of how many times a layer is clicked so know how to sort it
 
-	data = renderVisualization(true, element, data); //weird things happen if renderVisualization doesn't return... ??
+	// data = renderVisualization(true, element, data); //weird things happen if renderVisualization doesn't return... ??
 	$("#uploadLink").on("click", function(event){
 
     	event.preventDefault();
@@ -76,6 +76,7 @@ $(function() {
 
 		} else { 
 
+			console.log("invalid input");
 			// showError(); 
 
 		}
@@ -96,9 +97,7 @@ function validateXLSX(file) {
 
 	var extension = file.name.split(".").slice(-1)[0]; 
 
-	// return extension == ".xlsx" || extension == ".xls"; 
-
-	return true; 
+	return extension == "xlsx" || extension == "xls"; 
 
 }
 
@@ -165,15 +164,14 @@ function parseCrude(sheet) {
 
 	var columns = [
 		"CHROM", "POS", "REF", "ALT", "QUAL", "GT", //basic information
-		"NE" /*Polyphen*/, "?" /*CADD*/, "NC" /*SIFT*/, "?" /*RVIS*/, "NI" /*MutationTaster*/, "?" /*FATHMM*/, //model scores
+		"NE" /*Polyphen*/, "CADD?" /*CADD*/, "NC" /*SIFT*/, "RVIS?" /*RVIS*/, "NI" /*MutationTaster*/, "FATHMM?" /*FATHMM*/, //model scores
 		"GNOMAD_Max_Allele_Freq" /*gnomAD*/, "KG_AF_POPMAX" /*1000G*/, //frequencies
-		"TIER"
+		"TIER" /*Tier*/
 	]
 
 	for (i in sheet) {
 
 		var row = sheet[i];
-		console.log(row);
 
 		var variant = {
 			"core" : {}, 
@@ -188,9 +186,20 @@ function parseCrude(sheet) {
 			}
 		}; 
 
-		function fillTemplate(value) {
+		function fillTemplate(value, column) {
+
+			if (!value) {
+				console.log("missing value for " + column);
+
+				if ($.inArray(value, ["NE", "CADD?", "NC", "RVIS?", "NI", "FATHMM?", "GNOMAD_Max_Allele_Freq", "KG_AF_POPMAX"] != -1)) {
+					var newValue = Math.random(); 
+					console.log("set it to " + newValue);
+					value = newValue; 
+				}
+			}
+
 			return {
-				"value": value || "", //if value is null, just assign empty string 
+				"value": value, //if value is null, just assign empty string 
 				"drawingValue" : "", 
 				"associatedValues" : []
 			}
@@ -198,17 +207,15 @@ function parseCrude(sheet) {
 
 		$.each(columns, (_, column) => {
 
-			console.log(column);
-
-			variant.core[column] = fillTemplate(row[column]);
+			variant.core[column] = fillTemplate(row[column], column);
 
 		}); 
 
-		console.log(variant);
 		visualizationData.push(variant);
 	}
 	
 	console.log(visualizationData);
+	renderVisualization(false, "#graphics", visualizationData); 
 }
 
 function generateKey(variant) {
@@ -233,74 +240,72 @@ function removeSVGs(element) {
 
 }
 
-function renderVisualization(isStreamgraph, element, lD) {
+function renderVisualization(isStreamgraph, element, data) {
 
-	var localData = deepClone(lD);
+	// var localData = deepClone(lD);
+	// var sD = getSpiralData(10, 10);
 
-	var sD = getSpiralData(10, 10);
+	if (isStreamgraph) {
 
-	renderSpiralLayout(sD); 
+		removeSVGs(element);
 
-	// if (isStreamgraph) {
+		streamData = prepareDataForStreamgraph(localData);
+		renderStreamgraph("#graphics", streamData); 
+		renderTracks("#masterSVG", data);
+		renderRadar();
 
-	// 	removeSVGs(element);
+	} else { //spiral
 
-	// 	streamData = prepareDataForStreamgraph(localData);
-	// 	renderStreamgraph("#graphics", streamData); 
-	// 	renderTracks("#masterSVG", lD);
-	// 	renderRadar();
+		d3.select(element)
+			.append("div")
+			.attr("id", "spiralLayoutContainer"); 
 
-	// } else { 
+		d3.select("#spiralLayoutContainer")
+			.append("div")
+			.attr("id", "innerSpiralLayoutContainer");
 
-	// 	removeSVGs(element);
-	// 	renderGlyphplot(element, localData); 
+		d3.select("#innerSpiralLayoutContainer")
+			.append("div")
+			.attr("id", "spiralContainer")
+			.append("svg")
+			.attr("id", "spiralElement"); 
 
-	// }
+		d3.select("#innerSpiralLayoutContainer")
+			.append("div")
+			.attr("id", "staffContainer")
+			.append("svg")
+			.attr("id", "staffElement");
 
-	return lD;
+		renderSpiralgram(data, "#spiralElement");
+		renderStaff(data[0], "#staffElement");
 
-}
-
-function renderSpiralLayout(data) { 
-
-	var element = "#graphics";
-
-	d3.select(element)
-		.append("div")
-		.attr("id", "spiralLayoutContainer"); 
-
-	d3.select("#spiralLayoutContainer")
-		.append("div")
-		.attr("id", "innerSpiralLayoutContainer");
-
-	d3.select("#innerSpiralLayoutContainer")
-		.append("div")
-		.attr("id", "spiralContainer")
-		.append("svg")
-		.attr("id", "spiralElement"); 
-
-	d3.select("#innerSpiralLayoutContainer")
-		.append("div")
-		.attr("id", "staffContainer")
-		.append("svg")
-		.attr("id", "staffElement");
-
-	renderSpiralgram(data, "#spiralElement");
-	renderStaff(data[0], "#staffElement", data.length)
+	}
 
 }
 
-function renderStaff(data, element, nSA) {
+function renderStaff(rawData, element) {
 
 	var width = $(element).width(); 
 	var height = $(element).height();
 
-	console.log(height);
+	var columns = ["NE", "CADD?", "NC", "RVIS?", "NI", "FATHMM?", "GNOMAD_Max_Allele_Freq", "KG_AF_POPMAX"];
+	var nColumns = columns.length;
+
+	var data = $.map(columns, column => {
+		var v = rawData.core[column].value; 
+		if (isNaN(v)) {
+			console.log(v + " is NaN");
+			v = 0; 
+		} 
+		return parseFloat(v);
+	});
+
+	console.log(data);
 
 	var verticalBuffer = 20; 
 
 	var verticalScale = d3.scaleLinear()
-		.domain([data.length - 1, 0])
+		.domain([nColumns - 1, 0])
 		.range([verticalBuffer, height - verticalBuffer])
 
 	d3.select(element)
@@ -326,9 +331,9 @@ function renderStaff(data, element, nSA) {
 		.append("circle")
 		.attr("cx", width / 2)
 		.attr("cy", (_, i) => verticalScale(i))
-		.attr("r", (d, i) => d == -1 ? 0 : d * 10)
+		.attr("r", (d, i) => d * 10)
 		.attr("data-index", (_, i) => i)
-		.attr("fill", (d, i) => colorForAnnotation(d, i, nSA))
+		.attr("fill", (d, i) => { console.log(i); console.log(nColumns); return colorForAnnotation(d, i, nColumns); })
 		.on("mouseenter", function(d, i) {
 
 			d3.select(this)	
@@ -341,11 +346,11 @@ function renderStaff(data, element, nSA) {
 		}).on("mouseout", function(d, i) {
 
 			d3.select(this)	
-				.attr("fill", colorForAnnotation(d, i, nSA)); 
+				.attr("fill", colorForAnnotation(d, i, nColumns)); 
 
 			d3.select(spiralElement)
 				.selectAll("circle[data-index=\"" + i + "\"]") 
-				.attr("fill", colorForAnnotation(d, i, nSA))
+				.attr("fill", colorForAnnotation(d, i, nColumns))
 		
 		}); 
 
@@ -363,11 +368,6 @@ function renderStaff(data, element, nSA) {
 		.attr("dominant-baseline", "central") //centers text vertically at this y position
 		.attr("fill", "white")
 		.attr("font-size", "10px")
-
-	// d3.select(element)
-	// 	.selectAll("circle")
-	// 	.style("pointer-events", "visible")
-	// 	.on("click", _ => console.log("clicked"));
 }
 
 function colorForNucleotide(nucleotide) {
@@ -381,9 +381,12 @@ function colorForNucleotide(nucleotide) {
 function renderSpiralgram(data, element) {
 
 	var nVariants = data.length; 
-	var nSpiralAnnotations = data[0].length; 
 
-	console.log(element);
+	var spindleColumns = ["NE", "CADD?", "NC", "RVIS?", "NI", "FATHMM?", "GNOMAD_Max_Allele_Freq", "KG_AF_POPMAX"];
+	var nSpindleColumns = spindleColumns.length; 
+
+	var trackColumns = ["REF", "ALT", "CHROM"];
+	var nTrackColumns = trackColumns.length; 
 
 	var width = $(element).width(); 
 	var height = $(element).height();
@@ -417,13 +420,29 @@ function renderSpiralgram(data, element) {
 
 		var maxRadius = Math.min(width, height) / 2 - outerBuffer - tracksWidth; 
 
-		var tailLength = 50; //part of spindle there's no circles on
+		var tailLength = 10; //part of spindle there's no circles on
 
-		var radiusStep = (maxRadius - innerBuffer - tailLength) / (nSpiralAnnotations - 1); 
+		var radiusStep = (maxRadius - innerBuffer - tailLength) / (nSpindleColumns - 1);
+
+		var spindleData = $.map(data, variant => 
+
+			[$.map(spindleColumns, column => {
+
+				var p = variant.core[column].value; 
+				var v = parseFloat(p); 
+
+				if (v !== v) { v = 0; } //weird way to test for NaN
+
+				return v;
+			})]
+	
+		);
+
+		console.log(spindleData);
 
 		d3.select(element)
 			.selectAll("g")
-			.data(data)
+			.data(spindleData)
 			.enter()
 			.append("g")
 			.attr("transform", (_, i) => "translate(" + center[0] + "," + center[1] + ") rotate(" + rotationScale(i) + ")");
@@ -460,17 +479,8 @@ function renderSpiralgram(data, element) {
 
 				var clicked = parseInt(d3.select(this).attr("data-clicked"));
 
-				if (clicked) { 
-
-					d3.select(this)
-						.attr("stroke", colorForSpindle); 
-
-				} else {
-
-					d3.select(this)
-						.attr("stroke", highlightForSpindle); 
-
-				}
+				d3.select(this)
+					.attr("stroke", clicked ? colorForSpindle : highlightForSpindle); 
 
 				d3.select(element)
 					.selectAll("line")
@@ -492,8 +502,8 @@ function renderSpiralgram(data, element) {
 			.append("circle")
 			.attr("cx", (_, i) => innerBuffer + tailLength + i * radiusStep)
 			.attr("cy", 0)
-			.attr("r", d => d == -1 ? 0 : d * 10)
-			.attr("fill", (d, i) => colorForAnnotation(d, i, nSpiralAnnotations))
+			.attr("r", d => d == -1 ? 0 : d * 5)
+			.attr("fill", (d, i) => colorForAnnotation(d, i, nSpindleColumns))
 			.attr("data-index", (_, i) => i)
 			.on("mouseover", function(d, i) { 
 
@@ -515,15 +525,15 @@ function renderSpiralgram(data, element) {
 				d3.select(element)
 					.selectAll("g")
 					.selectAll("circle")
-					.filter((_, index) => i == index)				
-					.attr("fill", colorForAnnotation(d, i, nSpiralAnnotations)); 
+					.filter((_, index) => i == index)
+					.attr("fill", colorForAnnotation(d, i, nSpindleColumns)); 
 
 				d3.select("#info")
 					.text(""); 
 
 				d3.select(staffElement)
 					.select("circle[data-index=\"" + i + "\"")
-					.attr("fill", colorForAnnotation(d, i, nSpiralAnnotations));
+					.attr("fill", colorForAnnotation(d, i, nSpindleColumns));
 
 			});
 
@@ -542,21 +552,19 @@ function renderSpiralgram(data, element) {
 			.domain([0, nTracks])
 			.range([innerRadius, outerRadius]);
 
-		var trackData = [
+		var trackData = $.map(data, variant => 
 
-			["A", "T", "C", "G", "A", "T", "C", "T", "C", "G"], 
+			[$.map(trackColumns, column => variant.core[column].value)]
 
-			["T", "C", "G", "C", "T", "A", "G", "A", "G", "T"],
+		); 
 
-			["1", "7", "9", "3", "5", "X", "9", "2", "10", "Y"]
-
-		]; 
+		console.log(trackData);
 
 		var rotationScale = d3.scaleLinear()
 			.domain([0, nVariants])
 			.range([0, Math.PI * 2]);
 
-		var angularWidth = Math.PI * 2 / 10; 
+		var angularWidth = Math.PI * 2 / nVariants; 
 
 		d3.select(element)
 			.selectAll("g.track")
@@ -564,8 +572,10 @@ function renderSpiralgram(data, element) {
 			.enter()
 			.append("g")
 			.attr("class", "track")
-			.attr("trackIndex", (_, i) => i)
+			.attr("data-index", (_, i) => i)
 			.attr("transform", "translate(" + center[0] + "," + center[1] + ")"); 
+
+		var lastText = ""; 
 
 		d3.select(element)
 			.selectAll("g.track")
@@ -573,12 +583,12 @@ function renderSpiralgram(data, element) {
 			.data(d => d)
 			.enter()
 			.append("path")
-			.attr("d", function(d, i) {
+			.attr("d", function(d, index) {
 
-				var trackIndex = d3.select(this.parentNode).attr("trackIndex");
+				var i = parseInt(d3.select(this.parentNode).attr("data-index")); 
 
-				var iR = innerRadiusScale(trackIndex); 
-				var oR = innerRadiusScale(trackIndex) + trackWidth; 
+				var iR = innerRadiusScale(index); 
+				var oR = innerRadiusScale(index) + trackWidth; 
 
 				var sA = rotationScale(i);
 				var eA = rotationScale(i) + angularWidth;
@@ -591,32 +601,50 @@ function renderSpiralgram(data, element) {
 
 				return arc(); 
 
-			}).attr("fill", colorForNucleotide); 
+			}).attr("fill", colorForNucleotide)
+			// .attr("stroke-width", 0)
+			.on("mouseover", function(d, i) {
 
-		d3.select(element)
-			.selectAll("g.track")
-			.selectAll("text")
-			.data(d => d)
-			.enter()
-			.append("text")
-			.text(d => d)
-			.attr("transform", function(d, i) {
+				d3.select(this)
+					.attr("fill", highlightForTrack)
 
-				var trackIndex = d3.select(this.parentNode).attr("trackIndex");
+				var lastText = d3.select("#info").text(); 
 
-				var sA = rotationScale(i);
-				var eA = rotationScale(i) + angularWidth;
+				d3.select("#info").text(d);
 
-				var iR = innerRadiusScale(trackIndex); 
-				var oR = innerRadiusScale(trackIndex) + trackWidth; 	
+			}).on("mouseout", function(d, i) {
 
-				var theta = (sA + eA) / 2; 
-				var r = (iR + oR) / 2; 
+				d3.select(this)
+					.attr("fill", colorForNucleotide);
 
-				return "translate(" + Math.sin(theta) * r + "," + Math.cos(theta) * r + ")" + "rotate(" + (theta - Math.PI / 2) * (180 / Math.PI)  + ")" ; 
+				d3.select("#info").text(lastText);
 
-			}).attr("text-anchor", "middle")
-			.attr("fill", "white")
+			});
+
+		// d3.select(element)
+		// 	.selectAll("g.track")
+		// 	.selectAll("text")
+		// 	.data(d => d)
+		// 	.enter()
+		// 	.append("text")
+		// 	.text(d => d)
+		// 	.attr("transform", function(d, index) {
+
+		// 		var i = parseInt(d3.select(this.parentNode).attr("data-index")); 
+
+		// 		var iR = innerRadiusScale(index); 
+		// 		var oR = innerRadiusScale(index) + trackWidth; 	
+
+		// 		var sA = rotationScale(i);
+		// 		var eA = rotationScale(i) + angularWidth;
+
+		// 		var theta = (sA + eA) / 2; 
+		// 		var r = (iR + oR) / 2; 
+
+		// 		return "translate(" + Math.sin(theta) * r + "," + Math.cos(theta) * r + ")"; //+ "rotate(" + (theta - Math.PI / 2) * (180 / Math.PI)  + ")" ; 
+
+		// 	}).attr("text-anchor", "middle")
+		// 	.attr("fill", "white")
 
 	}
 
@@ -624,6 +652,12 @@ function renderSpiralgram(data, element) {
 	addSpindles(); 
 	addTracks(); 
 	
+}
+
+function highlightForTrack() {
+
+	return "white"; 
+
 }
 
 function renderTracks(element, data) {
