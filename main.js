@@ -361,20 +361,45 @@ function renderStaff(rawData, element) {
 		.data(data)
 		.enter()
 		.append("text")
-		.text((d, i) => i + ": " + d)
+		.text((d, i) => i + ": " + d.toFixed(3))
 		.attr("x", width / 4)
 		.attr("y", (_, i) => verticalScale(i))
 		.attr("text-anchor", "middle")
 		.attr("dominant-baseline", "central") //centers text vertically at this y position
 		.attr("fill", "white")
-		.attr("font-size", "10px")
+		.attr("font-size", "16px")
 }
 
-function colorForNucleotide(nucleotide) {
+function colorForChromosome(d) {
+
+	console.log("d color for " + d); 
+
+	if (d.toLowerCase() == "x" || d.toLowerCase() == "y") { 
+		return "#ff8026"
+	}
+
+	var colorScale = d3.interpolateRgb("#fff", "#000"); 
+	var ratio = parseFloat(d) / 22; 
+	var chromColor = colorScale(ratio); 
+
+	console.log(ratio);
+	console.log(chromColor);
+
+	return chromColor; 
+
+}
+
+function colorForNucleotide(d) {
+
+	console.log("n color for " + d);
 
 	var colors = {"A" : "red", "G" : "green", "T" : "yellow", "U" : "yellow", "C" : "blue"}; 
 
-	return nucleotide in colors ? colors[nucleotide] : "darkgrey";
+	var c = d in colors ? colors[d] : "darkgrey";
+
+	console.log(c);
+
+	return c;
 
 }
 
@@ -412,7 +437,8 @@ function renderSpiralgram(data, element) {
 			.attr("text-anchor", "middle")
 			.attr("font-family", "sans-serif")
 			.attr("font-size", "20px")
-			.attr("fill", "red");
+			.attr("fill", "red")
+			.attr("dominant-baseline","central");
 
 	}
 
@@ -579,10 +605,11 @@ function renderSpiralgram(data, element) {
 
 		d3.select(element)
 			.selectAll("g.track")
-			.selectAll("path")
+			.selectAll("path") 
 			.data(d => d)
 			.enter()
 			.append("path")
+			.attr("data-isChromosome", (_, i) => i == 2 ? "1" : "0")
 			.attr("d", function(d, index) {
 
 				var i = parseInt(d3.select(this.parentNode).attr("data-index")); 
@@ -601,8 +628,23 @@ function renderSpiralgram(data, element) {
 
 				return arc(); 
 
-			}).attr("fill", colorForNucleotide)
-			// .attr("stroke-width", 0)
+			}).attr("fill", function(d, i) {
+
+				if (isChromosome(this)) {
+
+					console.log("chromosome " + d + ", " + i);
+
+					return colorForChromosome(d)
+
+				} else { 
+
+					console.log("nucleotide " + d + ", " + i);
+
+					return colorForNucleotide(d);
+
+				}
+
+			})
 			.on("mouseover", function(d, i) {
 
 				d3.select(this)
@@ -614,8 +656,21 @@ function renderSpiralgram(data, element) {
 
 			}).on("mouseout", function(d, i) {
 
-				d3.select(this)
-					.attr("fill", colorForNucleotide);
+				if (isChromosome(this)) {
+
+					console.log("chromosome " + d + ", " + i);
+
+					d3.select(this)
+						.attr("fill", colorForChromosome)
+
+				} else { 
+
+					console.log("nucleotide " + d + ", " + i);
+
+					d3.select(this)
+						.attr("fill", colorForNucleotide);
+
+				}
 
 				d3.select("#info").text(lastText);
 
@@ -652,6 +707,12 @@ function renderSpiralgram(data, element) {
 	addSpindles(); 
 	addTracks(); 
 	
+}
+
+function isChromosome(t) {
+
+	return parseInt(d3.select(t).attr("data-isChromosome")); 
+
 }
 
 function highlightForTrack() {
