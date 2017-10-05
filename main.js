@@ -283,7 +283,11 @@ function renderVisualization(isStreamgraph, element, data) {
 
 }
 
+var lastStaffData = []; 
+
 function renderStaff(rawData, element) {
+
+	lastStaffData = rawData; 
 
 	var width = $(element).width(); 
 	var height = $(element).height();
@@ -421,7 +425,7 @@ function renderSpiralgram(data, element) {
 	var outerBuffer = 10; 
 	var tracksWidth = 70; 
 	var spindlesToTracksBuffer = 30; 
-	var innerBuffer = 50; 
+	var innerBuffer = 100; 
 
 	var rotationScale = d3.scaleLinear()
 		.domain([0, nVariants])
@@ -437,7 +441,7 @@ function renderSpiralgram(data, element) {
 			.attr("text-anchor", "middle")
 			.attr("font-family", "sans-serif")
 			.attr("font-size", "20px")
-			.attr("fill", "red")
+			.attr("fill", "white")
 			.attr("dominant-baseline","central");
 
 	}
@@ -446,7 +450,7 @@ function renderSpiralgram(data, element) {
 
 		var maxRadius = Math.min(width, height) / 2 - outerBuffer - tracksWidth; 
 
-		var tailLength = 10; //part of spindle there's no circles on
+		var tailLength = 0; //part of spindle there's no circles on
 
 		var radiusStep = (maxRadius - innerBuffer - tailLength) / (nSpindleColumns - 1);
 
@@ -491,6 +495,7 @@ function renderSpiralgram(data, element) {
 				d3.select(this)
 					.attr("stroke", highlightForSpindle);
 
+				renderStaff(data[i], "#staffElement"); 
 
 			}).on("mouseout", function(d, i) {
 
@@ -500,6 +505,9 @@ function renderSpiralgram(data, element) {
 
 				d3.select(this)
 					.attr("stroke", colorForSpindle);
+
+				//find a way to go back to data staff was showing before
+				renderStaff(lastStaffData, "$staffElement"); 
 
 			}).on("click", function(d, i) {
 
@@ -526,7 +534,7 @@ function renderSpiralgram(data, element) {
 			.data(d => d)
 			.enter()
 			.append("circle")
-			.attr("cx", (_, i) => innerBuffer + tailLength + i * radiusStep)
+			.attr("cx", (_, i) => innerBuffer + tailLength + i * radiusStep + radiusStep / 2)
 			.attr("cy", 0)
 			.attr("r", d => d == -1 ? 0 : d * 5)
 			.attr("fill", (d, i) => colorForAnnotation(d, i, nSpindleColumns))
@@ -633,13 +641,11 @@ function renderSpiralgram(data, element) {
 				if (isChromosome(this)) {
 
 					console.log("chromosome " + d + ", " + i);
-
 					return colorForChromosome(d)
 
 				} else { 
 
 					console.log("nucleotide " + d + ", " + i);
-
 					return colorForNucleotide(d);
 
 				}

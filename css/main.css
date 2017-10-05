@@ -32,6 +32,11 @@ input[type="radio"] {
 
 /* STYLE THE SPIRALGRAM */
 
+g.track path { 
+  stroke: #22262e;
+  stroke-width: 1.5;
+}
+
 #spiralLayoutContainer { 
   width: 100%;
   display: inline-block;
