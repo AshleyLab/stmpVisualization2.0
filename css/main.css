@@ -38,9 +38,10 @@ g.track path {
 }
 
 #spiralLayoutContainer { 
-  width: 100%;
-  display: inline-block;
-  position: relative;
+  width: 90%;
+/*  display: inline-block;
+*/  position: relative;
+  margin: 0 auto;
 }
 
 #spiralLayoutContainer::after { 
@@ -63,13 +64,15 @@ g.track path {
   width: 60%;
   height: 100%;
   display: inline-block;
-}
+/*  background-color: red;
+*/}
 
 #staffContainer { 
   width: 40%;
   height: 100%;
   display: inline-block;
-}
+/*  background-color: blue;
+*/}
 
 #spiralElement, #staffElement { 
   width: 100%;

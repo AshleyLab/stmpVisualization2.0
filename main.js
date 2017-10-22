@@ -507,7 +507,7 @@ function renderSpiralgram(data, element) {
 					.attr("stroke", colorForSpindle);
 
 				//find a way to go back to data staff was showing before
-				renderStaff(lastStaffData, "$staffElement"); 
+				renderStaff(lastStaffData, "#staffElement"); 
 
 			}).on("click", function(d, i) {
 
