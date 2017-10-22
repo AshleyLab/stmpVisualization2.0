@@ -715,6 +715,10 @@ function renderSpiralgram(data, element) {
 	
 }
 
+function visualizeProteinVariantColumn(data) {
+
+}
+
 function isChromosome(t) {
 
 	return parseInt(d3.select(t).attr("data-isChromosome")); 
