@@ -138,11 +138,13 @@ function parseCrude(sheet) {
 		function fillTemplate(value, column) {
 
 			if (!value) {
-				console.log("missing value for " + column);
 
 				if ($.inArray(value, ["NE", "CADD?", "NC", "RVIS?", "NI", "FATHMM?", "GNOMAD_Max_Allele_Freq", "KG_AF_POPMAX"] != -1)) {
+					
 					var newValue = Math.random(); 
-					console.log("set it to " + newValue);
+
+					console.log("set " + column + " to " + newValue);
+
 					value = newValue; 
 				}
 			}
@@ -155,8 +157,6 @@ function parseCrude(sheet) {
 		}
 
 		$.each(columns, (_, column) => {
-
-			console.log(row);
 
 			//make variant.core a dictionary where the keys are the column names and the values are the template returned by filledTemplate
 			variant.core[column] = fillTemplate(row[column], column);
@@ -259,8 +259,6 @@ function renderStaff(rawData, element) {
 		return parseFloat(v);
 	});
 
-	console.log(data);
-
 	//space between top and bottom of staff and top and bottom of SVG
 	var verticalBuffer = 20; 
 
@@ -295,7 +293,7 @@ function renderStaff(rawData, element) {
 		.attr("cy", (_, i) => verticalScale(i))
 		.attr("r", (d, i) => d * 10)
 		.attr("data-index", (_, i) => i) //the index that each datum is (can get lost in d3 selection)
-		.attr("fill", (d, i) => { console.log(i); console.log(nColumns); return colorForAnnotation(d, i, nColumns); })
+		.attr("fill", (d, i) => colorForAnnotation(d, i, nColumns))
 		.on("mouseenter", function(d, i) {
 
 			//highlight the circle when moused over
@@ -337,8 +335,6 @@ function renderStaff(rawData, element) {
 
 function colorForChromosome(d) {
 
-	console.log("d color for " + d); 
-
 	if (d.toLowerCase() == "x" || d.toLowerCase() == "y") { 
 		return "#ff8026"
 	}
@@ -347,22 +343,14 @@ function colorForChromosome(d) {
 	var ratio = parseFloat(d) / 22; 
 	var chromColor = colorScale(ratio); 
 
-	console.log(ratio);
-	console.log(chromColor);
-
 	return chromColor; 
 
 }
 
 function colorForNucleotide(d) {
 
-	console.log("n color for " + d);
-
 	var colors = {"A" : "red", "G" : "green", "T" : "yellow", "U" : "yellow", "C" : "blue"}; 
-
 	var c = d in colors ? colors[d] : "darkgrey";
-
-	console.log(c);
 
 	return c;
 
@@ -494,6 +482,10 @@ function renderSpiralgram(data, element) {
 
 			}); 
 
+		var cxScale = d3.scaleLinear()
+			.domain([0, spindleData[0].length - 1])
+			.range([innerBuffer, maxRadius]);
+
 		//render the circles on the spindles
 		d3.select(element)
 			.selectAll("g")
@@ -501,7 +493,7 @@ function renderSpiralgram(data, element) {
 			.data(d => d)
 			.enter()
 			.append("circle")
-			.attr("cx", (_, i) => innerBuffer + tailLength + i * radiusStep + radiusStep / 2)
+			.attr("cx", (_, i) =>  cxScale(i))
 			.attr("cy", 0)
 			.attr("r", d => d == -1 ? 0 : d * 5)
 			.attr("fill", (d, i) => colorForAnnotation(d, i, nSpindleColumns))
@@ -610,12 +602,10 @@ function renderSpiralgram(data, element) {
 
 				if (isChromosome(this)) {
 
-					console.log("chromosome " + d + ", " + i);
 					return colorForChromosome(d)
 
 				} else { 
 
-					console.log("nucleotide " + d + ", " + i);
 					return colorForNucleotide(d);
 
 				}
