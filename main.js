@@ -112,10 +112,58 @@ function parseCrude(sheet) {
 	var visualizationData = []; 
 
 	var columns = [
-		"Chromosome", "POS", "Reference Allele", "Sample Allele", "QUAL", "GT", //basic information
-		"NE" /*Polyphen*/, "CADD?" /*CADD*/, "NC" /*SIFT*/, "RVIS?" /*RVIS*/, "NI" /*MutationTaster*/, "FATHMM?" /*FATHMM*/, //model scores
-		"GNOMAD_Max_Allele_Freq" /*gnomAD*/, "KG_AF_POPMAX" /*1000G*/, //frequencies
-		"TIER" /*Tier*/
+
+		//basic information
+		"Chromosome", 
+		"Position", 
+		"Reference Allele", 
+		"Sample Allele", 
+		"Variation Type",
+		"QUAL", 
+		"FILTER",
+		"GT",
+
+		//gene info
+		"Gene Region",
+		"Gene Symbol",
+		"Transcript ID",
+		"Transcript Variant",
+		"Protein Variant",
+		"Translation Impact", // < missense, frameshift, stop loss, stop gain, ...
+
+		//analytic overview
+		"Classification", // < Uncertain Signifi
+
+		//models
+		"Sift Function Prediction",
+		"PolyPhen-2 Function Prediction",
+		"CADD Score",
+		"Phylop",
+		"MutationTaster",
+		"fathmm",
+		"Sift",
+
+		//frequencies:: LOTS OF MISSING CELLS
+		"1000 Genomes Frequency", 
+		"ExAC Frequency", 
+		"ExAC East Asian Frequency",
+		"ExAC South Asian Frequency",
+		"ExAC African Frequency",
+		"ExAC European Frequency",
+		"ExAC Latino Frequency",
+		"ExAC Homozygous Count"
+		"AN_AFR",
+		"AN_AMR",
+		"AN_ASJ",
+		"AN_EAS",
+		"AN_FIN",
+		"AN_NFE",
+		"AN_OTH",
+		"AN_SAS",
+		"GNOMADMaxAlleleFreq",
+		"GNOMAD_Max_Allele_Freq_POP"
+		
+		// "TIER" Tier
 	]
 
 	for (i in sheet) {
