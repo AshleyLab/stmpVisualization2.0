@@ -212,10 +212,50 @@ function parseCrude(sheet) {
 
 function scaleValue(originalValue, column) { 
 
-	return originalValue;
-	
-	// //model scores
-	// if (column == "Sift Function Prediction")
+	//TODO: empty cells
+
+	//implement universal way to check if originalValue not in dict
+	//pass originalValue and dict to some function?
+
+	var value; 
+	var dict; 
+
+	//model scores
+	//should all be scaled to [0, 1], where 0 is least pathogenic and 1 is most pathogenic (that can be given on that scale)
+	//Sift Function Prediction, PolyPhen-2 Function Prediction, CADD Score, Phylop, MutationTaster, fathmm, Sift
+	if (column == "Sift Function Prediction") { 
+
+		dict = {"Tolerated" : 0, "Damaging" : 1};
+		value = dict[originalValue];
+
+	} else if (column == "PolyPhen-2 Function Prediction") {
+
+		dict = {"Benign" : 0, "Probably Damaging" : 1};
+		value = dict[originalValue];
+
+	} else if (column == "CADD Score") { 
+
+		//range?? 1 to 99?
+		value = (parseFloat(originalValue) - 1) / 98; 
+
+	} else if (column == "Phylop") {
+
+		//range??
+
+	} else if (column == "MutationTaster") {
+
+		//range??
+
+	} else if (column == "fathmm") {
+
+		//range??
+
+	} else if (column == "Sift") {
+
+		//goes from 0 to 1, where 0 is most deletrious and 1 is most tolerated
+		value = 1 - parseFloat(originalValue);
+
+	}
 
 }
 
