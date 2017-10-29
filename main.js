@@ -384,13 +384,24 @@ function renderSpiralgram(data, element) {
 
 		d3.select(element)
 			.append("text")
-			.attr("id", "info")
+			.attr("id", "valueInfo")
 			.attr("x", center[0])
-			.attr("y", center[1])
+			.attr("y", center[1] - 10)
 			.attr("text-anchor", "middle")
 			.attr("font-family", "sans-serif")
 			.attr("font-size", "20px")
 			.attr("fill", "white")
+			.attr("dominant-baseline","central");
+
+		d3.select(element)
+			.append("text")
+			.attr("id", "kindInfo")
+			.attr("x", center[0])
+			.attr("y", center[1] + 10)
+			.attr("text-anchor", "middle")
+			.attr("font-family", "sans-serif")
+			.attr("font-size", "10px")
+			.attr("fill", "grey")
 			.attr("dominant-baseline","central");
 
 	}
@@ -506,8 +517,7 @@ function renderSpiralgram(data, element) {
 					.filter((_, index) => i == index)
 					.attr("fill", highlightForCircle); 
 
-				d3.select("#info")
-					.text(i);
+				displayInfo(d, spindleColumns[i]);
 
 				d3.select(staffElement)
 					.select("circle[data-index=\"" + i + "\"")
@@ -521,8 +531,7 @@ function renderSpiralgram(data, element) {
 					.filter((_, index) => i == index)
 					.attr("fill", colorForAnnotation(d, i, nSpindleColumns)); 
 
-				d3.select("#info")
-					.text(""); 
+				displayInfo("","");
 
 				d3.select(staffElement)
 					.select("circle[data-index=\"" + i + "\"")
@@ -616,9 +625,7 @@ function renderSpiralgram(data, element) {
 				d3.select(this)
 					.attr("fill", highlightForTrack)
 
-				var lastText = d3.select("#info").text(); 
-
-				d3.select("#info").text(d);
+				displayInfo(d, trackColumns[i]);
 
 			}).on("mouseout", function(d, i) {
 
@@ -638,7 +645,7 @@ function renderSpiralgram(data, element) {
 
 				}
 
-				d3.select("#info").text(lastText);
+				displayInfo("","")
 
 			});
 
@@ -648,6 +655,18 @@ function renderSpiralgram(data, element) {
 	addSpindles(); 
 	addTracks(); 
 	
+}
+
+function displayInfo(value, kind) {
+
+	console.log(value);
+	console.log(kind);
+
+	d3.select("#valueInfo")
+		.text(value);
+
+	d3.select("#kindInfo")
+		.text(kind);
 }
 
 function visualizeProteinVariantColumn(data) {
