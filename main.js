@@ -6,68 +6,21 @@ $(function() {
 
 	axisSpace = 15; 
 
-	/*var sampleData = [
-		
-		{"key" : "key1", "xyz" : {"A" : 3,"B" : 2, "C" : 4, "D" : 5, "E" : 2, "F": 4}},
-		{"key" : "key2", "xyz" : {"A" : 2,"B" : 4, "C" : 3, "D" : 1, "E" : 3, "F": 1}},
-        {"key" : "key3", "xyz" : {"A" : 4,"B" : 3, "C" : 1, "D" : 4, "E" : 4, "F": 3}},
-        {"key" : "key4", "xyz" : {"A" : 1,"B" : 5, "C" : 2, "D" : 3, "E" : 1, "F": 4}},
-        {"key" : "key5", "xyz" : {"A" : 5,"B" : 4, "C" : 3, "D" : 2, "E" : 4, "F": 2}},
-        {"key" : "key6", "xyz" : {"A" : 1,"B" : 2, "C" : 2, "D" : 5, "E" : 3, "F": 2}},
-		{"key" : "key7", "xyz" : {"A" : 2,"B" : 3, "C" : 4, "D" : 3, "E" : 2, "F": 1}},
-        {"key" : "key8", "xyz" : {"A" : 4,"B" : 1, "C" : 5, "D" : 2, "E" : 5, "F": 3}},
-        {"key" : "key9", "xyz" : {"A" : 3,"B" : 3, "C" : 1, "D" : 4, "E" : 1, "F": 2}},
-        {"key" : "key10", "xyz" : {"A" : 3,"B" : 2, "C" : 4, "D" : 5, "E" : 2, "F": 4}},
-		{"key" : "key11", "xyz" : {"A" : 2,"B" : 4, "C" : 3, "D" : 1, "E" : 3, "F": 1}},
-        {"key" : "key12", "xyz" : {"A" : 4,"B" : 3, "C" : 1, "D" : 4, "E" : 4, "F": 3}},
-        {"key" : "key13", "xyz" : {"A" : 1,"B" : 5, "C" : 2, "D" : 3, "E" : 1, "F": 4}},
-        {"key" : "key14", "xyz" : {"A" : 5,"B" : 4, "C" : 3, "D" : 2, "E" : 4, "F": 2}},
-        {"key" : "key15", "xyz" : {"A" : 1,"B" : 2, "C" : 2, "D" : 5, "E" : 3, "F": 2}},
-		{"key" : "key16", "xyz" : {"A" : 2,"B" : 3, "C" : 4, "D" : 3, "E" : 2, "F": 1}},
-        {"key" : "key17", "xyz" : {"A" : 4,"B" : 1, "C" : 5, "D" : 2, "E" : 5, "F": 3}},
-        {"key" : "key18", "xyz" : {"A" : 3,"B" : 3, "C" : 1, "D" : 4, "E" : 1, "F": 2}},
-        {"key" : "key19", "xyz" : {"A" : 3,"B" : 2, "C" : 4, "D" : 5, "E" : 2, "F": 4}},
-		{"key" : "key20", "xyz" : {"A" : 2,"B" : 4, "C" : 3, "D" : 1, "E" : 3, "F": 1}},
-        {"key" : "key21", "xyz" : {"A" : 4,"B" : 3, "C" : 1, "D" : 4, "E" : 4, "F": 3}},
-        {"key" : "key22", "xyz" : {"A" : 1,"B" : 5, "C" : 2, "D" : 3, "E" : 1, "F": 4}},
-        {"key" : "key23", "xyz" : {"A" : 5,"B" : 4, "C" : 3, "D" : 2, "E" : 4, "F": 2}},
-        {"key" : "key24", "xyz" : {"A" : 1,"B" : 2, "C" : 2, "D" : 5, "E" : 3, "F": 2}},
-		{"key" : "key25", "xyz" : {"A" : 2,"B" : 3, "C" : 4, "D" : 3, "E" : 2, "F": 1}},
-        {"key" : "key26", "xyz" : {"A" : 4,"B" : 1, "C" : 5, "D" : 2, "E" : 5, "F": 3}},
-        {"key" : "key27", "xyz" : {"A" : 3,"B" : 3, "C" : 1, "D" : 4, "E" : 1, "F": 2}},
-        {"key" : "key28", "xyz" : {"A" : 3,"B" : 2, "C" : 4, "D" : 5, "E" : 2, "F": 4}},
-		{"key" : "key29", "xyz" : {"A" : 2,"B" : 4, "C" : 3, "D" : 1, "E" : 3, "F": 1}},
-        {"key" : "key30", "xyz" : {"A" : 4,"B" : 3, "C" : 1, "D" : 4, "E" : 4, "F": 3}},
-        {"key" : "key31", "xyz" : {"A" : 1,"B" : 5, "C" : 2, "D" : 3, "E" : 1, "F": 4}},
-        {"key" : "key32", "xyz" : {"A" : 5,"B" : 4, "C" : 3, "D" : 2, "E" : 4, "F": 2}},
-        {"key" : "key33", "xyz" : {"A" : 1,"B" : 2, "C" : 2, "D" : 5, "E" : 3, "F": 2}},
-		{"key" : "key34", "xyz" : {"A" : 2,"B" : 3, "C" : 4, "D" : 3, "E" : 2, "F": 1}},
-        {"key" : "key35", "xyz" : {"A" : 4,"B" : 1, "C" : 5, "D" : 2, "E" : 5, "F": 3}},
-        {"key" : "key36", "xyz" : {"A" : 3,"B" : 3, "C" : 1, "D" : 4, "E" : 1, "F": 2}}
-
-	];
-
-	// console.log(sampleData);
-
-	data = sampleData; */
+	data = sampleData;
 	outerElement = "#graphics";
 
-	// var features = Object.keys(sampleData[0].xyz).length; 
 
-	// pathClicks = Array.apply(null, Array(features)).map(Number.prototype.valueOf,0); 
-	//keep track of how many times a layer is clicked so know how to sort it
+	$("#uploadLink").on("click", function(event) { // code run whenever #uploadLink is clicked
 
-	// data = renderVisualization(true, element, data); //weird things happen if renderVisualization doesn't return... ??
-	$("#uploadLink").on("click", function(event){
-
+		//#uploadLink is basically just a dummy element that we use to activate the hidden #uploadInput element
     	event.preventDefault();
         $("#uploadInput").trigger("click");
 
     });
 
-    $("#uploadInput").change(function() { 
+    $("#uploadInput").change(function() { //code called by  $("#uploadInput").trigger("click");
 
-		var file = $("#uploadInput")[0].files[0]; 
+		var file = $("#uploadInput")[0].files[0]; //the file uploaded by the user
 
 		if (validateXLSX(file)) {
 
@@ -142,7 +95,7 @@ function readWorkbook(workbook){
 
 		var sheet = sheetNames[i];
 
-		if (sheet == "Column Descriptions") {
+		if (sheet == "Column Descriptions") { //what sheets are we actually parsing? how will they be named? 
 			console.log("skipping " + sheet);
 			continue; 
 		}
@@ -207,6 +160,7 @@ function parseCrude(sheet) {
 
 		$.each(columns, (_, column) => {
 
+			//make variant.core a dictionary where the keys are the column names and the values are the template returned by filledTemplate
 			variant.core[column] = fillTemplate(row[column], column);
 
 		}); 
@@ -215,7 +169,7 @@ function parseCrude(sheet) {
 	}
 	
 	console.log(visualizationData);
-	renderVisualization(false, "#graphics", visualizationData); 
+	renderVisualization(false, "#graphics", visualizationData); //render the visualization
 }
 
 function generateKey(variant) {
@@ -232,7 +186,7 @@ function generateKey(variant) {
 
 }
 
-function removeSVGs(element) {
+function removeSVGs(element) { //clean the SVG so previous visualizations aren't still there
 
 	d3.select(element)
 		.selectAll("svg")
@@ -256,6 +210,8 @@ function renderVisualization(isStreamgraph, element, data) {
 
 	} else { //spiral
 
+		//setup work to get the right configuration of divs and svg for the spiralgram and staffgram 
+		//the positioning of these elements is set in main.css
 		d3.select(element)
 			.append("div")
 			.attr("id", "spiralLayoutContainer"); 
@@ -306,6 +262,7 @@ function renderStaff(rawData, element) {
 
 	console.log(data);
 
+	//space between top and bottom of staff and top and bottom of SVG
 	var verticalBuffer = 20; 
 
 	var verticalScale = d3.scaleLinear()
@@ -316,6 +273,7 @@ function renderStaff(rawData, element) {
 		.selectAll("*")
 		.remove(); 
 
+	//draw the staff 
 	d3.select(element)
 		.append("line")
 		.attr("x1", width / 2)
@@ -326,6 +284,7 @@ function renderStaff(rawData, element) {
 
 	var spiralElement = "#spiralElement";
 
+	//draw the circles on the staff
 	d3.select(element)
 		.append("g")
 		.attr("class", "circles")
@@ -336,10 +295,11 @@ function renderStaff(rawData, element) {
 		.attr("cx", width / 2)
 		.attr("cy", (_, i) => verticalScale(i))
 		.attr("r", (d, i) => d * 10)
-		.attr("data-index", (_, i) => i)
+		.attr("data-index", (_, i) => i) //the index that each datum is (can get lost in d3 selection)
 		.attr("fill", (d, i) => { console.log(i); console.log(nColumns); return colorForAnnotation(d, i, nColumns); })
 		.on("mouseenter", function(d, i) {
 
+			//highlight the circle when moused over
 			d3.select(this)	
 				.attr("fill", highlightForCircle); 
 
@@ -349,6 +309,7 @@ function renderStaff(rawData, element) {
 				
 		}).on("mouseout", function(d, i) {
 
+			//unhiglight the cirlce when unmoused over
 			d3.select(this)	
 				.attr("fill", colorForAnnotation(d, i, nColumns)); 
 
@@ -358,6 +319,7 @@ function renderStaff(rawData, element) {
 		
 		}); 
 
+	//add labels to the staff gram
 	d3.select(element)
 		.append("g")
 		.attr("class", "labels")
@@ -452,8 +414,10 @@ function renderSpiralgram(data, element) {
 
 		var tailLength = 0; //part of spindle there's no circles on
 
+		//the angular distance between consecutive spindles
 		var radiusStep = (maxRadius - innerBuffer - tailLength) / (nSpindleColumns - 1);
 
+		//flatten the data into an array (easier to visualize with d3)
 		var spindleData = $.map(data, variant => 
 
 			[$.map(spindleColumns, column => {
@@ -464,12 +428,14 @@ function renderSpiralgram(data, element) {
 				if (v !== v) { v = 0; } //weird way to test for NaN
 
 				return v;
+
 			})]
 	
 		);
 
 		console.log(spindleData);
 
+		//create container elements for the spindles with the right rotation 
 		d3.select(element)
 			.selectAll("g")
 			.data(spindleData)
@@ -479,10 +445,11 @@ function renderSpiralgram(data, element) {
 
 		var staffElement = "#staffElement";
 
+		//render the spindles
 		d3.select(element)
 			.selectAll("g")
 			.append("line")
-			.attr("x1", innerBuffer)
+			.attr("x1", innerBuffer) //since the spindles' parents gs are tilted, we can just draw a straight line
 			.attr("y1", 0)
 			.attr("x2", maxRadius)
 			.attr("y2", 0)
@@ -528,6 +495,7 @@ function renderSpiralgram(data, element) {
 
 			}); 
 
+		//render the circles on the spindles
 		d3.select(element)
 			.selectAll("g")
 			.selectAll("circle")
@@ -618,7 +586,7 @@ function renderSpiralgram(data, element) {
 			.enter()
 			.append("path")
 			.attr("data-isChromosome", (_, i) => i == 2 ? "1" : "0")
-			.attr("d", function(d, index) {
+			.attr("d", function(d, index) { //manually specify the shape of the path
 
 				var i = parseInt(d3.select(this.parentNode).attr("data-index")); 
 
@@ -650,9 +618,9 @@ function renderSpiralgram(data, element) {
 
 				}
 
-			})
-			.on("mouseover", function(d, i) {
+			}).on("mouseover", function(d, i) {
 
+				//highlight on mouseover
 				d3.select(this)
 					.attr("fill", highlightForTrack)
 
@@ -681,31 +649,6 @@ function renderSpiralgram(data, element) {
 				d3.select("#info").text(lastText);
 
 			});
-
-		// d3.select(element)
-		// 	.selectAll("g.track")
-		// 	.selectAll("text")
-		// 	.data(d => d)
-		// 	.enter()
-		// 	.append("text")
-		// 	.text(d => d)
-		// 	.attr("transform", function(d, index) {
-
-		// 		var i = parseInt(d3.select(this.parentNode).attr("data-index")); 
-
-		// 		var iR = innerRadiusScale(index); 
-		// 		var oR = innerRadiusScale(index) + trackWidth; 	
-
-		// 		var sA = rotationScale(i);
-		// 		var eA = rotationScale(i) + angularWidth;
-
-		// 		var theta = (sA + eA) / 2; 
-		// 		var r = (iR + oR) / 2; 
-
-		// 		return "translate(" + Math.sin(theta) * r + "," + Math.cos(theta) * r + ")"; //+ "rotate(" + (theta - Math.PI / 2) * (180 / Math.PI)  + ")" ; 
-
-		// 	}).attr("text-anchor", "middle")
-		// 	.attr("fill", "white")
 
 	}
 
@@ -773,65 +716,67 @@ function renderTracks(element, data) {
 }
 
 function fillForTrackDatum(d) {
+
 	return getRandomColor(); 
+	
 }
 
-function renderGlyphplot(element, data) { 
+// function renderGlyphplot(element, data) { 
 
-	console.log("rendering glyphplot"); 
+// 	console.log("rendering glyphplot"); 
 
-	var forKey = {"key" : "keyX", "xyz" : {"A" : 0, "B" : 0, "C": 0, "D": 0, "E" : 0, "F" : 0}};
-	data.unshift(forKey);
+// 	var forKey = {"key" : "keyX", "xyz" : {"A" : 0, "B" : 0, "C": 0, "D": 0, "E" : 0, "F" : 0}};
+// 	data.unshift(forKey);
 
-	var margin = {
-	 	top: 20,
-	  	right: 20,
-	 	bottom: 20,
-	  	left: 20
-	};
+// 	var margin = {
+// 	 	top: 20,
+// 	  	right: 20,
+// 	 	bottom: 20,
+// 	  	left: 20
+// 	};
 
-	var width = 120 - margin.left - margin.right;
-	var height = 120 - margin.top - margin.bottom;
+// 	var width = 120 - margin.left - margin.right;
+// 	var height = 120 - margin.top - margin.bottom;
 
-	var scale = d3.scaleLinear()
-		.domain([0, 6])
-		.range([0, 150]);
+// 	var scale = d3.scaleLinear()
+// 		.domain([0, 6])
+// 		.range([0, 150]);
 
-	var star = d3.starPlot()
-      	.width(width)
-      	.accessors([
-	        function(d) { return scale(d.A); },
-	        function(d) { return scale(d.B); },
-	        function(d) { return scale(d.C); },
-	        function(d) { return scale(d.D); }, 
-	        function(d) { return scale(d.E); },
-	        function(d) { return scale(d.F); }
-      	])
-      	.labels([
-	        "A",
-	        "B",
-	        "C",
-	        "D", 
-	        "E", 
-	        "F"
-      	])
-	    .margin(margin)
-		.labelMargin(4);
+// 	var star = d3.starPlot()
+//       	.width(width)
+//       	.accessors([
+// 	        function(d) { return scale(d.A); },
+// 	        function(d) { return scale(d.B); },
+// 	        function(d) { return scale(d.C); },
+// 	        function(d) { return scale(d.D); }, 
+// 	        function(d) { return scale(d.E); },
+// 	        function(d) { return scale(d.F); }
+//       	])
+//       	.labels([
+// 	        "A",
+// 	        "B",
+// 	        "C",
+// 	        "D", 
+// 	        "E", 
+// 	        "F"
+//       	])
+// 	    .margin(margin)
+// 		.labelMargin(4);
 
-    data.forEach(function(datum, index) {
+//     data.forEach(function(datum, index) {
 
-    d3.select("#graphics").append("svg")
-        .attr("class", "starplot")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", width + margin.top + margin.bottom)
-        .append("g")
-          .datum(datum.xyz)
-          .call(star)
-          .classed("legend", index == 0);
+//     d3.select("#graphics").append("svg")
+//         .attr("class", "starplot")
+//         .attr("width", width + margin.left + margin.right)
+//         .attr("height", width + margin.top + margin.bottom)
+//         .append("g")
+//           .datum(datum.xyz)
+//           .call(star)
+//           .classed("legend", index == 0);
 
-    });
+//     });
 
-}
+// }
 
 function deepClone(thing) {
 
