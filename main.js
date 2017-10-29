@@ -151,7 +151,7 @@ function parseCrude(sheet) {
 		"ExAC African Frequency",
 		"ExAC European Frequency",
 		"ExAC Latino Frequency",
-		"ExAC Homozygous Count"
+		"ExAC Homozygous Count",
 		"AN_AFR",
 		"AN_AMR",
 		"AN_ASJ",
@@ -183,25 +183,16 @@ function parseCrude(sheet) {
 			}
 		}; 
 
-		function fillTemplate(value, column) {
+		function fillTemplate(originalValue, column) {
 
-			if (!value) {
-
-				if ($.inArray(value, ["NE", "CADD?", "NC", "RVIS?", "NI", "FATHMM?", "GNOMAD_Max_Allele_Freq", "KG_AF_POPMAX"] != -1)) {
-					
-					var newValue = Math.random(); 
-
-					console.log("set " + column + " to " + newValue);
-
-					value = newValue; 
-				}
-			}
+			var value = scaleValue(originalValue, column);
 
 			return {
-				"value": value, //if value is null, just assign empty string 
-				"drawingValue" : "", 
+				"value" : value, //if value is null, just assign empty string 
+				"originalValue" : originalValue, 
 				"associatedValues" : []
 			}
+
 		}
 
 		$.each(columns, (_, column) => {
@@ -217,6 +208,15 @@ function parseCrude(sheet) {
 	console.log(visualizationData);
 	renderVisualization(false, "#graphics", visualizationData); //render the visualization
 	hideSpinner(); 
+}
+
+function scaleValue(originalValue, column) { 
+
+	return originalValue;
+	
+	// //model scores
+	// if (column == "Sift Function Prediction")
+
 }
 
 function generateKey(variant) {
@@ -295,7 +295,9 @@ function renderStaff(rawData, element) {
 	var width = $(element).width(); 
 	var height = $(element).height();
 
+	var columns = ["Sift Function Prediction", "Polyphen-2 Function Prediction", "CADD Score", "Phylop", "MutationTaster", "fathmm", "Sift"];
 	var columns = ["NE", "CADD?", "NC", "RVIS?", "NI", "FATHMM?", "GNOMAD_Max_Allele_Freq", "KG_AF_POPMAX"];
+
 	var nColumns = columns.length;
 
 	var data = $.map(columns, column => {
@@ -1340,6 +1342,9 @@ function showSpinner() {
 }
 
 function hideSpinner() {
+
+
+	console.log("hiding spinner");
 
 	$("#spinnerContainer").hide()
 	$("#inputContainer").show()
