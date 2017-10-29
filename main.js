@@ -6,10 +6,6 @@ $(function() {
 
 	axisSpace = 15; 
 
-	data = sampleData;
-	outerElement = "#graphics";
-
-
 	$("#uploadLink").on("click", function(event) { // code run whenever #uploadLink is clicked
 
 		//#uploadLink is basically just a dummy element that we use to activate the hidden #uploadInput element
@@ -116,7 +112,7 @@ function parseCrude(sheet) {
 	var visualizationData = []; 
 
 	var columns = [
-		"CHROM", "POS", "REF", "ALT", "QUAL", "GT", //basic information
+		"Chromosome", "POS", "Reference Allele", "Sample Allele", "QUAL", "GT", //basic information
 		"NE" /*Polyphen*/, "CADD?" /*CADD*/, "NC" /*SIFT*/, "RVIS?" /*RVIS*/, "NI" /*MutationTaster*/, "FATHMM?" /*FATHMM*/, //model scores
 		"GNOMAD_Max_Allele_Freq" /*gnomAD*/, "KG_AF_POPMAX" /*1000G*/, //frequencies
 		"TIER" /*Tier*/
@@ -160,6 +156,8 @@ function parseCrude(sheet) {
 
 		$.each(columns, (_, column) => {
 
+			console.log(row);
+
 			//make variant.core a dictionary where the keys are the column names and the values are the template returned by filledTemplate
 			variant.core[column] = fillTemplate(row[column], column);
 
@@ -170,6 +168,7 @@ function parseCrude(sheet) {
 	
 	console.log(visualizationData);
 	renderVisualization(false, "#graphics", visualizationData); //render the visualization
+	hideSpinner(); 
 }
 
 function generateKey(variant) {
@@ -376,7 +375,7 @@ function renderSpiralgram(data, element) {
 	var spindleColumns = ["NE", "CADD?", "NC", "RVIS?", "NI", "FATHMM?", "GNOMAD_Max_Allele_Freq", "KG_AF_POPMAX"];
 	var nSpindleColumns = spindleColumns.length; 
 
-	var trackColumns = ["REF", "ALT", "CHROM"];
+	var trackColumns = ["Reference Allele", "Sample Allele", "Chromosome"];
 	var nTrackColumns = trackColumns.length; 
 
 	var width = $(element).width(); 
@@ -554,6 +553,9 @@ function renderSpiralgram(data, element) {
 			.domain([0, nTracks])
 			.range([innerRadius, outerRadius]);
 
+		console.log(trackColumns);
+		console.log(data);
+
 		var trackData = $.map(data, variant => 
 
 			[$.map(trackColumns, column => variant.core[column].value)]
@@ -718,7 +720,7 @@ function renderTracks(element, data) {
 function fillForTrackDatum(d) {
 
 	return getRandomColor(); 
-	
+
 }
 
 // function renderGlyphplot(element, data) { 
@@ -1391,8 +1393,6 @@ function highlightForCircle() {
 }
 
 function colorForAnnotation(datum, index, nSpiralAnnotations) { 
-
-	// console.log(datum + " : " + index + " : " + nSpiralAnnotations);
 
 	return "#" + Math.floor((index + 1) / (nSpiralAnnotations + 1) * 16777215).toString(16);
 
