@@ -185,7 +185,7 @@ function parseCrude(sheet) {
 
 		function fillTemplate(originalValue, column) {
 
-			var value = scaleValue(originalValue, column);
+			var value = parseValue(originalValue, column);
 
 			return {
 				"value" : value, //if value is null, just assign empty string 
@@ -210,7 +210,7 @@ function parseCrude(sheet) {
 	hideSpinner(); 
 }
 
-function scaleValue(originalValue, column) { 
+function parseValue(originalValue, column) { 
 
 	//TODO: empty cells
 
@@ -240,22 +240,47 @@ function scaleValue(originalValue, column) {
 
 	} else if (column == "Phylop") {
 
-		//range??
+		//range?? try 0 to 1
+
+		value = parseFloat(originalValue)
 
 	} else if (column == "MutationTaster") {
 
-		//range??
+		//range?? 0 to 1
+		value = parseFloat(originalValue);
 
 	} else if (column == "fathmm") {
 
-		//range??
+		//range: [-16.13, 10.64]
+
+		value = (parseFloat(originalValue) + 16.13) / 26.77; 
 
 	} else if (column == "Sift") {
 
-		//goes from 0 to 1, where 0 is most deletrious and 1 is most tolerated
+		//goes from 0 to 1, where 0 is most deletrious and 1 is most tolerated??
 		value = 1 - parseFloat(originalValue);
 
 	}
+
+	//frequencies
+	//should all be in [0, 1]
+	//primary: ExAC Frequency
+	//GNOMADMaxAlleleFreq
+	//population: ExAC East Asian Frequency, ExAC South Asian Frequency, ExAC African Frequency, ExAC European Frequency, ExAC Latino Frequency
+	//AF_EAS, AF_NFE, AF_SAS, AF_AMR, AF_AFR
+	//AN_AFR, AN_AMR, AN_ASJ, AN_EAS, AN_FIN, AN_NFE, AN_OTH, AN_SAS
+
+	var frequencies = ["ExAC Frequency","GNOMADMaxAlleleFreq",
+		"ExAC East Asian Frequency","ExAC South Asian Frequency","ExAC African Frequency","ExAC European Frequency","ExAC Latino Frequency",
+		"AF_EAS","AF_NFE","AF_SAS","AF_AMR","AF_AFR",
+		"AN_AFR", "AN_AMR", "AN_ASJ", "AN_EAS", "AN_FIN", "AN_NFE", "AN_OTH", "AN_SAS"
+	];
+
+	if ($.inArray(column, frequencies) !== -1) { 
+		value = parseFloat(originalValue);
+	}
+
+	return value; 
 
 }
 
