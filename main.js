@@ -747,6 +747,18 @@ function renderSpiralgram(data, element) {
 	
 }
 
+function displayInfo(value, kind) {
+
+	console.log(value);
+	console.log(kind);
+
+	d3.select("#valueInfo")
+		.text(value);
+
+	d3.select("#kindInfo")
+		.text(kind);
+}
+
 console.log(visualizeProteinVariantColumn('p.E343G; p.E401G; p.E357G; p.E413G'))
 
 //given a position and protein variant returns the full names of the proteins
@@ -777,18 +789,6 @@ function getColorForAminoAcid(aminoAcid){
 	}
 }
 
-function displayInfo(value, kind) {
-
-	console.log(value);
-	console.log(kind);
-
-	d3.select("#valueInfo")
-		.text(value);
-
-	d3.select("#kindInfo")
-		.text(kind);
-}
-
 //parse the column protein variant data and returns a list with the following form [colorRefAA, colorAltAA, refAA, altAA]
 function visualizeProteinVariantColumn(proteinVariantData) {
 	//define how amino acid abbreviations work
@@ -798,6 +798,10 @@ function visualizeProteinVariantColumn(proteinVariantData) {
 	var altAALong = aminoAcidAbbreviations[aaS[1]];
 	//console.log(refAALong);
 	return [getColorForAminoAcid(refAALong), getColorForAminoAcid(altAALong), refAALong, altAALong];
+}
+
+function getScale(){
+
 }
 
 function isChromosome(t) {
