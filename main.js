@@ -825,6 +825,69 @@ function visualizeProteinVariantColumn(proteinVariantData) {
 	return [getColorForAminoAcid(refAALong), getColorForAminoAcid(altAALong), refAALong, altAALong];
 }
 
+function scaleFrequency(freq){
+	var n = 2; //scaling factor for ranges
+	var k = 1; //constant to scale our outputs for the radii
+	var minDrawingVal = 0;
+	var maxDrawingVal = 10;
+	var drawingVal = k*Math.pow(((1 - freq) + 1), n)
+	if(drawingVal < minDrawingVal){
+		drawingVal = minDrawingVal;
+	}
+	if(drawingVal > maxDrawingVal){
+		drawingVal = maxDrawingVal;
+	}
+	console.log(drawingVal);
+} 
+
+//takes a model score and a boolean 'isZeroSignificant' which indicates whether a value of 0 is the more significant value (ie 0 = pathogenic or p values etc)
+function scaleModelScore(score, isZeroSignificant){
+	var n = 3; //scaling factor for ranges
+	var k = 1; //constant to scale our outputs for the radii
+	var minDrawingVal = 0;
+	var maxDrawingVal = 10;
+	var val = score;
+	//set val based on if one is pathogenic
+	if(isZeroSignificant){
+		val = 1 - score;
+	}
+	var drawingVal = k*Math.pow((val + 1), n)
+	if(drawingVal < minDrawingVal){
+		drawingVal = minDrawingVal;
+	}
+	if(drawingVal > maxDrawingVal){
+		drawingVal = maxDrawingVal;
+	}
+	console.log(drawingVal);
+}
+
+function zeroOneNormalize(val, minVal, maxVal){
+	//do normalization  do different distributions??
+	return .3;
+}
+
+//other variables necessary: maxes and mins for stuff like cadd score
+var caddScoreMin = 1;
+var caddScoreMax = 30;
+
+//mapping that maps each annotation to the scale function we use to scale the value
+scalingFunctionDict = { 
+["1000 Genomes Frequency"]: function (val) {scaleFrequency(val);},
+["GNOMADMaxAlleleFreq"]: function (val) {scaleFrequency(val);},
+
+["Sift"]: function (val) {scaleModelScore(val, false);}, //sift of 0 is tolerated, 1 is pathogenic
+["Conservation phyloP p-value"]: function (val) {scaleModelScore(val, true);}, //Conservation phyloP p-value of 0 is the most interesting finding
+["CADD Score"]: function (val) {scaleModelScore(scaleModelScore(zeroOneNormalize(val, caddScoreMin, caddScoreMax), true);} //What to do with the CADD score
+};
+
+
+//		"MutationTaster",
+//		"fathmm",
+// "PolyPhen-2 Function Prediction" benign malig etc
+
+scalingFunctionDict["1000 Genomes Frequency"](.3);
+scalingFunctionDict["Sift Function Prediction"](.3);
+
 function getScale(){
 
 }
