@@ -919,7 +919,7 @@ scalingFunctionDict = {
 
 ["Sift"]: function (val) {scaleModelScore(val, false);}, //sift of 0 is tolerated, 1 is pathogenic
 ["Conservation phyloP p-value"]: function (val) {scaleModelScore(val, true);}, //Conservation phyloP p-value of 0 is the most interesting finding
-["CADD Score"]: function (val) {scaleModelScore(scaleModelScore(zeroOneNormalize(val, caddScoreMin, caddScoreMax), true);} //What to do with the CADD score
+["CADD Score"]: function (val) {scaleModelScore(scaleModelScore(zeroOneNormalize(val, caddScoreMin, caddScoreMax)), true);} //What to do with the CADD score
 };
 
 
