@@ -135,7 +135,7 @@ function parseCrude(sheet) {
 		"Classification", // < Uncertain Signifi
 
 		//models
-		"Sift Function Prediction",
+		"SIFT Function Prediction",
 		"PolyPhen-2 Function Prediction",
 		"CADD Score",
 		"Phylop",
@@ -172,7 +172,6 @@ function parseCrude(sheet) {
 
 		var variant = {
 			"core" : {}, 
-			"extra" : {}, 
 			"metadata" : {
 				"metrics": {
 					"nClicks" : 0
@@ -186,6 +185,8 @@ function parseCrude(sheet) {
 		function fillTemplate(originalValue, column) {
 
 			var value = parseValue(originalValue, column);
+
+			console.log(column + ": " + originalValue + " - " + value);
 
 			return {
 				"value" : value, //if value is null, just assign empty string 
@@ -217,13 +218,13 @@ function parseValue(originalValue, column) {
 	//implement universal way to check if originalValue not in dict
 	//pass originalValue and dict to some function?
 
-	var value; 
+	var value = originalValue; 
 	var dict; 
 
 	//model scores
 	//should all be scaled to [0, 1], where 0 is least pathogenic and 1 is most pathogenic (that can be given on that scale)
 	//Sift Function Prediction, PolyPhen-2 Function Prediction, CADD Score, Phylop, MutationTaster, fathmm, Sift
-	if (column == "Sift Function Prediction") { 
+	if (column == "SIFT Function Prediction") { 
 
 		dict = {"Tolerated" : 0, "Damaging" : 1};
 		value = dict[originalValue];
@@ -270,10 +271,10 @@ function parseValue(originalValue, column) {
 	//AF_EAS, AF_NFE, AF_SAS, AF_AMR, AF_AFR
 	//AN_AFR, AN_AMR, AN_ASJ, AN_EAS, AN_FIN, AN_NFE, AN_OTH, AN_SAS
 
-	var frequencies = ["ExAC Frequency","GNOMADMaxAlleleFreq",
+	var frequencies = ["1000 Genomes Frequency","ExAC Frequency","GNOMADMaxAlleleFreq",
 		"ExAC East Asian Frequency","ExAC South Asian Frequency","ExAC African Frequency","ExAC European Frequency","ExAC Latino Frequency",
-		"AF_EAS","AF_NFE","AF_SAS","AF_AMR","AF_AFR",
-		"AN_AFR", "AN_AMR", "AN_ASJ", "AN_EAS", "AN_FIN", "AN_NFE", "AN_OTH", "AN_SAS"
+		"AF_EAS","AF_NFE","AF_SAS","AF_AMR","AF_AFR"
+		// ,"AN_AFR", "AN_AMR", "AN_ASJ", "AN_EAS", "AN_FIN", "AN_NFE", "AN_OTH", "AN_SAS"
 	];
 
 	if ($.inArray(column, frequencies) !== -1) { 
@@ -360,8 +361,27 @@ function renderStaff(rawData, element) {
 	var width = $(element).width(); 
 	var height = $(element).height();
 
-	var columns = ["Sift Function Prediction", "Polyphen-2 Function Prediction", "CADD Score", "Phylop", "MutationTaster", "fathmm", "Sift"];
-	var columns = ["NE", "CADD?", "NC", "RVIS?", "NI", "FATHMM?", "GNOMAD_Max_Allele_Freq", "KG_AF_POPMAX"];
+	var columns = [
+
+		"SIFT Function Prediction",
+		"PolyPhen-2 Function Prediction",
+		"CADD Score",
+		"Phylop",
+		"MutationTaster",
+		"fathmm",
+		"Sift",
+
+		"1000 Genomes Frequency", 
+		"ExAC Frequency", 
+		"ExAC East Asian Frequency",
+		"ExAC South Asian Frequency",
+		"ExAC African Frequency",
+		"ExAC European Frequency",
+		"ExAC Latino Frequency",
+
+		"GNOMADMaxAlleleFreq"
+		
+	];
 
 	var nColumns = columns.length;
 
@@ -475,7 +495,29 @@ function renderSpiralgram(data, element) {
 
 	var nVariants = data.length; 
 
-	var spindleColumns = ["NE", "CADD?", "NC", "RVIS?", "NI", "FATHMM?", "GNOMAD_Max_Allele_Freq", "KG_AF_POPMAX"];
+	var spindleColumns = [
+
+		"SIFT Function Prediction",
+		"PolyPhen-2 Function Prediction",
+		"CADD Score",
+		"Phylop",
+		"MutationTaster",
+		"fathmm",
+		"Sift",
+
+		"1000 Genomes Frequency", 
+		"ExAC Frequency", 
+		"ExAC East Asian Frequency",
+		"ExAC South Asian Frequency",
+		"ExAC African Frequency",
+		"ExAC European Frequency",
+		"ExAC Latino Frequency",
+
+		"GNOMADMaxAlleleFreq"
+	];
+	// ["NE", "CADD?", "NC", "RVIS?", "NI", "FATHMM?", "GNOMAD_Max_Allele_Freq", "KG_AF_POPMAX"];
+
+
 	var nSpindleColumns = spindleColumns.length; 
 
 	var trackColumns = ["Reference Allele", "Sample Allele", "Chromosome"];
