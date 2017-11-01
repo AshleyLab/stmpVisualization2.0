@@ -927,8 +927,8 @@ scalingFunctionDict = {
 //		"fathmm",
 // "PolyPhen-2 Function Prediction" benign malig etc
 
-scalingFunctionDict["1000 Genomes Frequency"](.3);
-scalingFunctionDict["Sift Function Prediction"](.3);
+//scalingFunctionDict["1000 Genomes Frequency"](.3);
+//scalingFunctionDict["Sift Function Prediction"](.3);
 
 function getScale(){
 
