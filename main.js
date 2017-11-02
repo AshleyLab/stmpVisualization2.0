@@ -92,6 +92,7 @@ console.log(visualizeProteinVariantColumn('p.E343G; p.E401G; p.E357G; p.E413G'))
 function parseProteinVariantData(proteinVariantData){
 	var aminoAAs = proteinVariantData.replace('p.', '').split(";"); //strip the 'p.', then split the amino acids
 	var aaSub = aminoAAs[0]; //take the first ones for now
+	//ALERT!? Does this work properly for stop/loss?
 	var aaS = aaSub.replace(/\d+/, ''); //strip out the positions
 	var refAA = aaS[0];
 	var altAA = aaS[1];
@@ -100,9 +101,9 @@ function parseProteinVariantData(proteinVariantData){
 
 //given the three letter code for an amino acid, returns the correct color for it by first getting its group, and then the color associated with the group
 function getColorForAminoAcid(aminoAcid){
-	aminoAcidGroups = {'Aliphatic': ['Ala', 'Gly', 'Ile', 'Leu', 'Pro', 'Val'], 'Aromatic': ['Phe', 'Trp', 'Tyr'], 'Acidic': ['Asp', 'Glu'], 'Basic': ['Arg', 'His', 'Lys'], 'Hydroxylic': ['Ser', 'Thr'], 'Sulfur-Containing': ['Cys', 'Met'], 'Amidic': ['Asn', 'Gln']};
+	aminoAcidGroups = {'Aliphatic': ['Ala', 'Gly', 'Ile', 'Leu', 'Pro', 'Val'], 'Aromatic': ['Phe', 'Trp', 'Tyr'], 'Acidic': ['Asp', 'Glu'], 'Basic': ['Arg', 'His', 'Lys'], 'Hydroxylic': ['Ser', 'Thr'], 'Sulfur-Containing': ['Cys', 'Met'], 'Amidic': ['Asn', 'Gln'], 'Stop': ['Stop']};
 	//TODO fix the amino acid colors and make them better
-	aminoAcidColors = {'Aliphatic': ['#20A39E', '#20A39E', '#20A39E', '#20A39E', '#20A39E', '#20A39E'], 'Aromatic': ['#98CE00', '#98CE00', '#98CE00'], 'Acidic': ['#FF715B', '#FF715B'], 'Basic': ['#F0386B', '#F0386B', '#F0386B'], 'Hydroxylic': ['#93E5AB', '#93E5AB'], 'Sulfur-Containing': ['#FB8B24', '#FB8B24'], 'Amidic': ['#FB8B24', '#FB8B24']};
+	aminoAcidColors = {'Aliphatic': ['#20A39E', '#20A39E', '#20A39E', '#20A39E', '#20A39E', '#20A39E'], 'Aromatic': ['#98CE00', '#98CE00', '#98CE00'], 'Acidic': ['#FF715B', '#FF715B'], 'Basic': ['#F0386B', '#F0386B', '#F0386B'], 'Hydroxylic': ['#93E5AB', '#93E5AB'], 'Sulfur-Containing': ['#FB8B24', '#FB8B24'], 'Amidic': ['#FB8B24', '#FB8B24'], 'Stop': ['#FB8B24']};
 	for (var key in aminoAcidGroups) {
 		var aminoAcids = aminoAcidGroups[key];
 		var cntr = 0; //find the correct amino acid match and the index we find it at
@@ -119,7 +120,7 @@ function getColorForAminoAcid(aminoAcid){
 //parse the column protein variant data and returns a list with the following form [colorRefAA, colorAltAA, refAA, altAA]
 function visualizeProteinVariantColumn(proteinVariantData) {
 	//define how amino acid abbreviations work
-	var aminoAcidAbbreviations = { 'A':'Ala', 'R':'Arg', 'N':'Asn', 'D':'Asp', 'C':'Cys', 'E':'Glu', 'Q':'Gln', 'G':'Gly', 'H':'His', 'I':'Ile', 'L':'Leu', 'K':'Lys', 'M':'Met', 'F':'Phe', 'P': 'Pro', 'S': 'Ser', 'T':'Thr', 'W':'Trp', 'Y':'Tyr', 'V': 'Val' };
+	var aminoAcidAbbreviations = { 'A':'Ala', 'R':'Arg', 'N':'Asn', 'D':'Asp', 'C':'Cys', 'E':'Glu', 'Q':'Gln', 'G':'Gly', 'H':'His', 'I':'Ile', 'L':'Leu', 'K':'Lys', 'M':'Met', 'F':'Phe', 'P': 'Pro', 'S': 'Ser', 'T':'Thr', 'W':'Trp', 'Y':'Tyr', 'V': 'Val', '*': 'Stop' };
 	var aaS = parseProteinVariantData(proteinVariantData);
 	var refAALong = aminoAcidAbbreviations[aaS[0]];
 	var altAALong = aminoAcidAbbreviations[aaS[1]];
