@@ -239,12 +239,13 @@ function parseValue(originalValue, column) {
 		//range?? 1 to 99?
 		value = (parseFloat(originalValue) - 1) / 98; 
 
+	//minimum -14, maximum 3, where positive means conservation [MORE Relevant] and negative means drift  https://ionreporter.thermofisher.com/ionreporter/help/GUID-03D1F68A-E646-4B49-AD59-AF2F51874BD2.html
+	//actually just use phylop p value please, with values 0-1, lower more significant
 	} else if (column == "Phylop") {
-
-		//range?? try 0 to 1
-
+		//custom normalization function
 		value = parseFloat(originalValue)
 
+	//minimum 0, maximum 1
 	} else if (column == "MutationTaster") {
 
 		//range?? 0 to 1
