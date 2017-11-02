@@ -211,6 +211,7 @@ function parseCrude(sheet) {
 	hideSpinner(); 
 }
 
+//given the original value and the column returns a drawing value
 function parseValue(originalValue, column) { 
 
 	//TODO: empty cells
@@ -232,41 +233,52 @@ function parseValue(originalValue, column) {
 
 	if (column == "SIFT Function Prediction") { 
 
-		dict = {"Tolerated" : 0, "Damaging" : 1};
-		value = dict[originalValue];
+		dict = {"Tolerated" : 0, "Activating": .5, "Damaging" : 1};
+		value = convertStringToNumericAnnotation(originalValue, dict, "SIFT Function Prediction");
+		return value;
 
 	} else if (column == "PolyPhen-2 Function Prediction") {
-
 		dict = {"Benign" : 0, "Probably Damaging" : 1};
-		value = dict[originalValue];
+		value = convertStringToNumericAnnotation(originalValue, dict, "PolyPhen-2 Function Prediction");
+		return value;
 
 	} else if (column == "CADD Score") { 
 
-		//range?? 1 to 99?
-		value = (parseFloat(originalValue) - 1) / 98; 
+		//info: The last column of the provided files is the PHRED-like (-10*log10(rank/total)) scaled C-score ranking a variant relative to all possible substitutions of the human genome (8.6x10^9). Like explained above, a scaled C-score of greater of equal 10 indicates that these are predicted to be the 10% most deleterious substitutions that you can do to the human genome, a score of greater or equal 20 indicates the 1% most deleterious and so on.  http://cadd.gs.washington.edu/info
+		var minCaddScore = 1;
+		var maxCaddScore = 99;
+		var value = parseFloat(originalValue);
+		var normValue = zeroOneNormalizeValue(value, minCaddScore, maxCaddScore, "CADD Score", false);
+		return scaleValue(normValue);
 
 	} else if (column == "Phylop") {
-
-		//range?? try 0 to 1
-
-		value = parseFloat(originalValue)
+		//info: we use the mamilian phylop rankscore
+		//a rank score is always between 0 and 1 and a score of 0.9 means it is more likely to be damaging than 90% of all potential nsSNVs predicted by that method   https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4752381/
+		var value = parseFloat(originalValue);
+		var normValue = zeroOneNormalizeValue(value, 0, 1, "Phylop", false);
+		return scaleValue(value);
 
 	} else if (column == "MutationTaster") {
 
-		//range?? 0 to 1
+		//info: we use mutation taster converted rankscore.  1 is more damaging, 0 is less damaging, see phylop above for more details
 		value = parseFloat(originalValue);
+		var normValue = zeroOneNormalizeValue(value, 0, 1, "MutationTaster", false);
+		return scaleValue(value);
 
 	} else if (column == "fathmm") {
 
 		//range: [-16.13, 10.64]
-
-		value = (parseFloat(originalValue) + 16.13) / 26.77; 
+		//Positive FATHMM scores predict a tolerance to the variation while negative FATHMM scores predict intolerance to the variation, and is subsequently considered to be pathogenic. Following proof of concept analysis it was determined that the best possible cut-off value for the FATHMM score is 1.0  https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4929716/
+		var value = parseFloat(originalValue);
+		var normValue = zeroOneNormalizeValue(value, -16.13, 10.64, "fathmm", true);
+		return scaleValue(value);
 
 	} else if (column == "Sift") {
 
-		//goes from 0 to 1, where 0 is most deletrious and 1 is most tolerated??
-		value = 1 - parseFloat(originalValue);
-
+		//Range 0 to 1 with values less than 0.05 usually considered intolerant. 40% of the values in this database are below 0.01.
+		value = parseFloat(originalValue);
+		var normValue = zeroOneNormalizeValue(value, 0, 1, "Sift", true);
+		return scaleValue(value);
 	}
 
 	//frequencies
@@ -296,6 +308,39 @@ function parseValue(originalValue, column) {
 
 }
 
+//normalizes a value in the range 0-1
+//takes as parameters: value, min possible value, max possible value, name or the value (for error reporting), boolean invert scale for when we want to flip the high and low values
+//we want 1 to represent values that are of interest to us (pathogenic, rare etc).  If a value of 1 means not pathogenic and zero means pathogenic, we invert scale.  Similarly we invert the scale for frequencies so rare variants are most visualized
+function zeroOneNormalizeValue(value, min, max, valueName, invertScale){
+	var invalidValueSentinel = 0; //what sentinel value do we want?
+	if(value < min || value > max){
+		console.log('error value ' + value + 'for annotation ' + valueName + ' is invalid');
+		return invalidValueSentinel;
+	}
+	else{
+		var scale = d3.scale.linear().
+		.clamp(true)
+		.domain([min, max])
+		.range([0, 1]);
+		if(invertScale){
+			return 1 - scale(value);
+		}
+		else{
+			return scale(value);
+		}
+	}
+}
+
+function convertStringToNumericAnnotation(value, mappingDictionary, annotationName){
+	var invalidValueSentinel = 0; //what sentinel value do we want?
+	if(value in mappingDictionary){
+		return mappingDictionary[value];
+	}
+	else{
+		console.log('error value ' + value + 'for annotation ' + annotationName + ' is invalid');
+		return invalidValueSentinel
+	}
+}
 
 function scaleValue(value) {
 
@@ -307,11 +352,6 @@ function scaleValue(value) {
 
 	return scale(value); 
 
-}
-
-function zeroOneNormalize(val, minVal, maxVal){
-	//do normalization  do different distributions??
-	return .3;
 }
 
 function isChromosome(t) {
