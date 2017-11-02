@@ -13,17 +13,16 @@ function renderSpiralgram(data, element) {
 		"Sift",
 
 		"1000 Genomes Frequency", 
-		"ExAC Frequency", 
-		"ExAC East Asian Frequency",
-		"ExAC South Asian Frequency",
-		"ExAC African Frequency",
-		"ExAC European Frequency",
-		"ExAC Latino Frequency",
+		"ExAC Frequency",
+
+		// "ExAC East Asian Frequency",
+		// "ExAC South Asian Frequency",
+		// "ExAC African Frequency",
+		// "ExAC European Frequency",
+		// "ExAC Latino Frequency",
 
 		"GNOMADMaxAlleleFreq"
 	];
-	// ["NE", "CADD?", "NC", "RVIS?", "NI", "FATHMM?", "GNOMAD_Max_Allele_Freq", "KG_AF_POPMAX"];
-
 
 	var nSpindleColumns = spindleColumns.length; 
 
@@ -170,7 +169,7 @@ function renderSpiralgram(data, element) {
 			.append("circle")
 			.attr("cx", (_, i) =>  cxScale(i))
 			.attr("cy", 0)
-			.attr("r", d => d == -1 ? 0 : d * 5)
+			.attr("r", d => 5)//d == -1 ? 0 : d * 5)
 			.attr("fill", (d, i) => colorForAnnotation(d, i, nSpindleColumns))
 			.attr("data-index", (_, i) => i)
 			.on("mouseover", function(d, i) { 
