@@ -270,7 +270,10 @@ function parseValue(originalValue, column) {
 		//range: [-16.13, 10.64]
 		//Positive FATHMM scores predict a tolerance to the variation while negative FATHMM scores predict intolerance to the variation, and is subsequently considered to be pathogenic. Following proof of concept analysis it was determined that the best possible cut-off value for the FATHMM score is 1.0  https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4929716/
 		var value = parseFloat(originalValue);
-		var normValue = zeroOneNormalizeValue(value, -16.13, 10.64, "fathmm", true);
+		if(value < -10.64){
+			value = -10.64; //we do this so that our normalization doesn't unbalance the distribution.  Todo change??
+		}
+		var normValue = zeroOneNormalizeValue(value, -10.64, 10.64, "fathmm", true);
 		return scaleValue(value);
 
 	} else if (column == "Sift") {
@@ -318,15 +321,18 @@ function zeroOneNormalizeValue(value, min, max, valueName, invertScale){
 		return invalidValueSentinel;
 	}
 	else{
-		var scale = d3.scale.linear().
+
+		var s = d3.scaleLinear()
 		.clamp(true)
 		.domain([min, max])
 		.range([0, 1]);
 		if(invertScale){
-			return 1 - scale(value);
+			return 1 - s(value);
 		}
 		else{
-			return scale(value);
+			console.log(value);
+			console.log(s(value));
+			return s(value);
 		}
 	}
 }
