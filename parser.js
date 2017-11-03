@@ -214,74 +214,143 @@ function parseCrude(sheet) {
 //given the original value and the column returns a drawing value
 function parseValue(originalValue, column) { 
 
-	//TODO: empty cells
-
-	//implement universal way to check if originalValue not in dict
-	//pass originalValue and dict to some function?
-
-	var value = originalValue; 
-	var dict; 
+	//returns [(final) value, displayName (for annotation), isMissing]; 
 
 	//model scores
-	//should all be scaled to [0, 1], where 0 is least pathogenic and 1 is most pathogenic (that can be given on that scale)
-	//Sift Function Prediction, PolyPhen-2 Function Prediction, CADD Score, Phylop, MutationTaster, fathmm, Sift
+	//should all be normalized to [0, 1], where 0 is least pathogenic and 1 is most pathogenic (that can be given on that scale)
+	//scaled later
 	
-	var modelScores = [
-		"SIFT Function Prediction","PolyPhen-2 Function Prediction","CADD Score",
-		"Phylop","MutationTaster","fathmm","Sift"
-	];
+	var modelScores = ["SIFT Function Prediction","PolyPhen-2 Function Prediction","CADD Score","Phylop","MutationTaster","fathmm","Sift"];
 
 	if (column == "SIFT Function Prediction") { 
 
-		dict = {"Tolerated" : 0, "Activating": .5, "Damaging" : 1};
-		value = convertStringToNumericAnnotation(originalValue, dict, "SIFT Function Prediction");
-		return value;
+		var displayName = "SIFT Function Prediction";
+		var lookup = {"Tolerated" : 0, "Activating": .5, "Damaging" : 1};
+
+		if (!(originalValue in lookup)) {
+			return [0, displayName, true];
+		}
+
+		var value = stringToNumber(originalValue, lookup, column);
+
+		return [scaleValue(value), displayName, false];
 
 	} else if (column == "PolyPhen-2 Function Prediction") {
-		dict = {"Benign" : 0, "Probably Damaging" : 1};
-		value = convertStringToNumericAnnotation(originalValue, dict, "PolyPhen-2 Function Prediction");
-		return value;
+
+		var displayName = "PolyPhen-2 Function Prediction";
+		var lookup = {"Benign" : 0, "Probably Damaging" : 1};
+
+		if (!(originalValue in lookup)) {
+			return [0, displayName, true];
+		}
+
+		var value = stringToNumber(originalValue, lookup, column);
+		
+		return [scaleValue(value), displayName, false];
 
 	} else if (column == "CADD Score") { 
 
+		var displayName = "CADD Score";
+
 		//info: The last column of the provided files is the PHRED-like (-10*log10(rank/total)) scaled C-score ranking a variant relative to all possible substitutions of the human genome (8.6x10^9). Like explained above, a scaled C-score of greater of equal 10 indicates that these are predicted to be the 10% most deleterious substitutions that you can do to the human genome, a score of greater or equal 20 indicates the 1% most deleterious and so on.  http://cadd.gs.washington.edu/info
-		var minCaddScore = 1;
-		var maxCaddScore = 99;
-		var value = parseFloat(originalValue);
-		var normValue = zeroOneNormalizeValue(value, minCaddScore, maxCaddScore, "CADD Score", false);
-		return scaleValue(normValue);
+		var originalDomain = [1, 99]; 
+
+		if (isNaN(originalValue)) { 
+			return [0, displayName, true]; 
+		} 
+
+		var parsedValue = parseFloat(originalValue);
+
+		if (parsedValue < originalDomain[0] || parsedValue > originalDomain[1]) { 
+			return [0, displayName, true];
+		}
+
+		var normalizedValue = zeroOneNormalizeValue(value, originalDomain, column, false);
+
+		return [scaleValue(normalizedValue), displayName, false];
 
 	} else if (column == "Phylop") {
-		//info: we use the mamilian phylop rankscore
+
+		//we use the mamilian phylop rankscore
 		//a rank score is always between 0 and 1 and a score of 0.9 means it is more likely to be damaging than 90% of all potential nsSNVs predicted by that method   https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4752381/
-		var value = parseFloat(originalValue);
-		var normValue = zeroOneNormalizeValue(value, 0, 1, "Phylop", false);
-		return scaleValue(value);
+
+		var displayName = "phyloP";
+		var originalDomain = [0, 1];
+
+		if (isNaN(originalValue)) { 
+			return [0, displayName, true]; 
+		} 
+
+		var parsedValue = parseFloat(originalValue);
+
+		if (parsedValue < originalDomain[0] || parsedValue > originalDomain[1]) { 
+			return [0, displayName, true];
+		}
+
+		var normalizedValue = zeroOneNormalizeValue(value, originalDomain, column, false);
+
+		return [scaleValue(normalizedValue), displayName, false];
 
 	} else if (column == "MutationTaster") {
 
-		//info: we use mutation taster converted rankscore.  1 is more damaging, 0 is less damaging, see phylop above for more details
-		value = parseFloat(originalValue);
-		var normValue = zeroOneNormalizeValue(value, 0, 1, "MutationTaster", false);
-		return scaleValue(value);
+		//we use mutation taster converted rankscore.  1 is more damaging, 0 is less damaging, see phylop above for more details
+		
+		var displayName = "MutationTaster"; 
+		var originalDomain = [0, 1];
+
+		if (isNaN(originalValue)) { 
+			return [0, displayName, true]; 
+		} 
+
+		var parsedValue = parseFloat(originalValue);
+
+		if (parsedValue < originalDomain[0] || parsedValue > originalDomain[1]) { 
+			return [0, displayName, true];
+		}
+
+		var normalizedValue = zeroOneNormalizeValue(value, originalDomain, column, false);
+
+		return [scaleValue(normalizedValue), displayName, false];
 
 	} else if (column == "fathmm") {
 
-		//range: [-16.13, 10.64]
-		//Positive FATHMM scores predict a tolerance to the variation while negative FATHMM scores predict intolerance to the variation, and is subsequently considered to be pathogenic. Following proof of concept analysis it was determined that the best possible cut-off value for the FATHMM score is 1.0  https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4929716/
-		var value = parseFloat(originalValue);
-		if(value < -10.64){
-			value = -10.64; //we do this so that our normalization doesn't unbalance the distribution.  Todo change??
+		var displayName = "fathmm"; 
+		var originalDomain = [-16.13, 10.64]; 
+
+		if (isNaN(originalValue)) { 
+			return [0, displayName, true]; 
+		} 
+
+		var parsedValue = parseFloat(originalValue);
+
+		if (parsedValue < originalDomain[0] || parsedValue > originalDomain[1]) { 
+			return [0, displayName, true];
 		}
-		var normValue = zeroOneNormalizeValue(value, -10.64, 10.64, "fathmm", true);
-		return scaleValue(value);
+
+		//Positive FATHMM scores predict a tolerance to the variation while negative FATHMM scores predict intolerance to the variation, and is subsequently considered to be pathogenic. Following proof of concept analysis it was determined that the best possible cut-off value for the FATHMM score is 1.0  https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4929716/
+		var normalizedValue = zeroOneNormalizeValue(value, originalDomain, column, true);
+
+		return [scaleValue(normalizedValue), displayName, false];
 
 	} else if (column == "Sift") {
 
+		var displayName = "Sift";
+		var originalDomain = [0, 1];
+
+		if (isNaN(originalValue)) { 
+			return [0, displayName, true]; 
+		} 
+
+		var parsedValue = parseFloat(originalValue);
+
+		if (parsedValue < originalDomain[0] || parsedValue > originalDomain[1]) { 
+			return [0, displayName, true];
+		}
+
 		//Range 0 to 1 with values less than 0.05 usually considered intolerant. 40% of the values in this database are below 0.01.
-		value = parseFloat(originalValue);
-		var normValue = zeroOneNormalizeValue(value, 0, 1, "Sift", true);
-		return scaleValue(value);
+		var normalizedValue = zeroOneNormalizeValue(value, originalDomain, column, true);
+
+		return [scaleValue(normalizedValue), displayName, false];
 	}
 
 	//frequencies
@@ -290,69 +359,58 @@ function parseValue(originalValue, column) {
 	//GNOMADMaxAlleleFreq
 	//population: ExAC East Asian Frequency, ExAC South Asian Frequency, ExAC African Frequency, ExAC European Frequency, ExAC Latino Frequency
 	//AF_EAS, AF_NFE, AF_SAS, AF_AMR, AF_AFR
-	//AN_AFR, AN_AMR, AN_ASJ, AN_EAS, AN_FIN, AN_NFE, AN_OTH, AN_SAS
 
-	var frequencies = ["1000 Genomes Frequency","ExAC Frequency","GNOMADMaxAlleleFreq",
-		"ExAC East Asian Frequency","ExAC South Asian Frequency","ExAC African Frequency","ExAC European Frequency","ExAC Latino Frequency",
-		"AF_EAS","AF_NFE","AF_SAS","AF_AMR","AF_AFR"
-	];
+	var frequencies = ["1000 Genomes Frequency","ExAC Frequency","GNOMADMaxAlleleFreq","ExAC East Asian Frequency","ExAC South Asian Frequency","ExAC African Frequency","ExAC European Frequency","ExAC Latino Frequency","AF_EAS","AF_NFE","AF_SAS","AF_AMR","AF_AFR"];
 
 	if ($.inArray(column, frequencies) !== -1) { 
-		value = parseFloat(originalValue);
+
+		var originalDomain = [0, 1];
+
+		if (isNaN(originalValue)) { 
+			return [0, column, true]; 
+		} 
+
+		var parsedValue = parseFloat(originalValue);
+
+		if (parsedValue < originalDomain[0] || parsedValue > originalDomain[1]) { 
+			return [0, column, true];
+		}
+
+		return [scaleValue(parsedValue), column, false];
+
 	}
 
-	//scale model scores and frequencies
-	if ($.inArray(column, modelScores.concat(frequencies)) !== -1) { 
-		console.log("scaling")
-		return scaleValue(value);
-	}
-
-	return value; 
+	return originalValue;
 
 }
 
 //normalizes a value in the range 0-1
 //takes as parameters: value, min possible value, max possible value, name or the value (for error reporting), boolean invert scale for when we want to flip the high and low values
 //we want 1 to represent values that are of interest to us (pathogenic, rare etc).  If a value of 1 means not pathogenic and zero means pathogenic, we invert scale.  Similarly we invert the scale for frequencies so rare variants are most visualized
-function zeroOneNormalizeValue(value, min, max, valueName, invertScale){
-	var invalidValueSentinel = 0; //what sentinel value do we want?
-	if(value < min || value > max){
-		console.log('error value ' + value + 'for annotation ' + valueName + ' is invalid');
-		return invalidValueSentinel;
-	}
-	else{
+function zeroOneNormalizeValue(value, domain, column, shouldInvert) {
 
-		var s = d3.scaleLinear()
-		.clamp(true)
-		.domain([min, max])
-		.range([0, 1]);
-		if(invertScale){
-			return 1 - s(value);
-		}
-		else{
-			console.log(value);
-			console.log(s(value));
-			return s(value);
-		}
+	if (shouldInvert) {
+		value = domain[1] - value; 
 	}
+
+	var normalizer = d3.scaleLinear()
+		.domain(domain)
+		.range([0, 1]);
+
+	return normalizer(value); 
+
 }
 
-function convertStringToNumericAnnotation(value, mappingDictionary, annotationName){
-	var invalidValueSentinel = 0; //what sentinel value do we want?
-	if(value in mappingDictionary){
-		return mappingDictionary[value];
-	}
-	else{
-		console.log('error value ' + value + 'for annotation ' + annotationName + ' is invalid');
-		return invalidValueSentinel
-	}
+function stringToNumber(value, lookup, column) {
+
+	return lookup[value];
+
 }
 
 function scaleValue(value) {
 
 	var scale = d3.scalePow()
 		.exponent(3)
-		.clamp(true) //always return value inside the range, even if input is outside domain
 		.domain([0, 1])
 		.range([0, 1]);
 
