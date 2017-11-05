@@ -84,17 +84,9 @@ function readWorkbook(workbook){
 
 	var sheetNames = workbook.SheetNames;
 
-	console.log(workbook); 
-	console.log(sheetNames);
-
 	for (i in sheetNames) {
 
 		var sheet = sheetNames[i];
-
-		if (sheet == "Column Descriptions") { //what sheets are we actually parsing? how will they be named? 
-			console.log("skipping " + sheet);
-			continue; 
-		}
 	
 		crudeSheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheet]); 
 		parsedSheet = parseCrude(crudeSheet);
@@ -131,9 +123,6 @@ function parseCrude(sheet) {
 		"Protein Variant",
 		"Translation Impact", // < missense, frameshift, stop loss, stop gain, ...
 
-		//analytic overview
-		"Classification", // < Uncertain Signifi
-
 		//models
 		"SIFT Function Prediction",
 		"PolyPhen-2 Function Prediction",
@@ -151,20 +140,23 @@ function parseCrude(sheet) {
 		"ExAC African Frequency",
 		"ExAC European Frequency",
 		"ExAC Latino Frequency",
-		"ExAC Homozygous Count",
-		"AN_AFR",
-		"AN_AMR",
-		"AN_ASJ",
+		"AF_EAS",
+		"AF_NFE",
+		"AF_SAS",
+		"AF_AMR",
+		"AF_AFR",
+
 		"AN_EAS",
-		"AN_FIN",
 		"AN_NFE",
-		"AN_OTH",
 		"AN_SAS",
+		"AN_AMR",
+		"AN_AFR",
+
 		"GNOMADMaxAlleleFreq",
 		"GNOMAD_Max_Allele_Freq_POP"
 		
 		// "TIER" Tier
-	]
+	];
 
 	for (i in sheet) {
 
@@ -184,15 +176,17 @@ function parseCrude(sheet) {
 
 		function fillTemplate(originalValue, column) {
 
-			var value = parseValue(originalValue, column);
-
-			console.log(column + ": " + originalValue + " - " + value);
+			var pVData = parseValue(originalValue, column);
+			var value = pVData[0]; 
+			var displayName = pVData[1]; 
+			var isMissing = pVData[2]; 
 
 			return {
-				"value" : value, //if value is null, just assign empty string 
+				"value" : value, 
 				"originalValue" : originalValue, 
-				"associatedValues" : []
-			}
+				"displayName" : displayName, 
+				"isMissing" : isMissing
+			}; 
 
 		}
 
@@ -221,6 +215,8 @@ function parseValue(originalValue, column) {
 	//scaled later
 	
 	var modelScores = ["SIFT Function Prediction","PolyPhen-2 Function Prediction","CADD Score","Phylop","MutationTaster","fathmm","Sift"];
+
+
 
 	if (column == "SIFT Function Prediction") { 
 
@@ -361,26 +357,100 @@ function parseValue(originalValue, column) {
 	//AF_EAS, AF_NFE, AF_SAS, AF_AMR, AF_AFR
 
 	var frequencies = ["1000 Genomes Frequency","ExAC Frequency","GNOMADMaxAlleleFreq","ExAC East Asian Frequency","ExAC South Asian Frequency","ExAC African Frequency","ExAC European Frequency","ExAC Latino Frequency","AF_EAS","AF_NFE","AF_SAS","AF_AMR","AF_AFR"];
+	var frequenciesDisplayNames = {
+		"1000 Genomes Frequency" : "1000 Genomes Frequency", 
+		"ExAC Frequency" : "ExAC Frequency",
+		"GNOMADMaxAlleleFreq" : "gnomAD Max Frequency",
+		"ExAC East Asian Frequency" : "ExAC East Asian Frequency",
+		"ExAC South Asian Frequency" : "ExAC South Asian Frequency",
+		"ExAC African Frequency" : "ExAC African Frequency",
+		"ExAC European Frequency" : "ExAC European Frequency",
+		"ExAC Latino Frequency" : "ExAC Latino Frequency",
+		"AF_EAS" : "gnomAD East Asian Frequency",
+		"AF_NFE" : "gnomAD European (non-Finnish) Frequency",
+		"AF_SAS" : "gnomAD South Asian Frequency",
+		"AF_AMR" : "gnomAD Latino Frequency",
+		"AF_AFR" : "gnomAD African Frequency"
+	}; 
 
 	if ($.inArray(column, frequencies) !== -1) { 
+
+		var displayName = frequenciesDisplayNames[column];
 
 		var originalDomain = [0, 1];
 
 		if (isNaN(originalValue)) { 
-			return [0, column, true]; 
+			return [0, displayName, true]; 
 		} 
 
 		var parsedValue = parseFloat(originalValue);
 
 		if (parsedValue < originalDomain[0] || parsedValue > originalDomain[1]) { 
-			return [0, column, true];
+			return [0, displayName, true];
 		}
 
-		return [scaleValue(parsedValue), column, false];
+		return [scaleValue(parsedValue), displayName, false];
 
 	}
 
-	return originalValue;
+	//misceallensous strings
+	var strings = ["Chromosome","Reference Allele","Sample Allele","Variation Type","FILTER","GT","GNOMAD_Max_Allele_Freq_POP"];
+	var stringsDisplayNames = {	
+		"Chromosome" : "Chromosome",
+		"Reference Allele" : "Reference Allele",
+		"Sample Allele" : "Sample Allele",
+		"Variation Type" : "Variant Type",
+		"FILTER" : "Filter",
+		"GT" : "Genotype",
+		"GNOMAD_Max_Allele_Freq_POP" : "gnomAD Max Frequency Population"
+	};
+
+	if ($.inArray(column, strings) !== -1) {
+
+		if (originalValue) {
+			
+			return [originalValue, stringsDisplayNames[column], false];
+
+		} else { 
+
+			return ["", stringsDisplayNames[column], true];
+
+		}
+
+	}
+
+	var ints = ["Position","QUAL","Gene Region","Gene Symbol","Transcript ID","Transcript Variant","Protein Variant","Translation Impact","AN_EAS","AN_NFE","AN_SAS","AN_AMR","AN_AFR"];
+	var intsDisplayNames = {
+		"Position" : "Position",
+		"QUAL" : "Quality",
+		"Gene Region" : "Gene Region",
+		"Gene Symbol" : "Gene Symbol",
+		"Transcript ID" : "Transcript ID",
+		"Transcript Variant" : "Transcript Variant",
+		"Protein Variant" : "Protein Variant",
+		"Translation Impact" : "Translation Impact",
+		"AN_EAS" : "gnomAD East Asian n",
+		"AN_NFE" : "gnomAD European (non-Finnish) n",
+		"AN_SAS" : "gnomAD South Asian n",
+		"AN_AMR" : "gnomAD Latino n",
+		"AN_AFR" : "gnomAD African n"
+	};
+
+	if ($.inArray(column, ints) !== -1) {
+
+		if (originalValue) {
+			
+			return [originalValue, intsDisplayNames[column], false];
+
+		} else { 
+
+			return [0, intsDisplayNames[column], true];
+
+		}
+
+	}
+
+	console.log("uncaught annotation: " + column);
 
 }
 

@@ -86,43 +86,58 @@ function displayInfo(value, kind) {
 		.text(kind);
 }
 
-console.log(visualizeProteinVariantColumn('p.E343G; p.E401G; p.E357G; p.E413G'))
+// console.log(visualizeProteinVariantColumn('p.E343G; p.E401G; p.E357G; p.E413G'))
 
-//given a position and protein variant returns the full names of the proteins
-function parseProteinVariantData(proteinVariantData){
+function parseProteinVariantData(proteinVariantData) { //given a position and protein variant returns the full names of the proteins
+
 	var aminoAAs = proteinVariantData.replace('p.', '').split(";"); //strip the 'p.', then split the amino acids
+
 	var aaSub = aminoAAs[0]; //take the first ones for now
 	var aaS = aaSub.replace(/\d+/, ''); //strip out the positions
+
 	var refAA = aaS[0];
 	var altAA = aaS[1];
-	return [refAA, altAA]
+
+	return [refAA, altAA]; 
+
 }
 
-//given the three letter code for an amino acid, returns the correct color for it by first getting its group, and then the color associated with the group
-function getColorForAminoAcid(aminoAcid){
+function getColorForAminoAcid(aminoAcid) { //given the three letter code for an amino acid, returns the correct color for it by first getting its group, and then the color associated with the group
+
 	aminoAcidGroups = {'Aliphatic': ['Ala', 'Gly', 'Ile', 'Leu', 'Pro', 'Val'], 'Aromatic': ['Phe', 'Trp', 'Tyr'], 'Acidic': ['Asp', 'Glu'], 'Basic': ['Arg', 'His', 'Lys'], 'Hydroxylic': ['Ser', 'Thr'], 'Sulfur-Containing': ['Cys', 'Met'], 'Amidic': ['Asn', 'Gln']};
 	//TODO fix the amino acid colors and make them better
 	aminoAcidColors = {'Aliphatic': ['#20A39E', '#20A39E', '#20A39E', '#20A39E', '#20A39E', '#20A39E'], 'Aromatic': ['#98CE00', '#98CE00', '#98CE00'], 'Acidic': ['#FF715B', '#FF715B'], 'Basic': ['#F0386B', '#F0386B', '#F0386B'], 'Hydroxylic': ['#93E5AB', '#93E5AB'], 'Sulfur-Containing': ['#FB8B24', '#FB8B24'], 'Amidic': ['#FB8B24', '#FB8B24']};
+	
 	for (var key in aminoAcidGroups) {
+
 		var aminoAcids = aminoAcidGroups[key];
 		var cntr = 0; //find the correct amino acid match and the index we find it at
-		for (idx in aminoAcids){
+
+		for (idx in aminoAcids) {
+
 			var curAA = aminoAcids[idx];
-			if (curAA == aminoAcid){
+
+			if (curAA == aminoAcid) {
+
 				return aminoAcidColors[key][cntr]
 			}
+
 			cntr += 1;
 		}
 	}
 }
 
-//parse the column protein variant data and returns a list with the following form [colorRefAA, colorAltAA, refAA, altAA]
-function visualizeProteinVariantColumn(proteinVariantData) {
+function visualizeProteinVariantColumn(proteinVariantData) { //parse the column protein variant data and returns a list with the following form [colorRefAA, colorAltAA, refAA, altAA]
+
 	//define how amino acid abbreviations work
+
 	var aminoAcidAbbreviations = { 'A':'Ala', 'R':'Arg', 'N':'Asn', 'D':'Asp', 'C':'Cys', 'E':'Glu', 'Q':'Gln', 'G':'Gly', 'H':'His', 'I':'Ile', 'L':'Leu', 'K':'Lys', 'M':'Met', 'F':'Phe', 'P': 'Pro', 'S': 'Ser', 'T':'Thr', 'W':'Trp', 'Y':'Tyr', 'V': 'Val' };
+	
 	var aaS = parseProteinVariantData(proteinVariantData);
+
 	var refAALong = aminoAcidAbbreviations[aaS[0]];
 	var altAALong = aminoAcidAbbreviations[aaS[1]];
+	
 	//console.log(refAALong);
 	return [getColorForAminoAcid(refAALong), getColorForAminoAcid(altAALong), refAALong, altAALong];
 }
