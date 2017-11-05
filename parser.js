@@ -1,4 +1,4 @@
-var element, axisSpace, pathClicks, outerElement, data; 
+var element, axisSpace, pathClicks, outerElement, data, variantData; 
 
 $(function() {
 
@@ -201,9 +201,14 @@ function parseCrude(sheet) {
 	}
 	
 	console.log(visualizationData);
+
+	variantData = visualizationData; 
+	console.log(variantData);
+
 	renderVisualization(false, "#graphics", visualizationData); //render the visualization
 	hideSpinner(); 
 }
+
 
 //given the original value and the column returns a drawing value
 function parseValue(originalValue, column) { 

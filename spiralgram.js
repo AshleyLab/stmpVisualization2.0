@@ -292,14 +292,10 @@ function renderSpiralgram(data, element) {
 
 				if (isChromosome(this)) {
 
-					console.log("chromosome " + d + ", " + i);
-
 					d3.select(this)
 						.attr("fill", colorForChromosome)
 
 				} else { 
-
-					console.log("nucleotide " + d + ", " + i);
 
 					d3.select(this)
 						.attr("fill", colorForNucleotide);
@@ -312,8 +308,95 @@ function renderSpiralgram(data, element) {
 
 	}
 
+	function addCrescents() { 
+
+		var innerRadius = Math.min(width, height) / 2 - outerBuffer - tracksWidth + spindlesToTracksBuffer; 
+		var outerRadius = Math.min(width, height) / 2 - outerBuffer;    
+
+		var trackWidth = outerRadius - innerRadius; 
+
+		var rotationScale = d3.scaleLinear()
+			.domain([0, nVariants])
+			.range([0, Math.PI * 2]);
+
+		var angularWidth = Math.PI * 2 / nVariants; 
+
+		var genotypes = getGenotypes();
+
+		d3.select(element)
+			.selectAll("g")
+			.selectAll("g.crescent")
+			.data((d, i) => genotypes[i])
+			.enter()
+			.append("g")
+			.attr("class", "crescent"); 
+
+		d3.select(element)
+			.selectAll("g.crescent")
+			.selectAll("path")
+			.data(d => d)
+			.enter()
+			.append("path"); /*
+			.attr("d", (d, i) => {
+
+				console.log(d);
+
+				var iR = innerRadiusScale(index); 
+				var oR = innerRadiusScale(index) + trackWidth; 
+
+				var sA = rotationScale(i);
+				var eA = rotationScale(i) + angularWidth;
+
+				var arc = d3.arc()
+					.innerRadius(iR)
+					.outerRadius(oR)
+					.startAngle(sA)
+					.endAngle(eA);
+
+				return arc(); 
+
+			}).attr("fill", getRandomColor);*/
+
+	}
+
 	addText(); 
 	addSpindles(); 
 	addTracks(); 
+	addCrescents(); 
 	
+}
+
+function getGenotypes() {
+
+	console.log(variantData);
+
+	var gData = $.map(variantData, (variant, index) => {
+
+		return [parseGenotype(variant.core["GT"].value)];
+
+	}); 
+
+	console.log(gData);
+	return gData; 
+
+}
+
+function parseGenotype(genotype) { //e.g., 0/1|./.|1/1
+
+	return $.map(genotype.split("|"), (g, i) => {
+
+		if (g === "0/0") { 
+			return 0; 
+		} else if (g === "0/1" || g === "1/0") {
+			return 1; 
+		} else if (g === "1/1") {
+			return 2; 
+		} else if (g === "./.") {
+			return -1; 
+		} else {
+			console.log("don't understand " + g + " in " + genotype);
+		}
+
+	}); 
+
 }

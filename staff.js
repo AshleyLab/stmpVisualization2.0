@@ -2,6 +2,8 @@ var lastStaffData = [];
 
 function renderStaff(rawData, element) {
 
+	return; 
+
 	lastStaffData = rawData; 
 
 	var width = $(element).width(); 
