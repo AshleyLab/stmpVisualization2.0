@@ -28,10 +28,10 @@ function renderSpiralgram(data, element) {
 
 	var center = [width / 2, height / 2];
 
-	var outerBuffer = 50; 
+	var outerBuffer = 20; 
 	var tracksWidth = 70; 
 	var spindlesToTracksBuffer = 30; 
-	var innerBuffer = 100; 
+	var innerBuffer = 50; 
 
 	var rotationScale = d3.scaleLinear()
 		.domain([0, nVariants])
@@ -170,15 +170,22 @@ function renderSpiralgram(data, element) {
 			.attr("fill", (d, i) => colorForAnnotation(d, i, nSpindleColumns))
 			.on("mouseover", function(d, i) { 
 
-				console.log(d3.select(this).attr("variant-index") + "x" + d3.select(this).attr("data-index"));
+				var variantIndex = d3.select(this).attr("variant-index"); 
+				var dataIndex = d3.select(this).attr("data-index");
+
+				var property = spindleColumns[dataIndex];
+
+				var originalValue = getOriginalValue(variantIndex, property);
+				var displayName = getDisplayName(variantIndex, property);
+				var isMissing = getIsMissing(variantIndex, property);
+
+				displayInfo(originalValue, displayName);
 
 				d3.select(element)
 					.selectAll("g")
 					.selectAll("circle")
 					.filter((_, index) => i == index)
 					.attr("fill", highlightForCircle); 
-
-				displayInfo(d, spindleColumns[i]);
 
 				d3.select(staffElement)
 					.select("circle[data-index=\"" + i + "\"")
@@ -382,9 +389,6 @@ function renderSpiralgram(data, element) {
 				var outerCorner2 = [oR * Math.cos(eA), oR * Math.sin(eA)];
 
 				var controlPointRadius = innerRadius + (outerRadius / 5);
-
-				console.log(innerRadius + " " + outerRadius + " : " + controlPointRadius); 
-
 				var controlPoint = [controlPointRadius * Math.cos(mA), controlPointRadius * Math.sin(mA)]
 
 				var d = "M " + innerCorner1[0] + " " + innerCorner1[1] + " ";

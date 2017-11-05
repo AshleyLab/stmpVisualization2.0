@@ -1,5 +1,21 @@
 var element, axisSpace, pathClicks, outerElement, data, variantData; 
 
+function getValue(variantIndex, property) {
+	return variantData[variantIndex].core[property].value;
+}
+
+function getOriginalValue(variantIndex, property) {
+	return variantData[variantIndex].core[property].originalValue; 
+}
+
+function getDisplayName(variantIndex, property) {
+	return variantData[variantIndex].core[property].displayName; 
+}
+
+function getIsMissing(variantIndex, property) {
+	return variantData[variantIndex].core[property].isMissing;
+}
+
 $(function() {
 
 	var element = "#graphics";
@@ -207,7 +223,9 @@ function parseCrude(sheet) {
 
 	renderVisualization(false, "#graphics", visualizationData); //render the visualization
 	hideSpinner(); 
+
 }
+
 
 
 //given the original value and the column returns a drawing value
@@ -393,6 +411,8 @@ function parseValue(originalValue, column) {
 		if (parsedValue < originalDomain[0] || parsedValue > originalDomain[1]) { 
 			return [0, displayName, true];
 		}
+
+		parsedValue = 1 - parsedValue; //for frequencies, 0 is more interesting (for model scores, 1 is more interesting)
 
 		return [scaleValue(parsedValue), displayName, false];
 
