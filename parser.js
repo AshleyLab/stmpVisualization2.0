@@ -249,7 +249,7 @@ function parseValue(originalValue, column) {
 		
 		return [scaleValue(value), displayName, false];
 
-	} else if (column == "CADD Score") { 
+	} else if (column == "CADD Score") { //TODO
 
 		var displayName = "CADD Score";
 
@@ -266,7 +266,7 @@ function parseValue(originalValue, column) {
 			return [0, displayName, true];
 		}
 
-		var normalizedValue = zeroOneNormalizeValue(value, originalDomain, column, false);
+		var normalizedValue = zeroOneNormalizeValue(parsedValue, originalDomain, column, false);
 
 		return [scaleValue(normalizedValue), displayName, false];
 
@@ -288,7 +288,7 @@ function parseValue(originalValue, column) {
 			return [0, displayName, true];
 		}
 
-		var normalizedValue = zeroOneNormalizeValue(value, originalDomain, column, false);
+		var normalizedValue = zeroOneNormalizeValue(parsedValue, originalDomain, column, false);
 
 		return [scaleValue(normalizedValue), displayName, false];
 
@@ -309,7 +309,7 @@ function parseValue(originalValue, column) {
 			return [0, displayName, true];
 		}
 
-		var normalizedValue = zeroOneNormalizeValue(value, originalDomain, column, false);
+		var normalizedValue = zeroOneNormalizeValue(parsedValue, originalDomain, column, false);
 
 		return [scaleValue(normalizedValue), displayName, false];
 
@@ -329,7 +329,7 @@ function parseValue(originalValue, column) {
 		}
 
 		//Positive FATHMM scores predict a tolerance to the variation while negative FATHMM scores predict intolerance to the variation, and is subsequently considered to be pathogenic. Following proof of concept analysis it was determined that the best possible cut-off value for the FATHMM score is 1.0  https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4929716/
-		var normalizedValue = zeroOneNormalizeValue(value, originalDomain, column, true);
+		var normalizedValue = zeroOneNormalizeValue(parsedValue, originalDomain, column, true);
 
 		return [scaleValue(normalizedValue), displayName, false];
 
@@ -349,7 +349,7 @@ function parseValue(originalValue, column) {
 		}
 
 		//Range 0 to 1 with values less than 0.05 usually considered intolerant. 40% of the values in this database are below 0.01.
-		var normalizedValue = zeroOneNormalizeValue(value, originalDomain, column, true);
+		var normalizedValue = zeroOneNormalizeValue(parsedValue, originalDomain, column, true);
 
 		return [scaleValue(normalizedValue), displayName, false];
 	}

@@ -37,6 +37,11 @@ g.track path {
   stroke-width: 1.5;
 }
 
+g.crescent path {
+  stroke: #22262e;
+  stroke-width: 0;
+}
+
 #spiralLayoutContainer { 
   width: 90%;
 /*  display: inline-block;

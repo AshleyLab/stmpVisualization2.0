@@ -28,7 +28,7 @@ function renderSpiralgram(data, element) {
 
 	var center = [width / 2, height / 2];
 
-	var outerBuffer = 10; 
+	var outerBuffer = 50; 
 	var tracksWidth = 70; 
 	var spindlesToTracksBuffer = 30; 
 	var innerBuffer = 100; 
@@ -164,9 +164,9 @@ function renderSpiralgram(data, element) {
 			.append("circle")
 			.attr("variant-index", function() { return d3.select(this.parentNode).attr("variant-index") })
 			.attr("data-index", (_, i) => i)
-			.attr("cx", (_, i) =>  cxScale(i))
+			.attr("cx", (_, i) => cxScale(i))
 			.attr("cy", 0)
-			.attr("r", d => 5)//d == -1 ? 0 : d * 5)
+			.attr("r", (d, i) => d * 5)
 			.attr("fill", (d, i) => colorForAnnotation(d, i, nSpindleColumns))
 			.on("mouseover", function(d, i) { 
 
@@ -310,8 +310,8 @@ function renderSpiralgram(data, element) {
 
 	function addCrescents() { 
 
-		var innerRadius = Math.min(width, height) / 2 - outerBuffer - tracksWidth + spindlesToTracksBuffer; 
-		var outerRadius = Math.min(width, height) / 2 - outerBuffer;    
+		var innerRadius = Math.min(width, height) / 2 - outerBuffer + 10;  
+		var outerRadius = innerRadius + 20; 
 
 		var trackWidth = outerRadius - innerRadius; 
 
@@ -319,43 +319,92 @@ function renderSpiralgram(data, element) {
 			.domain([0, nVariants])
 			.range([0, Math.PI * 2]);
 
-		var angularWidth = Math.PI * 2 / nVariants; 
+		var angularWidth = Math.PI * 2 / (nVariants * 3); 
 
 		var genotypes = getGenotypes();
+		console.log(genotypes);
 
 		d3.select(element)
-			.selectAll("g")
 			.selectAll("g.crescent")
-			.data((d, i) => genotypes[i])
+			.data(genotypes)
 			.enter()
 			.append("g")
-			.attr("class", "crescent"); 
+			.attr("class", "crescent")
+			.attr("variant-index", (_, i) => i)
+			.attr("transform", "translate(" + center[0] + "," + center[1] + ")"); 
 
 		d3.select(element)
 			.selectAll("g.crescent")
 			.selectAll("path")
 			.data(d => d)
 			.enter()
-			.append("path"); /*
-			.attr("d", (d, i) => {
+			.append("path")
+			.attr("fill", (d, _) => colorForGenotype(d))
+			.attr("variant-index", function() { return d3.select(this.parentNode).attr("variant-index"); })
+			.attr("d", function(d, _i) {
 
-				console.log(d);
+				var i = parseInt(d3.select(this.parentNode).attr("variant-index"));
 
-				var iR = innerRadiusScale(index); 
-				var oR = innerRadiusScale(index) + trackWidth; 
-
-				var sA = rotationScale(i);
-				var eA = rotationScale(i) + angularWidth;
+				var sA = rotationScale(i) + _i * angularWidth; 
+				var eA = sA + angularWidth; 
 
 				var arc = d3.arc()
-					.innerRadius(iR)
-					.outerRadius(oR)
+					.innerRadius(innerRadius)
+					.outerRadius(outerRadius)
 					.startAngle(sA)
 					.endAngle(eA);
 
 				return arc(); 
 
-			}).attr("fill", getRandomColor);*/
+			}).on("mouseover", (d, i) => console.log(i));
+
+		//apply a mask to "cut out" the crescents
+		d3.select(element)
+			.selectAll("g.crescent")
+			.append("path")
+			.attr("class","mask")
+			.attr("fill","#22262e")
+			.attr("variant-index", function() { return d3.select(this.parentNode).attr("variant-index"); })
+			.attr("d", function(d, _i) {
+
+				var i = parseInt(d3.select(this.parentNode).attr("variant-index"));
+
+				var sA = rotationScale(i); 
+				var eA = sA - angularWidth * 3; 
+				var mA = (sA + eA) / 2; 
+
+				var innerCorner1 = [innerRadius * Math.cos(sA), innerRadius * Math.sin(sA)];
+				var innerCorner2 = [innerRadius * Math.cos(eA), innerRadius * Math.sin(eA)];
+
+				var oR = outerRadius + 1; //eliminate edge effects
+
+				var outerCorner1 = [oR * Math.cos(sA), oR * Math.sin(sA)];
+				var outerCorner2 = [oR * Math.cos(eA), oR * Math.sin(eA)];
+
+				var controlPointRadius = innerRadius + (outerRadius / 5);
+
+				console.log(innerRadius + " " + outerRadius + " : " + controlPointRadius); 
+
+				var controlPoint = [controlPointRadius * Math.cos(mA), controlPointRadius * Math.sin(mA)]
+
+				var d = "M " + innerCorner1[0] + " " + innerCorner1[1] + " ";
+
+					d += "L " + outerCorner1[0] + " " + outerCorner1[1] + " ";
+
+				   d += "A " + outerRadius + " " + outerRadius + " " + 0 + " " + 0 + " " + 0 + " " + outerCorner2[0] + " " + outerCorner2[1] + " ";
+
+				   d += "L " + innerCorner2[0] + " " + innerCorner2[1] + " ";
+
+				   d += "Q " + controlPoint[0] + " " + controlPoint[1] + " " + innerCorner1[0] + " " + innerCorner1[1] + " "; 
+
+				   // d += "A " + innerRadius + " " + innerRadius + " " + 0 + " " + 0 + " " + 1 + " " + innerCorner1[0] + " " + innerCorner1[1] + " "; 
+
+				   d += "Z";
+
+				return d; 
+
+			}); 
+
 
 	}
 
@@ -364,6 +413,22 @@ function renderSpiralgram(data, element) {
 	addTracks(); 
 	addCrescents(); 
 	
+}
+
+function colorForGenotype(genotype) { 
+
+	if (genotype == "0") {
+		return "blue"; 
+	} else if (genotype == "1") { 
+		return "purple";
+	} else if (genotype == "2") { 
+		return "red";
+	} else { 
+		return "darkgrey";
+	}
+
+
+ 
 }
 
 function getGenotypes() {
