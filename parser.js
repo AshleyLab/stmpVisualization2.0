@@ -221,6 +221,8 @@ function parseCrude(sheet) {
 	variantData = visualizationData; 
 	console.log(variantData);
 
+	console.log("calling renderVisualization")
+
 	renderVisualization(false, "#graphics", visualizationData); //render the visualization
 	hideSpinner(); 
 

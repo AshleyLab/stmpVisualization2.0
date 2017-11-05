@@ -45,7 +45,7 @@ function renderVisualization(isStreamgraph, element, data) {
 			.attr("id", "staffElement");
 
 		renderSpiralgram(data, "#spiralElement");
-		renderStaff(data[0], "#staffElement");
+		renderStaff(data, 0, "#staffElement", "#spiralElement");
 
 	}
 

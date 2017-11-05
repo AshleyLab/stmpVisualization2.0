@@ -1,10 +1,6 @@
 var lastStaffData = []; 
 
-function renderStaff(rawData, element) {
-
-	return; 
-
-	lastStaffData = rawData; 
+function renderStaff(data, variantIndex, element, spiralElement) {
 
 	var width = $(element).width(); 
 	var height = $(element).height();
@@ -20,27 +16,22 @@ function renderStaff(rawData, element) {
 		"Sift",
 
 		"1000 Genomes Frequency", 
-		"ExAC Frequency", 
-		"ExAC East Asian Frequency",
-		"ExAC South Asian Frequency",
-		"ExAC African Frequency",
-		"ExAC European Frequency",
-		"ExAC Latino Frequency",
+		"ExAC Frequency",
 
 		"GNOMADMaxAlleleFreq"
-		
 	];
 
 	var nColumns = columns.length;
 
-	var data = $.map(columns, column => {
-		var v = rawData.core[column].value; 
-		if (isNaN(v)) {
-			console.log(v + " is NaN");
-			v = 0; 
-		} 
-		return parseFloat(v);
+	console.log(data);
+
+	var staffData = $.map(columns, column => {
+
+		return data[variantIndex].core[column].value;
+
 	});
+
+	console.log(staffData);
 
 	//space between top and bottom of staff and top and bottom of SVG
 	var verticalBuffer = 20; 
@@ -62,19 +53,17 @@ function renderStaff(rawData, element) {
 		.attr("y2", verticalScale(data.length - 1))
 		.attr("stroke", colorForSpindle); 
 
-	var spiralElement = "#spiralElement";
-
 	//draw the circles on the staff
 	d3.select(element)
 		.append("g")
 		.attr("class", "circles")
 		.selectAll("circle")
-		.data(data)
+		.data(staffData)
 		.enter()
 		.append("circle")
 		.attr("cx", width / 2)
 		.attr("cy", (_, i) => verticalScale(i))
-		.attr("r", (d, i) => d * 10)
+		.attr("r", (d, i) => 10)
 		.attr("data-index", (_, i) => i) //the index that each datum is (can get lost in d3 selection)
 		.attr("fill", (d, i) => colorForAnnotation(d, i, nColumns))
 		.on("mouseenter", function(d, i) {
@@ -100,18 +89,18 @@ function renderStaff(rawData, element) {
 		}); 
 
 	//add labels to the staff gram
-	d3.select(element)
-		.append("g")
-		.attr("class", "labels")
-		.selectAll("text")
-		.data(data)
-		.enter()
-		.append("text")
-		.text((d, i) => i + ": " + d.toFixed(3))
-		.attr("x", width / 4)
-		.attr("y", (_, i) => verticalScale(i))
-		.attr("text-anchor", "middle")
-		.attr("dominant-baseline", "central") //centers text vertically at this y position
-		.attr("fill", "white")
-		.attr("font-size", "16px")
+	// d3.select(element)
+	// 	.append("g")
+	// 	.attr("class", "labels")
+	// 	.selectAll("text")
+	// 	.data(data)
+	// 	.enter()
+	// 	.append("text")
+	// 	.text((d, i) => i + ": " + d.toFixed(3))
+	// 	.attr("x", width / 4)
+	// 	.attr("y", (_, i) => verticalScale(i))
+	// 	.attr("text-anchor", "middle")
+	// 	.attr("dominant-baseline", "central") //centers text vertically at this y position
+	// 	.attr("fill", "white")
+	// 	.attr("font-size", "16px")
 }

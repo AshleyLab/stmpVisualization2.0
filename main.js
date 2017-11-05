@@ -6,50 +6,6 @@ function removeSVGs(element) { //clean the SVG so previous visualizations aren't
 
 }
 
-function renderVisualization(isStreamgraph, element, data) {
-
-	// var localData = deepClone(lD);
-	// var sD = getSpiralData(10, 10);
-
-	if (isStreamgraph) {
-
-		removeSVGs(element);
-
-		streamData = prepareDataForStreamgraph(localData);
-		renderStreamgraph("#graphics", streamData); 
-		renderTracks("#masterSVG", data);
-		renderRadar();
-
-	} else { //spiral
-
-		//setup work to get the right configuration of divs and svg for the spiralgram and staffgram 
-		//the positioning of these elements is set in main.css
-		d3.select(element)
-			.append("div")
-			.attr("id", "spiralLayoutContainer"); 
-
-		d3.select("#spiralLayoutContainer")
-			.append("div")
-			.attr("id", "innerSpiralLayoutContainer");
-
-		d3.select("#innerSpiralLayoutContainer")
-			.append("div")
-			.attr("id", "spiralContainer")
-			.append("svg")
-			.attr("id", "spiralElement"); 
-
-		d3.select("#innerSpiralLayoutContainer")
-			.append("div")
-			.attr("id", "staffContainer")
-			.append("svg")
-			.attr("id", "staffElement");
-
-		renderSpiralgram(data, "#spiralElement");
-		renderStaff(data[0], "#staffElement");
-
-	}
-
-}
 
 function colorForChromosome(d) {
 
