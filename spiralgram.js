@@ -15,12 +15,6 @@ function renderSpiralgram(data, element) {
 		"1000 Genomes Frequency", 
 		"ExAC Frequency",
 
-		// "ExAC East Asian Frequency",
-		// "ExAC South Asian Frequency",
-		// "ExAC African Frequency",
-		// "ExAC European Frequency",
-		// "ExAC Latino Frequency",
-
 		"GNOMADMaxAlleleFreq"
 	];
 
@@ -102,7 +96,8 @@ function renderSpiralgram(data, element) {
 			.data(spindleData)
 			.enter()
 			.append("g")
-			.attr("transform", (_, i) => "translate(" + center[0] + "," + center[1] + ") rotate(" + rotationScale(i) + ")");
+			.attr("transform", (_, i) => "translate(" + center[0] + "," + center[1] + ") rotate(" + rotationScale(i) + ")")
+			.attr("variant-index", (_, i) => i);
 
 		var staffElement = "#staffElement";
 
@@ -167,12 +162,15 @@ function renderSpiralgram(data, element) {
 			.data(d => d)
 			.enter()
 			.append("circle")
+			.attr("variant-index", function() { return d3.select(this.parentNode).attr("variant-index") })
+			.attr("data-index", (_, i) => i)
 			.attr("cx", (_, i) =>  cxScale(i))
 			.attr("cy", 0)
 			.attr("r", d => 5)//d == -1 ? 0 : d * 5)
 			.attr("fill", (d, i) => colorForAnnotation(d, i, nSpindleColumns))
-			.attr("data-index", (_, i) => i)
 			.on("mouseover", function(d, i) { 
+
+				console.log(d3.select(this).attr("variant-index") + "x" + d3.select(this).attr("data-index"));
 
 				d3.select(element)
 					.selectAll("g")
