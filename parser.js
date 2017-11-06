@@ -1,6 +1,7 @@
 var element, axisSpace, pathClicks, outerElement, data, variantData; 
 
 function getValue(variantIndex, property) {
+
 	return variantData[variantIndex].core[property].value;
 }
 
@@ -9,6 +10,9 @@ function getOriginalValue(variantIndex, property) {
 }
 
 function getDisplayName(variantIndex, property) {
+
+	console.log(variantIndex + " : " + property);
+
 	return variantData[variantIndex].core[property].displayName; 
 }
 
@@ -175,6 +179,10 @@ function parseCrude(sheet) {
 	];
 
 	for (i in sheet) {
+
+		// if (i > 12) {
+		// 	break;
+		// }
 
 		var row = sheet[i];
 

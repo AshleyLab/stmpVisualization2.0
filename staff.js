@@ -78,7 +78,7 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 				
 		}).on("mouseout", function(d, i) {
 
-			//unhiglight the cirlce when unmoused over
+			//unhiglight the circle when unmoused over
 			d3.select(this)	
 				.attr("fill", colorForAnnotation(d, i, nColumns)); 
 
@@ -93,15 +93,17 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 		.append("g")
 		.attr("class", "labels")
 		.selectAll("text")
-		.data(data)
+		.data(staffData)
 		.enter()
 		.append("text")
 		.text((d, i) => {
 
-			var dN = getDisplayName(variantIndex, i);
-			var oV = getOriginalValue(variantIndex, i); 
+			console.log(i);
 
-			console.log()
+			var dN = getDisplayName(variantIndex, columns[i]);
+			var oV = getOriginalValue(variantIndex, columns[i]); 
+
+			return dN; 
 
 		})
 		.attr("x", width / 4)
@@ -109,5 +111,87 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 		.attr("text-anchor", "middle")
 		.attr("dominant-baseline", "central") //centers text vertically at this y position
 		.attr("fill", "white")
+		.attr("font-size", "16px"); 
+
+	d3.select(element)
+		.append("g")
+		.attr("class", "labels")
+		.selectAll("text")
+		.data(staffData)
+		.enter()
+		.append("text")
+		.text((d, i) => {
+
+			var oV = getOriginalValue(variantIndex, columns[i]);
+			var iM = getIsMissing(variantIndex, columns[i])
+
+			return iM ? "n/a" : oV; 
+
+		}).attr("x", 3 * width / 4)
+		.attr("y", (_, i) => verticalScale(i))
+		.attr("text-anchor", "middle")
+		.attr("dominant-baseline", "central") //centers text vertically at this y position
+		.attr("fill", "white")
+		.attr("font-size", "16px"); 
+
+	addTopText(element, data[variantIndex]); 
+	addBottomText(element, data[variantIndex]);
+}
+
+function strongSpan(text) {
+
+}
+
+function addTopText(element, data) {
+
+	console.log(data);
+
+	var chromosome = data.core["Chromosome"].value; 
+	var position = data.core["Position"].value; 
+	var referenceAllele = data.core["Reference Allele"].value;
+	var sampleAllele = data.core["Sample Allele"].value;
+	var variationType = data.core["Variation Type"].value; 
+	var QUAL = data.core["QUAL"].value; 
+	var FILTER = data.core["FILTER"].value; 
+	var GT = data.core["GT"].value; 
+
+	var top = variationType + " at " + chromosome + ":" + position;
+	var middle = "QUAL " + QUAL + ", FILTER " + FILTER; 
+
+	console.log([chromosome, position, referenceAllele, sampleAllele, variationType, QUAL, FILTER, GT].join(",")); 
+
+	d3.select(element)
+		.append("text")
+		.attr("class","top-top")
+		.attr("x", 50)
+		.attr("y", 20)
+		.attr("text-anchor", "middle")
+		.attr("dominant-baseline", "central") //centers text vertically at this y position
+		.attr("fill", "white")
 		.attr("font-size", "16px")
+		.text(top);
+
+	d3.select(element)
+		.append("text")
+		.attr("class","top-top")
+		.attr("x", 50)
+		.attr("y", 30)
+		.attr("text-anchor", "middle")
+		.attr("dominant-baseline", "central") //centers text vertically at this y position
+		.attr("fill", "white")
+		.attr("font-size", "16px")
+		.text(middle);
+
+	// $("text.top-top")
+	// 	.text("A")
+	// 	.append(
+	// 		$("<tspan></tspan>")
+	// 			.text("B")
+	// 	);
+
+
+}
+
+function addBottomText(element, data) {
+
 }

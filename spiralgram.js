@@ -317,14 +317,19 @@ function renderSpiralgram(data, element) {
 
 	function addCrescents() { 
 
-		var innerRadius = Math.min(width, height) / 2 - outerBuffer + 10;  
+		var innerRadius = Math.min(width, height) / 2 - outerBuffer;  
 		var outerRadius = innerRadius + 20; 
 
 		var trackWidth = outerRadius - innerRadius; 
 
-		var rotationScale = d3.scaleLinear()
+		// var rotationScale = d3.scaleLinear()
+		// 	.domain([0, nVariants])
+		// 	.range([0, Math.PI * 2]);
+
+		var gRotationScale = d3.scaleLinear()
 			.domain([0, nVariants])
-			.range([0, Math.PI * 2]);
+			.range([0, 360]);
+
 
 		var angularWidth = Math.PI * 2 / (nVariants * 3); 
 
@@ -338,7 +343,7 @@ function renderSpiralgram(data, element) {
 			.append("g")
 			.attr("class", "crescent")
 			.attr("variant-index", (_, i) => i)
-			.attr("transform", "translate(" + center[0] + "," + center[1] + ")"); 
+			.attr("transform", (d, i) => "translate(" + center[0] + "," + center[1] + ") rotate(" + gRotationScale(i) + ")"); 
 
 		d3.select(element)
 			.selectAll("g.crescent")
@@ -352,7 +357,9 @@ function renderSpiralgram(data, element) {
 
 				var i = parseInt(d3.select(this.parentNode).attr("variant-index"));
 
-				var sA = rotationScale(i) + _i * angularWidth; 
+				// var sA = rotationScale(i) + _i * angularWidth; 
+				var sA = _i * angularWidth; 
+				console.log(sA);
 				var eA = sA + angularWidth; 
 
 				var arc = d3.arc()
@@ -370,14 +377,14 @@ function renderSpiralgram(data, element) {
 			.selectAll("g.crescent")
 			.append("path")
 			.attr("class","mask")
-			.attr("fill","#22262e")
+			.attr("fill","orange")/*#22262e")*/
 			.attr("variant-index", function() { return d3.select(this.parentNode).attr("variant-index"); })
 			.attr("d", function(d, _i) {
 
 				var i = parseInt(d3.select(this.parentNode).attr("variant-index"));
 
-				var sA = rotationScale(i); 
-				var eA = sA - angularWidth * 3; 
+				var sA = 0; 
+				var eA = angularWidth * 3; 
 				var mA = (sA + eA) / 2; 
 
 				var innerCorner1 = [innerRadius * Math.cos(sA), innerRadius * Math.sin(sA)];
@@ -388,7 +395,7 @@ function renderSpiralgram(data, element) {
 				var outerCorner1 = [oR * Math.cos(sA), oR * Math.sin(sA)];
 				var outerCorner2 = [oR * Math.cos(eA), oR * Math.sin(eA)];
 
-				var controlPointRadius = innerRadius + (outerRadius / 5);
+				var controlPointRadius = innerRadius + (outerRadius / 8);
 				var controlPoint = [controlPointRadius * Math.cos(mA), controlPointRadius * Math.sin(mA)]
 
 				var d = "M " + innerCorner1[0] + " " + innerCorner1[1] + " ";

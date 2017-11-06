@@ -76,9 +76,6 @@ function colorForNucleotide(d) {
 
 function displayInfo(value, kind) {
 
-	console.log(value);
-	console.log(kind);
-
 	d3.select("#valueInfo")
 		.text(value);
 
