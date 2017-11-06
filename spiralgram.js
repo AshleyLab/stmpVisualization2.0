@@ -118,7 +118,7 @@ function renderSpiralgram(data, element) {
 				d3.select(this)
 					.attr("stroke", highlightForSpindle);
 
-				renderStaff(data[i], "#staffElement"); 
+				renderStaff(data, i, "#staffElement", "#spiralElement"); 
 
 			}).on("mouseout", function(d, i) {
 
@@ -130,7 +130,7 @@ function renderSpiralgram(data, element) {
 					.attr("stroke", colorForSpindle);
 
 				//find a way to go back to data staff was showing before
-				renderStaff(lastStaffData, "#staffElement"); 
+				// renderStaff(lastStaffData, "#staffElement"); 
 
 			}).on("click", function(d, i) {
 
@@ -147,7 +147,7 @@ function renderSpiralgram(data, element) {
 
 				d3.select(this).attr("data-clicked", 1 - clicked)
 
-				renderStaff(data[i], "#staffElement", data.length);
+				renderStaff(data, i, "#staffElement", "#spiralElement");
 
 			}); 
 
