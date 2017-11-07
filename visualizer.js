@@ -11,6 +11,7 @@ function renderVisualization(isStreamgraph, element, data) {
 	// var localData = deepClone(lD);
 	// var sD = getSpiralData(10, 10);
 
+
 	if (isStreamgraph) {
 
 		removeSVGs(element);
@@ -44,6 +45,10 @@ function renderVisualization(isStreamgraph, element, data) {
 			.append("svg")
 			.attr("id", "staffElement");
 
+		console.log("rendering visualization!");
+		renderKaryotype([], "#spiralElement");
+
+		return; 
 		renderSpiralgram(data, "#spiralElement");
 		renderStaff(data, 0, "#staffElement", "#spiralElement");
 

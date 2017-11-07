@@ -369,7 +369,7 @@ function renderSpiralgram(data, element) {
 			}).attr("sA", (d, i) => i * angularWidth)
 			.attr("eA", (d, i) => i * angularWidth + angularWidth);
 
-		//apply a mask to "cut out" the crescents——or just make them ring-band type things?
+		//apply a mask to "cut out" the crescents——or just make them ring-band type things? //mask could just be arc //actually don't even need mask
 		d3.select(element)
 			.selectAll("g.crescent")
 			.append("path")
