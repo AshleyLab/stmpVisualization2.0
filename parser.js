@@ -1,26 +1,8 @@
 var element, axisSpace, pathClicks, outerElement, data, variantData; 
 
-function getValue(variantIndex, property) {
-
-	return variantData[variantIndex].core[property].value;
-}
-
-function getOriginalValue(variantIndex, property) {
-	return variantData[variantIndex].core[property].originalValue; 
-}
-
-function getDisplayName(variantIndex, property) {
-
-	console.log(variantIndex + " : " + property);
-
-	return variantData[variantIndex].core[property].displayName; 
-}
-
-function getIsMissing(variantIndex, property) {
-	return variantData[variantIndex].core[property].isMissing;
-}
-
 $(function() {
+
+	console.log("hi");
 
 	var element = "#graphics";
 
@@ -62,8 +44,6 @@ $(function() {
 
 function validateXLSX(file) {
 
-	console.log(file.name);
-
 	var extension = file.name.split(".").slice(-1)[0]; 
 
 	return extension == "xlsx" || extension == "xls"; 
@@ -104,18 +84,18 @@ function readWorkbook(workbook){
 
 	var sheetNames = workbook.SheetNames;
 
-	for (i in sheetNames) {
+	if (sheetNames.length > 1) {
+		console.log("Not sure which sheet to parse.");
+		return;
+	} 
 
-		var sheet = sheetNames[i];
-	
-		crudeSheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheet]); 
-		parsedSheet = parseCrude(crudeSheet);
+	crudeSheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]); 
+	parseCrudeSheet(crudeSheet);
 
-	}
 }
 
 //parses the "crude json" which is sheetJS's export of an xls row to a json
-function parseCrude(sheet) {
+function parseCrudeSheet(sheet) {
 
 	//we're going to be rendering each different field specifically
 	//i.e., we'll define a way to render the chromosome, and we'll be defining a way to render the clinvar data
@@ -239,12 +219,10 @@ function parseValue(originalValue, column) {
 	//returns [(final) value, displayName (for annotation), isMissing]; 
 
 	//model scores
-	//should all be normalized to [0, 1], where 0 is least pathogenic and 1 is most pathogenic (that can be given on that scale)
+	//all normalized to [0, 1], where 0 is least pathogenic and 1 is most pathogenic (that can be given on that scale)
 	//scaled later
 	
 	var modelScores = ["SIFT Function Prediction","PolyPhen-2 Function Prediction","CADD Score","Phylop","MutationTaster","fathmm","Sift"];
-
-
 
 	if (column == "SIFT Function Prediction") { 
 
@@ -423,7 +401,7 @@ function parseValue(originalValue, column) {
 
 	}
 
-	//misceallensous strings
+	//miscellaneous strings
 	var strings = ["Chromosome","Reference Allele","Sample Allele","Variation Type","FILTER","GT","GNOMAD_Max_Allele_Freq_POP"];
 	var stringsDisplayNames = {	
 		"Chromosome" : "Chromosome",
@@ -480,7 +458,7 @@ function parseValue(originalValue, column) {
 
 	}
 
-	console.log("uncaught annotation: " + column);
+	console.log("Not sure how to parse " + column);
 
 }
 
@@ -518,8 +496,22 @@ function scaleValue(value) {
 
 }
 
+function getValue(variantIndex, property) {
+	return variantData[variantIndex].core[property].value;
+}
+
+function getOriginalValue(variantIndex, property) {
+	return variantData[variantIndex].core[property].originalValue; 
+}
+
+function getDisplayName(variantIndex, property) {
+	return variantData[variantIndex].core[property].displayName; 
+}
+
+function getIsMissing(variantIndex, property) {
+	return variantData[variantIndex].core[property].isMissing;
+}
+
 function isChromosome(t) {
-
 	return parseInt(d3.select(t).attr("data-isChromosome")); 
-
 }

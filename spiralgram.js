@@ -78,11 +78,7 @@ function renderSpiralgram(data, element) {
 			[$.map(spindleColumns, column => {
 
 				var p = variant.core[column].value; 
-				var v = parseFloat(p); 
-
-				if (v !== v) { v = 0; } //weird way to test for NaN
-
-				return v;
+				return parseFloat(p); 
 
 			})]
 	
@@ -353,13 +349,9 @@ function renderSpiralgram(data, element) {
 			.append("path")
 			.attr("fill", (d, _) => colorForGenotype(d))
 			.attr("variant-index", function() { return d3.select(this.parentNode).attr("variant-index"); })
-			.attr("d", function(d, _i) {
+			.attr("d", function(d, i) {
 
-				var i = parseInt(d3.select(this.parentNode).attr("variant-index"));
-
-				// var sA = rotationScale(i) + _i * angularWidth; 
-				var sA = _i * angularWidth; 
-				console.log(sA);
+				var sA = i * angularWidth; 
 				var eA = sA + angularWidth; 
 
 				var arc = d3.arc()
@@ -370,22 +362,30 @@ function renderSpiralgram(data, element) {
 
 				return arc(); 
 
-			}).on("mouseover", (d, i) => console.log(i));
+			}).attr("sA", (d, i) => i * angularWidth)
+			.attr("eA", (d, i) => i * angularWidth + angularWidth);
+
+		var interpolator = d3.interpolate("white","black");
 
 		//apply a mask to "cut out" the crescents
 		d3.select(element)
 			.selectAll("g.crescent")
 			.append("path")
 			.attr("class","mask")
-			.attr("fill","orange")/*#22262e")*/
+			.attr("fill","#22262e")
 			.attr("variant-index", function() { return d3.select(this.parentNode).attr("variant-index"); })
-			.attr("d", function(d, _i) {
-
-				var i = parseInt(d3.select(this.parentNode).attr("variant-index"));
+			.attr("d", function(d, i) {
 
 				var sA = 0; 
-				var eA = angularWidth * 3; 
+
+				sA -= (Math.PI / 2); //WHY? IDK
+
+				var eA = angularWidth * 3;
+
+				eA -= (Math.PI / 2); 
+
 				var mA = (sA + eA) / 2; 
+
 
 				var innerCorner1 = [innerRadius * Math.cos(sA), innerRadius * Math.sin(sA)];
 				var innerCorner2 = [innerRadius * Math.cos(eA), innerRadius * Math.sin(eA)];
@@ -408,13 +408,29 @@ function renderSpiralgram(data, element) {
 
 				   d += "Q " + controlPoint[0] + " " + controlPoint[1] + " " + innerCorner1[0] + " " + innerCorner1[1] + " "; 
 
-				   // d += "A " + innerRadius + " " + innerRadius + " " + 0 + " " + 0 + " " + 1 + " " + innerCorner1[0] + " " + innerCorner1[1] + " "; 
-
 				   d += "Z";
 
 				return d; 
 
-			}); 
+			}).attr("sA", (d, i) => { 
+
+				return 0;  
+
+			}).attr("eA", angularWidth * 3);
+			// .attr("fill", function() { 
+
+			// 	var vI = parseInt(d3.select(this.parentNode).attr("variant-index")); 
+			// 	var frac = parseFloat(vI) / nVariants; 
+
+			// 	console.log(frac);
+
+			// 	var c = interpolator(frac);
+
+			// 	console.log(c);
+
+			// 	return c; 
+
+			// });
 
 
 	}

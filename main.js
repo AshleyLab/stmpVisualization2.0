@@ -1,3 +1,15 @@
+// ******************
+//
+//
+//
+// NOT CURRENTLY USED
+// NOT CURRENTLY USED
+//
+//
+//
+// ******************
+
+
 function removeSVGs(element) { //clean the SVG so previous visualizations aren't still there
 
 	d3.select(element)
@@ -5,7 +17,6 @@ function removeSVGs(element) { //clean the SVG so previous visualizations aren't
 		.remove(); 
 
 }
-
 
 function colorForChromosome(d) {
 
