@@ -86,13 +86,17 @@ function renderSpiralgram(data, element) {
 
 		console.log(spindleData);
 
+		var angularWidth = 2 * Math.PI / nVariants; 
+
+		console.log(angularWidth);
+
 		//create container elements for the spindles with the right rotation 
 		d3.select(element)
 			.selectAll("g")
 			.data(spindleData)
 			.enter()
 			.append("g")
-			.attr("transform", (_, i) => "translate(" + center[0] + "," + center[1] + ") rotate(" + rotationScale(i) + ")")
+			.attr("transform", (_, i) => "translate(" + center[0] + "," + center[1] + ") rotate(" + (rotationScale(i) + rotationScale(i + 1)) / 2 + ")")
 			.attr("variant-index", (_, i) => i);
 
 		var staffElement = "#staffElement";
@@ -365,7 +369,7 @@ function renderSpiralgram(data, element) {
 			}).attr("sA", (d, i) => i * angularWidth)
 			.attr("eA", (d, i) => i * angularWidth + angularWidth);
 
-		//apply a mask to "cut out" the crescents
+		//apply a mask to "cut out" the crescents——or just make them ring-band type things?
 		d3.select(element)
 			.selectAll("g.crescent")
 			.append("path")
