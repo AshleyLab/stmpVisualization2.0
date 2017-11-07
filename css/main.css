@@ -42,6 +42,12 @@ g.crescent path {
   stroke-width: 0;
 }
 
+path.mask { 
+  fill:  #22262e !important;
+  stroke: #22262e !important;
+  stroke-width: 3 !important;
+}
+
 #spiralLayoutContainer { 
   width: 90%;
 /*  display: inline-block;

@@ -28,9 +28,9 @@ function renderSpiralgram(data, element) {
 
 	var center = [width / 2, height / 2];
 
-	var outerBuffer = 20; 
+	var outerBuffer = 40; 
 	var tracksWidth = 70; 
-	var spindlesToTracksBuffer = 30; 
+	var spindlesToTracksBuffer = 20; 
 	var innerBuffer = 50; 
 
 	var rotationScale = d3.scaleLinear()
@@ -313,7 +313,7 @@ function renderSpiralgram(data, element) {
 
 	function addCrescents() { 
 
-		var innerRadius = Math.min(width, height) / 2 - outerBuffer;  
+		var innerRadius = Math.min(width, height) / 2 - outerBuffer + 10;  
 		var outerRadius = innerRadius + 20; 
 
 		var trackWidth = outerRadius - innerRadius; 
@@ -365,8 +365,6 @@ function renderSpiralgram(data, element) {
 			}).attr("sA", (d, i) => i * angularWidth)
 			.attr("eA", (d, i) => i * angularWidth + angularWidth);
 
-		var interpolator = d3.interpolate("white","black");
-
 		//apply a mask to "cut out" the crescents
 		d3.select(element)
 			.selectAll("g.crescent")
@@ -395,7 +393,7 @@ function renderSpiralgram(data, element) {
 				var outerCorner1 = [oR * Math.cos(sA), oR * Math.sin(sA)];
 				var outerCorner2 = [oR * Math.cos(eA), oR * Math.sin(eA)];
 
-				var controlPointRadius = innerRadius + (outerRadius / 8);
+				var controlPointRadius = innerRadius + (outerRadius - innerRadius) / 1;
 				var controlPoint = [controlPointRadius * Math.cos(mA), controlPointRadius * Math.sin(mA)]
 
 				var d = "M " + innerCorner1[0] + " " + innerCorner1[1] + " ";
@@ -444,14 +442,16 @@ function renderSpiralgram(data, element) {
 
 function colorForGenotype(genotype) { 
 
+	var i = d3.interpolate("black","white");
+
 	if (genotype == "0") {
-		return "blue"; 
+		return i(0); 
 	} else if (genotype == "1") { 
-		return "purple";
+		return i(.5);
 	} else if (genotype == "2") { 
-		return "red";
+		return i(1);
 	} else { 
-		return "darkgrey";
+		return "#22262e";
 	}
 
 
