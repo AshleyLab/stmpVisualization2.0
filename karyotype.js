@@ -4,29 +4,34 @@ var hoverColor = "#ff0000";
 var colorForSNPs = "#27A4A8"
 var highlightColor = "#007fff"; 
 
-function renderKaryotype(data, element) {
+function renderKaryotype(variants, element) {
 
-
-	processData("", element);
-
-}
-
-function processData(name, element) {
-
-	var cytobands = getCytobandData(); 
-
-	drawCytobands(cytobands, element);
-	drawSNPsinElement(element); 
-
-}
-
-function drawCytobands(cytobands, element) {
+	var cytobands = getCytobandData();
 
 	var lengths = getLengths(cytobands);
+	var maxLength = Math.max(...lengths); 
+
+	var width = $(element).width();
+
+	var xScale = d3.scaleLinear()
+		.domain([0, maxLength])
+		.range([0,  width]);
+
+	var includesY
+
+	drawCytobands(cytobands, element, xScale);
+	drawVariants(variants, element, xScale);  
+
+}
+
+function drawCytobands(cytobands, element, xScale) {
+
 	var height = $(element).height();
 	var width = $(element).width();
 
 	var canvas = d3.select(element);
+
+	var lengths = getLengths(cytobands);
 
 	var chromosomeHeight = 8; 
 	radius = chromosomeHeight / 2; 
@@ -53,9 +58,9 @@ function drawCytobands(cytobands, element) {
 			var isRightRounded = roundRight(element, lengths);
 
 			return rounded_rect(
-				scale(element[1]), 
+				xScale(element[1]), 
 				((height / nPairs - chromosomeHeight) / 2), 
-				scale(parseInt(element[2]) - parseInt(element[1])), 
+				xScale(parseInt(element[2]) - parseInt(element[1])), 
 				chromosomeHeight, 
 				(chromosomeHeight / 2), 
 				isLeftRounded, 
@@ -64,7 +69,9 @@ function drawCytobands(cytobands, element) {
 		});
 }
 
-function drawSNPs(SNPs, element) { // SNPS is expected to be of the (unsorted) foramt [[chr, pos], [chr, pos]]
+function drawVariants(SNPs, element, xScale) { // SNPS is expected to be of the (unsorted) foramt [[chr, pos], [chr, pos]]
+
+	console.log(SNPs);
 
 	var height = $(element).height();
 	var width = $(element).width();
@@ -73,7 +80,7 @@ function drawSNPs(SNPs, element) { // SNPS is expected to be of the (unsorted) f
 	var SNPHeight = 19;
 	var SNPWidth = 6; 
 
-	var colorForSNPs = "#27A4A8"
+	var colorForSNPs = "#27A4A8";
 
 	canvas.selectAll(".chromosome")
 		.append("g")
@@ -87,7 +94,7 @@ function drawSNPs(SNPs, element) { // SNPS is expected to be of the (unsorted) f
 		.attr("d", function(element, index) {
 
 			return rounded_rect(
-				scale(element[1]), 
+				xScale(element[1]), 
 				((height / nPairs - SNPHeight) / 2), 
 				SNPWidth, 
 				SNPHeight, 
@@ -257,10 +264,6 @@ function getNext(band) {
 		return element[0] === band[0] && element[1] == band[2];
 	});
 
-}
-
-function scale(number) {
-	return 3.5 * number / Math.pow(10, 6);
 }
 
 function getCytobandsForChromosome(cytobands, chromosome) {

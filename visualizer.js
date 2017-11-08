@@ -45,10 +45,13 @@ function renderVisualization(isStreamgraph, element, data) {
 			.append("svg")
 			.attr("id", "staffElement");
 
-		console.log("rendering visualization!");
-		renderKaryotype([], "#spiralElement");
+		var karyotypeData = $.map(data, v => [[v.core.Chromosome.value, v.core.Position.value]]);
 
-		return; 
+		console.log("rendering visualization!");
+		// renderKaryotype(karyotypeData, "#spiralElement");
+
+		// return; 
+
 		renderSpiralgram(data, "#spiralElement");
 		renderStaff(data, 0, "#staffElement", "#spiralElement");
 

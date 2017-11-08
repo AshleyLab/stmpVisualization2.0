@@ -32,6 +32,10 @@ input[type="radio"] {
 
 /* STYLE THE SPIRALGRAM */
 
+path {
+  stroke-width: 0;
+}
+
 g.track path { 
   stroke: #22262e;
   stroke-width: 1.5;
