@@ -155,6 +155,12 @@ function renderSpiralgram(data, element) {
 			.domain([0, spindleData[0].length - 1])
 			.range([innerBuffer, maxRadius]);
 
+		var spiralgramFrequenciesDisplayNames = [
+			"1000 Genomes Frequency", 
+			"ExAC Frequency",
+			"gnomAD Max Frequency"
+		];
+
 		//render the circles on the spindles
 		d3.select(element)
 			.selectAll("g")
@@ -179,7 +185,9 @@ function renderSpiralgram(data, element) {
 				var displayName = getDisplayName(variantIndex, property);
 				var isMissing = getIsMissing(variantIndex, property);
 
-				displayInfo(originalValue, displayName);
+				var isFrequency = $.inArray(displayName, spiralgramFrequenciesDisplayNames) !== -1; 
+
+				displayInfo(originalValue, displayName, isFrequency);
 
 				d3.select(element)
 					.selectAll("g")
@@ -199,7 +207,7 @@ function renderSpiralgram(data, element) {
 					.filter((_, index) => i == index)
 					.attr("fill", colorForAnnotation(d, i, nSpindleColumns)); 
 
-				displayInfo("","");
+				displayInfo("","", false);
 
 				d3.select(staffElement)
 					.select("circle[data-index=\"" + i + "\"")
@@ -333,7 +341,13 @@ function renderSpiralgram(data, element) {
 
 		var angularWidth = Math.PI * 2 / (nVariants * 3); 
 
-		var genotypes = getGenotypes();
+		var rawGenotypes = getGenotypes();
+
+		//genotypes are currently [[proband, dad, mom], [proband, dad, mom], ...]
+		//switch thtem to be [[dad, proband, mom], [dad, proband, mom], ...]
+
+		var genotypes = $.map(rawGenotypes, (g, i) => [[g[1], g[0], g[2]]])
+
 		console.log(genotypes);
 
 		d3.select(element)
@@ -367,7 +381,18 @@ function renderSpiralgram(data, element) {
 				return arc(); 
 
 			}).attr("sA", (d, i) => i * angularWidth)
-			.attr("eA", (d, i) => i * angularWidth + angularWidth);
+			.attr("eA", (d, i) => i * angularWidth + angularWidth)
+			.on("mouseover", function(datum, index) {
+
+				var vI = d3.select(this).attr("variant-index");
+
+				var gt = getOriginalValue(vI, "GT");
+
+				console.log(gt);
+
+				drawPedigree(gt, element);
+
+			}); 
 
 		//apply a mask to "cut out" the crescents——or just make them ring-band type things? //mask could just be arc //actually don't even need mask
 		d3.select(element)
@@ -418,22 +443,7 @@ function renderSpiralgram(data, element) {
 
 				return 0;  
 
-			}).attr("eA", angularWidth * 3);
-			// .attr("fill", function() { 
-
-			// 	var vI = parseInt(d3.select(this.parentNode).attr("variant-index")); 
-			// 	var frac = parseFloat(vI) / nVariants; 
-
-			// 	console.log(frac);
-
-			// 	var c = interpolator(frac);
-
-			// 	console.log(c);
-
-			// 	return c; 
-
-			// });
-
+			}).attr("eA", angularWidth * 3); 
 
 	}
 
@@ -442,6 +452,85 @@ function renderSpiralgram(data, element) {
 	addTracks(); 
 	addCrescents(); 
 	
+}
+
+function drawPedigree(gt, element) { 
+
+	var parsed = parseGenotype(gt); 
+
+	console.log(parsed);
+
+	var probandColor = colorForGenotype(parsed[0]); 
+	var fatherColor = colorForGenotype(parsed[1]);
+	var motherColor = colorForGenotype(parsed[2]);
+
+	//draw a square for the father
+	var squareCenterX = 100; 
+	var squareCenterY = 100; 
+	var squareRadius = 10; 
+
+	d3.select(element)
+		.append("rect")
+		.attr("x", squareCenterX - squareRadius)
+		.attr("y", squareCenterY - squareRadius)
+		.attr("width", squareRadius * 2)
+		.attr("height", squareRadius * 2)
+		.attr("fill", fatherColor); 
+
+	//draw a circle for the mother
+	var circleCenterX = 140; 
+	var circleCenterY = 100; 
+	var circleRadius = 10; 
+
+	d3.select(element)
+		.append("circle")
+		.attr("cx", circleCenterX)
+		.attr("cy", circleCenterY)
+		.attr("r", circleRadius)
+		.attr("fill", motherColor);
+
+	//draw a diamond for the proband 
+	var diamondCenterX = (squareCenterX + circleCenterX) / 2; 
+	var diamondCenterY = squareCenterX + 30;  
+	var diamondRadius = 10;
+
+	d3.select(element)
+		.append("path")
+		.attr("d", () => {
+
+			var d = "M " + diamondCenterX + " " + (diamondCenterY - diamondRadius) + " "; 
+
+				d += "l " + diamondRadius + " " + diamondRadius + " "; 
+
+				d += "l " + -diamondRadius + " " + diamondRadius + " "; 
+
+				d += "l " + -diamondRadius + " " + -diamondRadius + " "; 
+
+				d += "Z";
+
+			return d;	
+
+		}).attr("fill", probandColor);
+
+	//draw a line connecting the mother and the father
+	d3.select(element)
+		.append("line")
+		.attr("x1", squareCenterX + squareRadius)
+		.attr("y1", squareCenterY)
+		.attr("x2", circleCenterX - circleRadius)
+		.attr("y2", squareCenterY)
+		.attr("stroke", "white")
+		.attr("stroke-radius", 5);
+
+	//draw a line connecting the proband to the line between the mother and the father
+	d3.select(element)
+		.append("line")
+		.attr("x1", (squareCenterX + circleCenterX) / 2)
+		.attr("y1", squareCenterY)
+		.attr("x2", (squareCenterX + circleCenterX) / 2)
+		.attr("y2", diamondCenterY - diamondRadius)
+		.attr("stroke", "white")
+		.attr("stroke-radius", 5);
 }
 
 function colorForGenotype(genotype) { 

@@ -2,8 +2,6 @@ var element, axisSpace, pathClicks, outerElement, data, variantData;
 
 $(function() {
 
-	console.log("hi");
-
 	var element = "#graphics";
 
 	axisSpace = 15; 

@@ -82,14 +82,46 @@ function colorForNucleotide(d) {
 
 }
 
-function displayInfo(value, kind) {
+function displayInfo(value, kind, isFrequency) {
+
+	if (isFrequency) {
+		value = formatFrequency(parseFloat(value));
+	}
 
 	d3.select("#valueInfo")
 		.text(value);
 
 	d3.select("#kindInfo")
 		.text(kind);
+
 }
+
+function formatFrequency(frequency) { 
+
+	console.log("formatting " + frequency); 
+
+	//only show three digits right of zero, unless that would mean presenting a nonzero frequency as zero
+
+	var rounded = 0; 
+
+	if (frequency == 0) { 
+		return 0; 
+	}
+
+	if (frequency >= .0005) { //anything that will become a one or more after Math.round(frequency * 1000)
+		//round to three decimal places
+		var rounded = Math.round(frequency * 1000) / 1000; 
+		console.log("rounding to three decimal places --> " + rounded);
+	} else { 
+		var rounded = parseFloat(frequency.toPrecision(1));
+		console.log("rounding to one sig fig --> " + rounded); 
+	}
+
+	return rounded; 
+
+}
+
+
 
 // console.log(visualizeProteinVariantColumn('p.E343G; p.E401G; p.E357G; p.E413G'))
 
