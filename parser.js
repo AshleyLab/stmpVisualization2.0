@@ -111,7 +111,7 @@ function parseCrudeSheet(sheet) {
 		"Variation Type",
 		"QUAL", 
 		"FILTER",
-		"GT",
+		"GT", // "proband|dad|mom"
 
 		//gene info
 		"Gene Region",

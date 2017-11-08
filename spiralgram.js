@@ -344,7 +344,7 @@ function renderSpiralgram(data, element) {
 		var rawGenotypes = getGenotypes();
 
 		//genotypes are currently [[proband, dad, mom], [proband, dad, mom], ...]
-		//switch thtem to be [[dad, proband, mom], [dad, proband, mom], ...]
+		//switch them to be [[dad, proband, mom], [dad, proband, mom], ...]
 
 		var genotypes = $.map(rawGenotypes, (g, i) => [[g[1], g[0], g[2]]])
 
@@ -392,7 +392,14 @@ function renderSpiralgram(data, element) {
 
 				drawPedigree(gt, element);
 
-			}); 
+			}).on("mouseout", () => {
+
+				//remove any shapes associated with the pedigree
+				d3.select(element)
+					.selectAll(".pedigree")
+					.remove();
+
+			});
 
 		//apply a mask to "cut out" the crescents——or just make them ring-band type things? //mask could just be arc //actually don't even need mask
 		d3.select(element)
@@ -464,60 +471,75 @@ function drawPedigree(gt, element) {
 	var fatherColor = colorForGenotype(parsed[1]);
 	var motherColor = colorForGenotype(parsed[2]);
 
+	var strokeWidthForUnknownGenotype = 1; //thickness of the outline of the shape be when we don't the genotype
+
+	var radius = 10; 
+
+	//this should be the halfway point of the vertical line that connects the proband and the parents line
+	var centerX = $(element).width() / 2; 
+	var centerY = $(element).height() / 2; 
+
 	//draw a square for the father
-	var squareCenterX = 100; 
-	var squareCenterY = 100; 
-	var squareRadius = 10; 
+	var squareCenterX = centerX - radius * 2; 
+	var squareCenterY = centerY - radius;  
 
 	d3.select(element)
 		.append("rect")
-		.attr("x", squareCenterX - squareRadius)
-		.attr("y", squareCenterY - squareRadius)
-		.attr("width", squareRadius * 2)
-		.attr("height", squareRadius * 2)
-		.attr("fill", fatherColor); 
+		.attr("class", "pedigree")
+		.attr("x", squareCenterX - radius)
+		.attr("y", squareCenterY - radius)
+		.attr("width", radius * 2)
+		.attr("height", radius * 2)
+		.attr("fill", fatherColor)
+		.attr("stroke", "white")
+		.attr("stroke-width", parsed[1] == -1 ? strokeWidthForUnknownGenotype : 0);
 
 	//draw a circle for the mother
-	var circleCenterX = 140; 
-	var circleCenterY = 100; 
-	var circleRadius = 10; 
+	var circleCenterX = centerX + radius * 2; 
+	var circleCenterY = centerY - radius; 
 
 	d3.select(element)
 		.append("circle")
+		.attr("class", "pedigree")
 		.attr("cx", circleCenterX)
 		.attr("cy", circleCenterY)
-		.attr("r", circleRadius)
-		.attr("fill", motherColor);
+		.attr("r", radius)
+		.attr("fill", motherColor)
+		.attr("stroke", "white")
+		.attr("stroke-width", parsed[2] == -1 ? strokeWidthForUnknownGenotype : 0);
 
 	//draw a diamond for the proband 
-	var diamondCenterX = (squareCenterX + circleCenterX) / 2; 
-	var diamondCenterY = squareCenterX + 30;  
-	var diamondRadius = 10;
+	var diamondCenterX = centerX; 
+	var diamondCenterY = centerY + radius * 2; 
 
 	d3.select(element)
 		.append("path")
+		.attr("class", "pedigree")
 		.attr("d", () => {
 
-			var d = "M " + diamondCenterX + " " + (diamondCenterY - diamondRadius) + " "; 
+			var d = "M " + diamondCenterX + " " + (diamondCenterY - radius) + " "; 
 
-				d += "l " + diamondRadius + " " + diamondRadius + " "; 
+				d += "l " + radius + " " + radius + " "; 
 
-				d += "l " + -diamondRadius + " " + diamondRadius + " "; 
+				d += "l " + -radius + " " + radius + " "; 
 
-				d += "l " + -diamondRadius + " " + -diamondRadius + " "; 
+				d += "l " + -radius + " " + -radius + " "; 
 
 				d += "Z";
 
 			return d;	
 
-		}).attr("fill", probandColor);
+		}).attr("fill", probandColor)
+		.attr("stroke", "white")
+		.attr("stroke-width", parsed[0] == -1 ? strokeWidthForUnknownGenotype : 0);
 
 	//draw a line connecting the mother and the father
 	d3.select(element)
 		.append("line")
-		.attr("x1", squareCenterX + squareRadius)
+		.attr("class", "pedigree")
+		.attr("x1", squareCenterX + radius)
 		.attr("y1", squareCenterY)
-		.attr("x2", circleCenterX - circleRadius)
+		.attr("x2", circleCenterX - radius)
 		.attr("y2", squareCenterY)
 		.attr("stroke", "white")
 		.attr("stroke-radius", 5);
@@ -525,10 +547,11 @@ function drawPedigree(gt, element) {
 	//draw a line connecting the proband to the line between the mother and the father
 	d3.select(element)
 		.append("line")
+		.attr("class", "pedigree")
 		.attr("x1", (squareCenterX + circleCenterX) / 2)
 		.attr("y1", squareCenterY)
 		.attr("x2", (squareCenterX + circleCenterX) / 2)
-		.attr("y2", diamondCenterY - diamondRadius)
+		.attr("y2", diamondCenterY - radius)
 		.attr("stroke", "white")
 		.attr("stroke-radius", 5);
 }
@@ -546,7 +569,6 @@ function colorForGenotype(genotype) {
 	} else { 
 		return "#22262e";
 	}
-
 
  
 }
