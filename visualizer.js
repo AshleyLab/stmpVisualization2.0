@@ -45,14 +45,22 @@ function renderVisualization(isStreamgraph, element, data) {
 			.append("svg")
 			.attr("id", "staffElement");
 
+		//setup for karyotype and barchart
+
+		d3.select(element)
+			.append("svg")
+			.attr("id","karyotypeElement"); 
+
+		d3.select(element)
+			.append("svg")
+			.attr("id", "barchartElement");
+
 		var karyotypeData = $.map(data, v => [[v.core.Chromosome.value, v.core.Position.value]]);
 
 		console.log("rendering visualization!");
-		// renderKaryotype(karyotypeData, "#spiralElement");
-		renderBarchart(data, "#spiralElement", 3)		
 
-		return; 
-
+		renderKaryotype(karyotypeData, "#karyotypeElement");
+		renderBarchart(data, "#barchartElement", 3)		
 		renderSpiralgram(data, "#spiralElement");
 		renderStaff(data, 0, "#staffElement", "#spiralElement");
 

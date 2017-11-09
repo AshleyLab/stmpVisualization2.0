@@ -75,12 +75,13 @@ function renderBarchart(data, element, variantIndex) {
 		.attr("height", (d, _) => { 
 			return height - yScale(frequencyData[d]); 
 		})
-		.attr("fill", "red")
+		.attr("fill", getRandomColor)
 		.on("mouseover", (d, _) => console.log(d)); 
 
 	//x axis
 	var xAxis = d3.axisBottom()
 		.scale(xScale)
+		.tickFormat((d, i) => shortName(d)); 
 
 	g.append("g")
 		.attr("class", "xAxis")
@@ -94,6 +95,10 @@ function renderBarchart(data, element, variantIndex) {
 	g.append("g")
 		.attr("class", "yAxis")
 		.call(yAxis);
+}
+
+function shortName(d) {
+	return d.slice(d.indexOf("_") + 1);
 }
 
 

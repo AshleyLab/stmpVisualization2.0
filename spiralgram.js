@@ -388,8 +388,6 @@ function renderSpiralgram(data, element) {
 
 				var gt = getOriginalValue(vI, "GT");
 
-				console.log(gt);
-
 				drawPedigree(gt, element);
 
 			}).on("mouseout", () => {
