@@ -159,6 +159,11 @@ function renderSpiralgram(data, element) {
 			"gnomAD Max Frequency"
 		];
 
+		var spiralgramHeadFrequenciesDisplayNames = [
+			"ExAC Frequency",
+			"gnomAD Max Frequency"
+		];
+
 		//render the circles on the spindles
 		d3.select(element)
 			.selectAll("g")
@@ -212,6 +217,15 @@ function renderSpiralgram(data, element) {
 				d3.select(staffElement)
 					.select("circle[data-index=\"" + i + "\"")
 					.attr("fill", highlightForSpindle);
+
+				//if it's a "head frequency" (one that has population-level subfrequencies), render it in the barchart
+				var isHeadFrequency = $.inArray(displayName, spiralgramHeadFrequenciesDisplayNames) !== -1; 
+
+				if (isHeadFrequency) {
+					renderBarchart(data, "#barchartElement", variantIndex, displayName);
+				}
+
+
 
 			}).on("mouseout", function(d, i) {
 

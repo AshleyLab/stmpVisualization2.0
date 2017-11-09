@@ -1,13 +1,22 @@
-function renderBarchart(data, element, variantIndex) { 
+function renderBarchart(data, element, variantIndex, headDisplayName) { 
+
+	console.log(arguments);
 
 	//detail view of population level frequencies
 
 	//possible head frequencies
 	//ExAC Frequency, 
 
+	var exacPopulationFrequencies = [
+		["ExAC East Asian Frequency", ""],
+		["ExAC South Asian Frequency", ""],
+		["ExAC African Frequency", ""],
+		["ExAC European Frequency", ""],
+		["ExAC Latino Frequency", ""]
+	];
 
 	var gnomADPopulationFrequencies = [
-		//population frequency : population frequency n (denominator)
+		//[population frequency, population frequency n (denominator)]
 		["AF_EAS", "AN_EAS"],
 		["AF_NFE", "AN_NFE"], 
 		["AF_SAS", "AN_SAS"], 
@@ -46,8 +55,12 @@ function renderBarchart(data, element, variantIndex) {
 	var height = outerHeight - margin.top - margin.bottom; 
 	var width = outerWidth - margin.left - margin.right; 
 
+	d3.select("g.barchart")
+		.remove(); 
+
 	var g = d3.select(element)
 		.append("g")
+		.attr("class", "barchart")
 		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 	//scales
