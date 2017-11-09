@@ -3,7 +3,6 @@ function renderSpiralgram(data, element) {
 	var nVariants = data.length; 
 
 	var spindleColumns = [
-
 		"SIFT Function Prediction",
 		"PolyPhen-2 Function Prediction",
 		"CADD Score",
@@ -11,10 +10,8 @@ function renderSpiralgram(data, element) {
 		"MutationTaster",
 		"fathmm",
 		"Sift",
-
 		"1000 Genomes Frequency", 
 		"ExAC Frequency",
-
 		"GNOMADMaxAlleleFreq"
 	];
 
@@ -32,10 +29,6 @@ function renderSpiralgram(data, element) {
 	var tracksWidth = 70; 
 	var spindlesToTracksBuffer = 20; 
 	var innerBuffer = 50; 
-
-	var rotationScale = d3.scaleLinear()
-		.domain([0, nVariants])
-		.range([0, 360])
 
 	function addText() {
 
@@ -65,9 +58,14 @@ function renderSpiralgram(data, element) {
 
 	function addSpindles() {
 
+		var rotationScale = d3.scaleLinear()
+			.domain([0, nVariants])
+			.range([180, 540]); //some acrobatics to make the first variant starts at 12 o'clock
+
 		var maxRadius = Math.min(width, height) / 2 - outerBuffer - tracksWidth; 
 
-		var tailLength = 0; //part of spindle there's no circles on
+		//part of spindle there's no circles on
+		var tailLength = 0; 
 
 		//the angular distance between consecutive spindles
 		var radiusStep = (maxRadius - innerBuffer - tailLength) / (nSpindleColumns - 1);
@@ -88,8 +86,6 @@ function renderSpiralgram(data, element) {
 
 		var angularWidth = 2 * Math.PI / nVariants; 
 
-		console.log(angularWidth);
-
 		//create container elements for the spindles with the right rotation 
 		d3.select(element)
 			.selectAll("g")
@@ -105,10 +101,11 @@ function renderSpiralgram(data, element) {
 		d3.select(element)
 			.selectAll("g")
 			.append("line")
-			.attr("x1", innerBuffer) //since the spindles' parents gs are tilted, we can just draw a straight line
-			.attr("y1", 0)
-			.attr("x2", maxRadius)
-			.attr("y2", 0)
+			.attr("variant-index", function() { return d3.select(this.parentNode).attr("variant-index"); })
+			.attr("y1", innerBuffer) //since the spindles' parents gs are tilted, we can just draw a straight line
+			.attr("x1", 0)
+			.attr("y2", maxRadius)
+			.attr("x2", 0)
 			.attr("class", "spindle")
 			.attr("stroke", colorForSpindle)
 			.attr("stroke-width", 2)
@@ -131,6 +128,7 @@ function renderSpiralgram(data, element) {
 
 				//find a way to go back to data staff was showing before
 				// renderStaff(lastStaffData, "#staffElement"); 
+				// and higlight that last variant
 
 			}).on("click", function(d, i) {
 
@@ -151,7 +149,7 @@ function renderSpiralgram(data, element) {
 
 			}); 
 
-		var cxScale = d3.scaleLinear()
+		var cyScale = d3.scaleLinear()
 			.domain([0, spindleData[0].length - 1])
 			.range([innerBuffer, maxRadius]);
 
@@ -168,10 +166,10 @@ function renderSpiralgram(data, element) {
 			.data(d => d)
 			.enter()
 			.append("circle")
-			.attr("variant-index", function() { return d3.select(this.parentNode).attr("variant-index") })
+			.attr("variant-index", function() { return d3.select(this.parentNode).attr("variant-index"); })
 			.attr("data-index", (_, i) => i)
-			.attr("cx", (_, i) => cxScale(i))
-			.attr("cy", 0)
+			.attr("cy", (_, i) => cyScale(i))
+			.attr("cx", 0)
 			.attr("r", (d, i) => d * 5)
 			.attr("fill", (d, i) => colorForAnnotation(d, i, nSpindleColumns))
 			.on("mouseover", function(d, i) { 
@@ -230,16 +228,11 @@ function renderSpiralgram(data, element) {
 			.domain([0, nTracks])
 			.range([innerRadius, outerRadius]);
 
-		console.log(trackColumns);
-		console.log(data);
-
 		var trackData = $.map(data, variant => 
 
 			[$.map(trackColumns, column => variant.core[column].value)]
 
 		); 
-
-		console.log(trackData);
 
 		var rotationScale = d3.scaleLinear()
 			.domain([0, nVariants])
@@ -253,6 +246,7 @@ function renderSpiralgram(data, element) {
 			.enter()
 			.append("g")
 			.attr("class", "track")
+			// .attr("variant-index", function() { return d3.select(this.parentNode).attr("variant-index"); })
 			.attr("data-index", (_, i) => i)
 			.attr("transform", "translate(" + center[0] + "," + center[1] + ")"); 
 
@@ -264,6 +258,7 @@ function renderSpiralgram(data, element) {
 			.data(d => d)
 			.enter()
 			.append("path")
+			.attr("variant-index", function() { return d3.select(this.parentNode).attr("variant-index"); })
 			.attr("data-isChromosome", (_, i) => i == 2 ? "1" : "0")
 			.attr("d", function(d, index) { //manually specify the shape of the path
 
@@ -347,8 +342,6 @@ function renderSpiralgram(data, element) {
 		//switch them to be [[dad, proband, mom], [dad, proband, mom], ...]
 
 		var genotypes = $.map(rawGenotypes, (g, i) => [[g[1], g[0], g[2]]])
-
-		console.log(genotypes);
 
 		d3.select(element)
 			.selectAll("g.crescent")
@@ -463,8 +456,6 @@ function drawPedigree(gt, element) {
 
 	var parsed = parseGenotype(gt); 
 
-	console.log(parsed);
-
 	var probandColor = colorForGenotype(parsed[0]); 
 	var fatherColor = colorForGenotype(parsed[1]);
 	var motherColor = colorForGenotype(parsed[2]);
@@ -573,16 +564,11 @@ function colorForGenotype(genotype) {
 
 function getGenotypes() {
 
-	console.log(variantData);
-
-	var gData = $.map(variantData, (variant, index) => {
+	return $.map(variantData, (variant, index) => {
 
 		return [parseGenotype(variant.core["GT"].value)];
 
 	}); 
-
-	console.log(gData);
-	return gData; 
 
 }
 
