@@ -49,8 +49,9 @@ function renderVisualization(isStreamgraph, element, data) {
 
 		console.log("rendering visualization!");
 		// renderKaryotype(karyotypeData, "#spiralElement");
+		renderBarchart(data, "#spiralElement", 3)		
 
-		// return; 
+		return; 
 
 		renderSpiralgram(data, "#spiralElement");
 		renderStaff(data, 0, "#staffElement", "#spiralElement");
