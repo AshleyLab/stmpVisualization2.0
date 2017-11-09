@@ -34,22 +34,26 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 	console.log(staffData);
 
 	//space between top and bottom of staff and top and bottom of SVG
-	var verticalBuffer = 50; 
+	var bottomBuffer = 50; 
+	var topBuffer = 200; 
 
 	var verticalScale = d3.scaleLinear()
 		.domain([nColumns - 1, 0])
-		.range([verticalBuffer, height - verticalBuffer])
+		.range([topBuffer, height - bottomBuffer])
 
 	d3.select(element)
 		.selectAll("*")
 		.remove(); 
 
+	var staffX = (width) * (3 / 5); 
+	//since text on left is longer than text on right, and to create a greater visual distinction between the staffgram and spiralgram
+
 	//draw the staff 
 	d3.select(element)
 		.append("line")
-		.attr("x1", width / 2)
+		.attr("x1", staffX)
 		.attr("y1", verticalScale(0))
-		.attr("x2", width / 2)
+		.attr("x2", staffX)
 		.attr("y2", verticalScale(staffData.length - 1))
 		.attr("stroke", colorForSpindle); 
 
@@ -61,7 +65,7 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 		.data(staffData)
 		.enter()
 		.append("circle")
-		.attr("cx", width / 2)
+		.attr("cx", staffX)
 		.attr("cy", (_, i) => verticalScale(i))
 		.attr("r", (d, i) => d * 10)
 		.attr("data-index", (_, i) => i) //the index that each datum is (can get lost in d3 selection)
@@ -88,7 +92,7 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 		
 		}); 
 
-	var buffer = 20; 
+	var textBuffer = 20; 
 
 	// add labels to the staff gram
 	d3.select(element)
@@ -100,13 +104,9 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 		.append("text")
 		.text((d, i) => {
 
-			console.log(i);
+			return getDisplayName(variantIndex, columns[i]);
 
-			var dN = getDisplayName(variantIndex, columns[i]);
-
-			return dN; 
-
-		}).attr("x", width / 2 - buffer)
+		}).attr("x", staffX - textBuffer)
 		.attr("y", (_, i) => verticalScale(i))
 		.attr("text-anchor", "end")
 		.attr("dominant-baseline", "central") //centers text vertically at this y position
@@ -127,7 +127,7 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 
 			return iM ? "n/a" : oV; 
 
-		}).attr("x", width / 2 + buffer)
+		}).attr("x", staffX + textBuffer)
 		.attr("y", (_, i) => verticalScale(i))
 		.attr("text-anchor", "start")
 		.attr("dominant-baseline", "central") //centers text vertically at this y position
@@ -155,40 +155,58 @@ function addTopText(element, data) {
 	var FILTER = data.core["FILTER"].value; 
 	var GT = data.core["GT"].value; 
 
-	var top = variationType + " at " + chromosome + ":" + position;
-	var middle = "QUAL " + QUAL + ", FILTER " + FILTER; 
+	//[words (or symbol), whether it should be bold or not]
+	var topWords = [[variationType, true], [" at ", false], [chromosome + ":" + position, true]];
+	var middleWords = [["QUAL ", false], [QUAL, true], [", FILTER ", false], [FILTER, true]]; 
 
 	console.log([chromosome, position, referenceAllele, sampleAllele, variationType, QUAL, FILTER, GT].join(",")); 
 
 	d3.select(element)
 		.append("text")
 		.attr("class","top-top")
-		.attr("x", 50)
-		.attr("y", 20)
+		.attr("x", 100)
+		.attr("y", 100)
 		.attr("text-anchor", "middle")
 		.attr("dominant-baseline", "central") //centers text vertically at this y position
 		.attr("fill", "white")
-		.attr("font-size", "16px")
-		.text(top);
+		.attr("font-size", "16px"); 
+
+	d3.select(element)
+		.select(".top-top")
+		.selectAll("tspan")
+		.data(topWords)
+		.enter()
+		.append("tspan")
+		.text((d, _) => d[0])
+		.attr("font-weight", (d, _) => d[1] ? "bold" : "normal"); 
 
 	d3.select(element)
 		.append("text")
-		.attr("class","top-top")
-		.attr("x", 50)
-		.attr("y", 30)
+		.attr("class","top-middle")
+		.attr("x", 100)
+		.attr("y", 120)
 		.attr("text-anchor", "middle")
 		.attr("dominant-baseline", "central") //centers text vertically at this y position
 		.attr("fill", "white")
 		.attr("font-size", "16px")
-		.text(middle);
 
-	// $("text.top-top")
-	// 	.text("A")
-	// 	.append(
-	// 		$("<tspan></tspan>")
-	// 			.text("B")
-	// 	);
+	d3.select(element)
+		.select(".top-middle")
+		.selectAll("tspan")
+		.data(middleWords)
+		.enter()
+		.append("tspan")
+		.text((d, _) => d[0])
+		.attr("font-weight", (d, _) => d[1] ? "bold" : "normal"); 
 
+}
+
+//render visualizations of other features (genotypes, nucleotides? amino acid change?, ...) that are available in the spiralgram in the staffgram
+function renderStaffNucleotides() {
+
+}
+
+function renderStaffPedigree() {
 
 }
 
