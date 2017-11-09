@@ -7,27 +7,39 @@ function renderBarchart(data, element, variantIndex, headDisplayName) {
 	//possible head frequencies
 	//ExAC Frequency, 
 
-	var exacPopulationFrequencies = [
-		["ExAC East Asian Frequency", ""],
-		["ExAC South Asian Frequency", ""],
-		["ExAC African Frequency", ""],
-		["ExAC European Frequency", ""],
-		["ExAC Latino Frequency", ""]
-	];
+	var populationFrequencies = []; 
 
-	var gnomADPopulationFrequencies = [
-		//[population frequency, population frequency n (denominator)]
-		["AF_EAS", "AN_EAS"],
-		["AF_NFE", "AN_NFE"], 
-		["AF_SAS", "AN_SAS"], 
-		["AF_AMR", "AN_AMR"], 
-		["AF_AFR", "AN_AFR"]
-	]; 
+	switch(headDisplayName) {
+		case "ExAC Frequency": 
+			populationFrequencies = [
+				["ExAC East Asian Frequency", ""],
+				["ExAC South Asian Frequency", ""],
+				["ExAC African Frequency", ""],
+				["ExAC European Frequency", ""],
+				["ExAC Latino Frequency", ""]
+				]; 
+			break; 
+		case "gnomAD Max Frequency": 
+			populationFrequencies = [
+				//[population frequency, population frequency n (denominator)]
+				["AF_EAS", "AN_EAS"],
+				["AF_NFE", "AN_NFE"], 
+				["AF_SAS", "AN_SAS"], 
+				["AF_AMR", "AN_AMR"], 
+				["AF_AFR", "AN_AFR"]
+			]; 
+			break; 
+		default: 
+			console.log("unknown head frequency " + headDisplayName)
+	}
 
+	//PREPARE THE DATA
+
+	var nFrequencies = populationFrequencies.length;
 	var frequencyData = {}; 
 	var maxFreq = 0; 
 
-	$.each(gnomADPopulationFrequencies, (i, pair) => { 
+	$.each(populationFrequencies, (i, pair) => { 
 		var freq = parseFloat(data[variantIndex].core[pair[0]].originalValue); 
 
 		if (freq > maxFreq) { 
@@ -37,23 +49,22 @@ function renderBarchart(data, element, variantIndex, headDisplayName) {
 		frequencyData[pair[0]] = freq; 
 	});
 
-	var labels = $.map(gnomADPopulationFrequencies, (d, i) => d[0]); 
+	var labels = $.map(populationFrequencies, (d, i) => d[0]); 
 
-	var nFrequencies = gnomADPopulationFrequencies.length;
-
-	//setup
+	//LAYOUT
 
 	var margin = {
 		top: 20, bottom: 20, 
 		left: 40, right: 20
 	};
 
-
 	var outerHeight = $(element).height();
 	var outerWidth = $(element).width();
 
 	var height = outerHeight - margin.top - margin.bottom; 
 	var width = outerWidth - margin.left - margin.right; 
+
+	//CLEAR ANY PREEXISTING BAR CHART SVG ELEMENTS
 
 	d3.select("g.barchart")
 		.remove(); 

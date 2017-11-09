@@ -225,8 +225,6 @@ function renderSpiralgram(data, element) {
 					renderBarchart(data, "#barchartElement", variantIndex, displayName);
 				}
 
-
-
 			}).on("mouseout", function(d, i) {
 
 				d3.select(element)
