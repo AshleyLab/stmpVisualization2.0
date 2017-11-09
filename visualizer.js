@@ -55,11 +55,9 @@ function renderVisualization(isStreamgraph, element, data) {
 			.append("svg")
 			.attr("id", "barchartElement");
 
-		var karyotypeData = $.map(data, v => [[v.core.Chromosome.value, v.core.Position.value]]);
-
 		console.log("rendering visualization!");
 
-		renderKaryotype(karyotypeData, "#karyotypeElement");
+		renderKaryotype(data, "#karyotypeElement");
 		renderBarchart(data, "#barchartElement", 3)		
 		renderSpiralgram(data, "#spiralElement");
 		renderStaff(data, 0, "#staffElement", "#spiralElement");

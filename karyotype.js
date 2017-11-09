@@ -4,7 +4,10 @@ var hoverColor = "#ff0000";
 var colorForSNPs = "#27A4A8"
 var highlightColor = "#007fff"; 
 
-function renderKaryotype(variants, element) {
+function renderKaryotype(data, element) {
+
+	console.log(data);
+	var variants = $.map(data, v => [[v.core.Chromosome.value, v.core.Position.value]]);
 
 	var cytobands = getCytobandData();
 
@@ -20,7 +23,7 @@ function renderKaryotype(variants, element) {
 	var includesY
 
 	drawCytobands(cytobands, element, xScale);
-	drawVariants(variants, element, xScale);  
+	drawVariants(variants, element, xScale, data);  
 
 }
 
@@ -69,7 +72,7 @@ function drawCytobands(cytobands, element, xScale) {
 		});
 }
 
-function drawVariants(SNPs, element, xScale) { // SNPS is expected to be of the (unsorted) foramt [[chr, pos], [chr, pos]]
+function drawVariants(SNPs, element, xScale, data) { // SNPs is expected to be of the foramt [[chr, pos], [chr, pos]]
 
 	var height = $(element).height();
 	var width = $(element).width();
@@ -88,6 +91,7 @@ function drawVariants(SNPs, element, xScale) { // SNPS is expected to be of the 
 		.enter()
 		.append("path")
 		.attr("fill", colorForSNPs)
+		.attr("variant-index", function(element, index) { return getVariantIndex(SNPs, element); })
 		.attr("id", function(element, index) { return "SNP" + element[0] + "_" + element[1]; })
 		.attr("d", function(element, index) {
 
@@ -107,6 +111,10 @@ function drawVariants(SNPs, element, xScale) { // SNPS is expected to be of the 
 				d3.select(this).attr("fill", hoverColor);
 			}
 
+			var vI = d3.select(this).attr("variant-index");
+
+			renderStaff(data, vI, "#staffElement", "#spiralElement");
+
 		}).on("mouseout", function(element, index) {
 
 			if (!d3.select(this).classed("presentedSNP")) {
@@ -125,6 +133,20 @@ function drawVariants(SNPs, element, xScale) { // SNPS is expected to be of the 
 
 			$("#H3" + id.slice(3)).click(); 
 		})
+
+}
+
+function getVariantIndex(SNPs, element) {
+
+	var index = $.map(SNPs, (d, i) => {
+
+		if (d[0] == element[0] && d[1] == element[1]) { 
+			return i; 
+		}
+
+	});
+
+	return index[0];
 
 }
 
