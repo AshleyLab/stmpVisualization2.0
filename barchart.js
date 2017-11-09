@@ -55,8 +55,7 @@ function renderBarchart(data, element, variantIndex) {
 	//scales
 	var yScale = d3.scaleLinear()
 		.domain([0, maxFreq])
-		.range([0, height]);
-
+		.range([height, 0]);
 
 	var xScale = d3.scaleBand()
 		.domain(labels)
@@ -70,20 +69,16 @@ function renderBarchart(data, element, variantIndex) {
 		.append("rect")
 		.attr("x", (d, i) => xScale(d))
 		.attr("y", (d, _) => { 
-			return height - yScale(frequencyData[d]); 
+			return yScale(frequencyData[d]); 
 		})
 		.attr("width", xScale.bandwidth())
 		.attr("height", (d, _) => { 
-			return yScale(frequencyData[d]); 
+			return height - yScale(frequencyData[d]); 
 		})
 		.attr("fill", "red")
 		.on("mouseover", (d, _) => console.log(d)); 
 
 	//x axis
-	// var labelScale = d3.scaleBand()
-	// 	.domain(labels)
-	// 	.range([0, width]);
-
 	var xAxis = d3.axisBottom()
 		.scale(xScale)
 
@@ -93,16 +88,11 @@ function renderBarchart(data, element, variantIndex) {
 		.call(xAxis);
 
 	//y axis
-	var yAxisScale = d3.scaleLinear()
-		.domain([0, maxFreq])
-		.range([height, 0]);
-
 	var yAxis = d3.axisLeft()
-		.scale(yAxisScale);
+		.scale(yScale);
 
 	g.append("g")
 		.attr("class", "yAxis")
-		// .attr("transform", "translate(40,0)")
 		.call(yAxis);
 }
 
