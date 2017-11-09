@@ -78,7 +78,7 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 				
 		}).on("mouseout", function(d, i) {
 
-			//unhiglight the circle when unmoused over
+			//unhighlight the circle when unmoused over
 			d3.select(this)	
 				.attr("fill", colorForAnnotation(d, i, nColumns)); 
 
@@ -87,6 +87,8 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 				.attr("fill", colorForAnnotation(d, i, nColumns))
 		
 		}); 
+
+	var buffer = 20; 
 
 	// add labels to the staff gram
 	d3.select(element)
@@ -101,14 +103,12 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 			console.log(i);
 
 			var dN = getDisplayName(variantIndex, columns[i]);
-			var oV = getOriginalValue(variantIndex, columns[i]); 
 
 			return dN; 
 
-		})
-		.attr("x", width / 4)
+		}).attr("x", width / 2 - buffer)
 		.attr("y", (_, i) => verticalScale(i))
-		.attr("text-anchor", "middle")
+		.attr("text-anchor", "end")
 		.attr("dominant-baseline", "central") //centers text vertically at this y position
 		.attr("fill", "white")
 		.attr("font-size", "16px"); 
@@ -127,9 +127,9 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 
 			return iM ? "n/a" : oV; 
 
-		}).attr("x", 3 * width / 4)
+		}).attr("x", width / 2 + buffer)
 		.attr("y", (_, i) => verticalScale(i))
-		.attr("text-anchor", "middle")
+		.attr("text-anchor", "start")
 		.attr("dominant-baseline", "central") //centers text vertically at this y position
 		.attr("fill", "white")
 		.attr("font-size", "16px"); 

@@ -77,7 +77,7 @@ function drawVariants(SNPs, element, xScale) { // SNPS is expected to be of the 
 	var width = $(element).width();
 	var canvas = d3.select(element);
 
-	var SNPHeight = 19;
+	var SNPHeight = 10;
 	var SNPWidth = 4; 
 
 	var colorForSNPs = "#27A4A8";

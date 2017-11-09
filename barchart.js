@@ -81,7 +81,7 @@ function renderBarchart(data, element, variantIndex) {
 	//x axis
 	var xAxis = d3.axisBottom()
 		.scale(xScale)
-		.tickFormat((d, i) => shortName(d)); 
+		.tickFormat((d, i) => shortName(d));
 
 	g.append("g")
 		.attr("class", "xAxis")
@@ -90,7 +90,8 @@ function renderBarchart(data, element, variantIndex) {
 
 	//y axis
 	var yAxis = d3.axisLeft()
-		.scale(yScale);
+		.scale(yScale)
+		.ticks(6);
 
 	g.append("g")
 		.attr("class", "yAxis")

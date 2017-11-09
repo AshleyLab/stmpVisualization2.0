@@ -506,7 +506,7 @@ function scaleValue(value) {
 	}
 
 	var scale = d3.scalePow()
-		.exponent(1)
+		.exponent(1) //************
 		.domain([0, 1])
 		.range([0, 1]);
 
