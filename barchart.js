@@ -5,6 +5,7 @@ function renderBarchart(data, element, variantIndex) {
 	//possible head frequencies
 	//ExAC Frequency, 
 
+
 	var gnomADPopulationFrequencies = [
 		//population frequency : population frequency n (denominator)
 		["AF_EAS", "AN_EAS"],
@@ -14,64 +15,95 @@ function renderBarchart(data, element, variantIndex) {
 		["AF_AFR", "AN_AFR"]
 	]; 
 
-	console.log(data[variantIndex]);
+	var frequencyData = {}; 
+	var maxFreq = 0; 
 
-	var frequencyData = $.map(gnomADPopulationFrequencies, (pair, i) => { 
+	$.each(gnomADPopulationFrequencies, (i, pair) => { 
+		var freq = parseFloat(data[variantIndex].core[pair[0]].originalValue); 
 
-		return parseFloat(data[variantIndex].core[pair[0]].originalValue); 
+		if (freq > maxFreq) { 
+			maxFreq = freq; 
+		}
 
+		frequencyData[pair[0]] = freq; 
 	});
 
-	var height = $(element).height();
-	var width = $(element).width();
+	console.log(frequencyData);
 
-	var n = frequencyData.length; 
+	var labels = $.map(gnomADPopulationFrequencies, (d, i) => d[0]); 
 
+	var nFrequencies = gnomADPopulationFrequencies.length;
+
+	//setup
+
+	var margin = {
+		top: 20, bottom: 20, 
+		left: 40, right: 20
+	};
+
+
+	var outerHeight = $(element).height();
+	var outerWidth = $(element).width();
+
+	var height = outerHeight - margin.top - margin.bottom; 
+	var width = outerWidth - margin.left - margin.right; 
+
+	var g = d3.select(element)
+		.append("g")
+		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+	//scales
 	var yScale = d3.scaleLinear()
-		.domain([0, Math.max(...frequencyData)])
+		.domain([0, maxFreq])
 		.range([0, height]);
 
-	var xScale = d3.scaleLinear()
-		.domain([0, frequencyData.length])
-		.range([0, width]);
 
-	d3.select(element)
-		.selectAll("rect")
-		.data(frequencyData)
+	var xScale = d3.scaleBand()
+		.domain(labels)
+		.range([0, width])
+		.paddingInner(.1);
+
+	//create the bars
+	g.selectAll("rect")
+		.data(labels)
 		.enter()
 		.append("rect")
-		.attr("x", (_, i) => xScale(i))
-		.attr("y", (d, _) => height - yScale(d))
-		.attr("width", width / n)
-		.attr("height", (d, _) => yScale(d))
+		.attr("x", (d, i) => xScale(d))
+		.attr("y", (d, _) => { 
+			return height - yScale(frequencyData[d]); 
+		})
+		.attr("width", xScale.bandwidth())
+		.attr("height", (d, _) => { 
+			return yScale(frequencyData[d]); 
+		})
 		.attr("fill", "red")
 		.on("mouseover", (d, _) => console.log(d)); 
 
-	//xAxis
-	var labels = $.map(gnomADPopulationFrequencies, (d, i) => d[0]); 
-	console.log(labels);
-
-	var labelScale = d3.scaleBand()
-		.domain(labels)
-		.range([0, width]);
-		// .paddingInner(10);
+	//x axis
+	// var labelScale = d3.scaleBand()
+	// 	.domain(labels)
+	// 	.range([0, width]);
 
 	var xAxis = d3.axisBottom()
-		.scale(labelScale)
-		// .tickFormat((d, i) => { 
+		.scale(xScale)
 
-		// 	console.log(d + "-" + i);
-
-		// 	return gnomADPopulationFrequencies[i]  
-
-		// });
-
-	d3.select(element)
-		.append("g")
+	g.append("g")
 		.attr("class", "xAxis")
-		.attr("transform", "translate(0," + (height - 40) + ")")
-		.call(xAxis); 
+		.attr("transform", "translate(0," + (height - 0) + ")")
+		.call(xAxis);
 
+	//y axis
+	var yAxisScale = d3.scaleLinear()
+		.domain([0, maxFreq])
+		.range([height, 0]);
+
+	var yAxis = d3.axisLeft()
+		.scale(yAxisScale);
+
+	g.append("g")
+		.attr("class", "yAxis")
+		// .attr("transform", "translate(40,0)")
+		.call(yAxis);
 }
 
 
