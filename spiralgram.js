@@ -170,7 +170,23 @@ function renderSpiralgram(data, element) {
 			.attr("data-index", (_, i) => i)
 			.attr("cy", (_, i) => cyScale(i))
 			.attr("cx", 0)
-			.attr("r", (d, i) => d * 5)
+			.attr("r", (d, i) => {
+
+				//maximum radius for an annotation should depend on number of annotations and distance from center
+
+				//distance between two neighboring (on consecutive spindles) points of this annotation
+				var theta = (Math.PI * 2) / (nVariants) / 2; 
+				var distanceAcross = 2 * cyScale(i) * Math.sin(theta);
+
+				//distnace between two neighboring points on the same spindle
+				var distanceAlong = cyScale(1) - cyScale(0);
+
+				var maxRadius = Math.min(distanceAcross, distanceAlong) / 2; 
+
+				return i >= 5 ? maxRadius * d : 0;
+
+
+			})
 			.attr("fill", (d, i) => colorForAnnotation(d, i, nSpindleColumns))
 			.on("mouseover", function(d, i) { 
 
@@ -185,7 +201,7 @@ function renderSpiralgram(data, element) {
 
 				var isFrequency = $.inArray(displayName, spiralgramFrequenciesDisplayNames) !== -1; 
 
-				displayInfo(originalValue, displayName, isFrequency);
+				displayInfo(originalValue, displayName, isFrequency, isMissing);
 
 				d3.select(element)
 					.selectAll("g")
@@ -205,7 +221,7 @@ function renderSpiralgram(data, element) {
 					.filter((_, index) => i == index)
 					.attr("fill", colorForAnnotation(d, i, nSpindleColumns)); 
 
-				displayInfo("","", false);
+				displayInfo("","", false, false);
 
 				d3.select(staffElement)
 					.select("circle[data-index=\"" + i + "\"")
@@ -296,7 +312,7 @@ function renderSpiralgram(data, element) {
 				d3.select(this)
 					.attr("fill", highlightForTrack)
 
-				displayInfo(d, trackColumns[i]);
+				displayInfo(d, trackColumns[i], false, false);
 
 			}).on("mouseout", function(d, i) {
 
@@ -312,7 +328,7 @@ function renderSpiralgram(data, element) {
 
 				}
 
-				displayInfo("","")
+				displayInfo("", "", false, false)
 
 			});
 

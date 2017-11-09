@@ -91,14 +91,16 @@ function colorForNucleotide(d) {
 
 }
 
-function displayInfo(value, kind, isFrequency) {
+function displayInfo(value, kind, isFrequency, isMissing) {
 
-	if (isFrequency) {
+	//check whether is missing
+
+	if (isFrequency) { //change to isNumeric to round frequencies and numerical model scores
 		value = formatFrequency(parseFloat(value));
 	}
 
 	d3.select("#valueInfo")
-		.text(value);
+		.text(isMissing ? "" : value);
 
 	d3.select("#kindInfo")
 		.text(kind);
