@@ -28,8 +28,6 @@ function renderBarchart(data, element, variantIndex) {
 		frequencyData[pair[0]] = freq; 
 	});
 
-	console.log(frequencyData);
-
 	var labels = $.map(gnomADPopulationFrequencies, (d, i) => d[0]); 
 
 	var nFrequencies = gnomADPopulationFrequencies.length;
@@ -75,8 +73,8 @@ function renderBarchart(data, element, variantIndex) {
 		.attr("height", (d, _) => { 
 			return height - yScale(frequencyData[d]); 
 		})
-		.attr("fill", getRandomColor)
-		.on("mouseover", (d, _) => console.log(d)); 
+		.attr("fill", getRandomColor);
+		// .on("mouseover", (d, _) => console.log(d)); 
 
 	//x axis
 	var xAxis = d3.axisBottom()

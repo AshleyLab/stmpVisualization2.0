@@ -134,6 +134,9 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 		.attr("fill", "white")
 		.attr("font-size", "16px"); 
 
+	//show to the right of actual value (maybe in grey) rank of value in this set of variants? 
+	//e.g., phyloP |STAFF| .786 1 <-- indicating its the most pathogenic score in the xlsx uploaded
+
 	addTopText(element, data[variantIndex]); 
 	addBottomText(element, data[variantIndex]);
 }
@@ -143,8 +146,6 @@ function strongSpan(text) {
 }
 
 function addTopText(element, data) {
-
-	console.log(data);
 
 	var chromosome = data.core["Chromosome"].value; 
 	var position = data.core["Position"].value; 
@@ -158,8 +159,6 @@ function addTopText(element, data) {
 	//[words (or symbol), whether it should be bold or not]
 	var topWords = [[variationType, true], [" at ", false], [chromosome + ":" + position, true]];
 	var middleWords = [["QUAL ", false], [QUAL, true], [", FILTER ", false], [FILTER, true]]; 
-
-	console.log([chromosome, position, referenceAllele, sampleAllele, variationType, QUAL, FILTER, GT].join(",")); 
 
 	d3.select(element)
 		.append("text")

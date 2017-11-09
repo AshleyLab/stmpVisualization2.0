@@ -330,7 +330,6 @@ function parseValue(originalValue, column) {
 		} 
 
 		var parsedValue = parseFloat(originalValue);
-		console.log("fathmm p: " + parsedValue);
 
 		if (parsedValue < originalDomain[0] || parsedValue > originalDomain[1]) { 
 			return [0, displayName, true];
@@ -339,13 +338,7 @@ function parseValue(originalValue, column) {
 		//Positive FATHMM scores predict a tolerance to the variation while negative FATHMM scores predict intolerance to the variation, and is subsequently considered to be pathogenic. Following proof of concept analysis it was determined that the best possible cut-off value for the FATHMM score is 1.0  https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4929716/
 		var normalizedValue = zeroOneNormalizeValue(parsedValue, originalDomain, column, true);
 
-		console.log("fathmm n: " + normalizedValue);
-
-		var s = scaleValue(normalizedValue)
-
-		console.log("fathmm s: " + s);
-
-		return [s, displayName, false];
+		return [scaleValue(normalizedValue), displayName, false];
 
 	} else if (column == "Sift") {
 

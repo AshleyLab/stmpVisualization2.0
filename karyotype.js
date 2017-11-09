@@ -71,8 +71,6 @@ function drawCytobands(cytobands, element, xScale) {
 
 function drawVariants(SNPs, element, xScale) { // SNPS is expected to be of the (unsorted) foramt [[chr, pos], [chr, pos]]
 
-	console.log(SNPs);
-
 	var height = $(element).height();
 	var width = $(element).width();
 	var canvas = d3.select(element);
@@ -105,19 +103,16 @@ function drawVariants(SNPs, element, xScale) { // SNPS is expected to be of the 
 
 		}).on("mouseover", function(element, index) {
 
-			console.log(this);
-
 			if (!d3.select(this).classed("presentedSNP")) {
 				d3.select(this).attr("fill", hoverColor);
 			}
 
 		}).on("mouseout", function(element, index) {
 
-			console.log(this);
-
 			if (!d3.select(this).classed("presentedSNP")) {
 				d3.select(this).attr("fill", colorForSNPs);
 			}
+			
 		}).on("click", function(element, index) {
 
 			d3.selectAll(".chromosome g path").attr("fill", colorForSNPs);
