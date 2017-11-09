@@ -265,7 +265,15 @@ function parseValue(originalValue, column) {
 			return [0, displayName, true];
 		}
 
-		var normalizedValue = zeroOneNormalizeValue(parsedValue, originalDomain, column, false);
+		//but really we only see scores in [1,28]
+
+		//clip to [1, 28]
+		if (parsedValue > 28) {
+			parsedValue = 28; 
+		}
+
+
+		var normalizedValue = zeroOneNormalizeValue(parsedValue, [1, 28], column, false);
 
 		return [scaleValue(normalizedValue), displayName, false];
 
@@ -322,6 +330,7 @@ function parseValue(originalValue, column) {
 		} 
 
 		var parsedValue = parseFloat(originalValue);
+		console.log("fathmm p: " + parsedValue);
 
 		if (parsedValue < originalDomain[0] || parsedValue > originalDomain[1]) { 
 			return [0, displayName, true];
@@ -330,7 +339,13 @@ function parseValue(originalValue, column) {
 		//Positive FATHMM scores predict a tolerance to the variation while negative FATHMM scores predict intolerance to the variation, and is subsequently considered to be pathogenic. Following proof of concept analysis it was determined that the best possible cut-off value for the FATHMM score is 1.0  https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4929716/
 		var normalizedValue = zeroOneNormalizeValue(parsedValue, originalDomain, column, true);
 
-		return [scaleValue(normalizedValue), displayName, false];
+		console.log("fathmm n: " + normalizedValue);
+
+		var s = scaleValue(normalizedValue)
+
+		console.log("fathmm s: " + s);
+
+		return [s, displayName, false];
 
 	} else if (column == "Sift") {
 
@@ -466,7 +481,8 @@ function parseValue(originalValue, column) {
 function zeroOneNormalizeValue(value, domain, column, shouldInvert) {
 
 	if (shouldInvert) {
-		value = domain[1] - value; 
+		var distanceFromBottom = Math.abs(value - domain[0]); 
+		value = domain[1] - distanceFromBottom;
 	}
 
 	var normalizer = d3.scaleLinear()
@@ -485,8 +501,12 @@ function stringToNumber(value, lookup, column) {
 
 function scaleValue(value) {
 
+	if (value < 0 || value > 1) {
+		console.log("error normalizing: " + value);
+	}
+
 	var scale = d3.scalePow()
-		.exponent(3)
+		.exponent(1)
 		.domain([0, 1])
 		.range([0, 1]);
 

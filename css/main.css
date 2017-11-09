@@ -30,7 +30,14 @@ input[type="radio"] {
   margin-right: .5rem;
 }
 
+#karyotypeElement { 
+/*  position: absolute;
+*/  left: 20px;
+  height: 200px;
+}
+
 #barchartElement { 
+  height: 200px;
   position: absolute;
   right: 20px;
 }

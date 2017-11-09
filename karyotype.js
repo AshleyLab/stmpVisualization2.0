@@ -33,7 +33,7 @@ function drawCytobands(cytobands, element, xScale) {
 
 	var lengths = getLengths(cytobands);
 
-	var chromosomeHeight = 8; 
+	var chromosomeHeight = 4; 
 	radius = chromosomeHeight / 2; 
 
 	window.cytobands = cytobands; 
@@ -78,7 +78,7 @@ function drawVariants(SNPs, element, xScale) { // SNPS is expected to be of the 
 	var canvas = d3.select(element);
 
 	var SNPHeight = 19;
-	var SNPWidth = 6; 
+	var SNPWidth = 4; 
 
 	var colorForSNPs = "#27A4A8";
 
@@ -156,26 +156,33 @@ function getSNPsForChromosome(SNPs, id) {
 
 function colorForStain(stain) {
 
-	switch (stain) {
-		case "gneg": 
-			return "#DDDDDD";
-		case "gvar": 
-			return "#000000";
-		case "gpos25":
-			return "#7B7B7B";
-		case "gpos50":
-			return "#444444"; 
-		case "gpos75":
-			return "#2B2B2B";
-		case "gpos100":
-			return "#000000";
-		case "acen":
-			return "#832226";
-		case "stalk":
-			return "#6D6D6D";
-		default: 
-			return "#0061ff"
+	//simplified
+	if (stain == "acen") { 
+		return "#832226";
 	}
+
+	return "#7f7f7f"; 
+
+	// switch (stain) {
+	// 	case "gneg": 
+	// 		return "#DDDDDD";
+	// 	case "gvar": 
+	// 		return "#000000";
+	// 	case "gpos25":
+	// 		return "#7B7B7B";
+	// 	case "gpos50":
+	// 		return "#444444"; 
+	// 	case "gpos75":
+	// 		return "#2B2B2B";
+	// 	case "gpos100":
+	// 		return "#000000";
+	// 	case "acen":
+	// 		return "#2B2B2B";
+	// 	case "stalk":
+	// 		return "#2B2B2B";
+	// 	default: 
+	// 		return "#0061ff";
+	// }
 
 }
 
