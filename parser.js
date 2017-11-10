@@ -70,6 +70,8 @@ function parseXLS(XLS) {
 		    workbook = XLSX.read(btoa(arr), {type: "base64"});
 
 		}
+
+		downloadDataAsXls(workbook);
 		    
 		readWorkbook(workbook);
 
