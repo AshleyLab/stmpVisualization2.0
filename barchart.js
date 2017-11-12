@@ -41,12 +41,13 @@ function renderBarchart(data, element, variantIndex, headDisplayName) {
 
 	$.each(populationFrequencies, (i, pair) => { 
 		var freq = parseFloat(data[variantIndex].core[pair[0]].originalValue); 
+		var denominator = parseInt(data[variantIndex].core[pair[1]].originalValue);
 
 		if (freq > maxFreq) { 
 			maxFreq = freq; 
 		}
 
-		frequencyData[pair[0]] = freq; 
+		frequencyData[pair[0]] = [freq, denominator]; 
 	});
 
 	var labels = $.map(populationFrequencies, (d, i) => d[0]); 
@@ -91,14 +92,25 @@ function renderBarchart(data, element, variantIndex, headDisplayName) {
 		.append("rect")
 		.attr("x", (d, i) => xScale(d))
 		.attr("y", (d, _) => { 
-			return yScale(frequencyData[d]); 
+			return yScale(frequencyData[d][0]); 
 		})
 		.attr("width", xScale.bandwidth())
 		.attr("height", (d, _) => { 
-			return height - yScale(frequencyData[d]); 
+			return height - yScale(frequencyData[d][0]); 
 		})
-		.attr("fill", getRandomColor);
-		// .on("mouseover", (d, _) => console.log(d)); 
+		.attr("fill", getRandomColor)
+		// .on("mouseover", (d, _) => console.log(d));
+
+	g.selectAll("text.denominator")
+		.data(labels)
+		.enter()
+		.append("text")
+		.attr("x", (d, i) => xScale(d))
+		.attr("y", (d, _) => {
+			return yScale(frequencyData[d][0]) - 10; 
+		})
+		.attr("fill", "white")
+		.text((d, _) => frequencyData[d][1])
 
 	//x axis
 	var xAxis = d3.axisBottom()
@@ -118,6 +130,10 @@ function renderBarchart(data, element, variantIndex, headDisplayName) {
 	g.append("g")
 		.attr("class", "yAxis")
 		.call(yAxis);
+
+	//add the ns to the top of the bars
+	// g.selectAll("text.denominators")
+	// 	.data()
 }
 
 function shortName(d) {

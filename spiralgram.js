@@ -190,7 +190,6 @@ function renderSpiralgram(data, element) {
 
 				return maxRadius * d;
 
-
 			})
 			.attr("fill", (d, i) => colorForAnnotation(d, i, nSpindleColumns))
 			.on("mouseover", function(d, i) { 
