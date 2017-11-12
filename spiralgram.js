@@ -9,7 +9,7 @@ function renderSpiralgram(data, element) {
 		"Phylop",
 		"MutationTaster",
 		"fathmm",
-		"Sift",
+		// "Sift",
 		"1000 Genomes Frequency", 
 		"ExAC Frequency",
 		"GNOMADMaxAlleleFreq"

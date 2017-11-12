@@ -13,7 +13,7 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 		"Phylop",
 		"MutationTaster",
 		"fathmm",
-		"Sift",
+		// "Sift",
 
 		"1000 Genomes Frequency", 
 		"ExAC Frequency",
