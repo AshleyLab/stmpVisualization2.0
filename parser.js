@@ -2,6 +2,8 @@ var element, axisSpace, pathClicks, outerElement, data, variantData;
 
 $(function() {
 
+	hideDownloadButton(); 
+
 	var element = "#graphics";
 
 	axisSpace = 15; 
@@ -35,6 +37,13 @@ $(function() {
 	$("input[type=radio]").change(function() { 
 
 		data = renderVisualization(this.value == "stream", element, data)
+
+	});
+
+	$("#downloadLink").on("click", function(event) {
+
+		event.preventDefault(); 
+		downloadButtonClicked(); 
 
 	});
 

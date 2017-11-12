@@ -1,3 +1,8 @@
+function downloadButtonClicked() { 
+
+	console.log("downloadButtonClicked called");
+
+}
 
 function s2ab(s) {
   var buf = new ArrayBuffer(s.length);

@@ -57,12 +57,33 @@ function renderVisualization(isStreamgraph, element, data) {
 
 		console.log("rendering visualization!");
 
+		hideDownloadButton(); 
+
 		renderKaryotype(data, "#karyotypeElement");
 		renderBarchart(data, "#barchartElement", 3)		
 		renderSpiralgram(data, "#spiralElement");
 		renderStaff(data, 0, "#staffElement", "#spiralElement");
 
+		showDownloadButton(); 
+
 	}
+
+}
+
+function hideDownloadButton() { 
+
+	$("#downloadLink")
+		.hide(); 
+
+}
+
+function showDownloadButton() {
+
+	// d3.select("#downloadLink")
+	// 	.attr("visibility", "visible");
+
+	$("#downloadLink")
+		.show(); 
 
 }
 

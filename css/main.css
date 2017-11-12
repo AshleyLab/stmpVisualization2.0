@@ -42,6 +42,10 @@ input[type="radio"] {
   right: 20px;
 }
 
+#downloadLink { 
+  color: white;
+}
+
 /* STYLE THE SPIRALGRAM */
 
 path {
