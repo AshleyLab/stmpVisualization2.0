@@ -23,15 +23,11 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 
 	var nColumns = columns.length;
 
-	console.log(data);
-
 	var staffData = $.map(columns, column => {
 
 		return data[variantIndex].core[column].value;
 
 	});
-
-	console.log(staffData);
 
 	//space between top and bottom of staff and top and bottom of SVG
 	var bottomBuffer = 50; 

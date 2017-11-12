@@ -188,7 +188,7 @@ function renderSpiralgram(data, element) {
 
 				var maxRadius = Math.min(distanceAcross, distanceAlong) / 2; 
 
-				// return i >= 5 ? maxRadius * d : 0;
+				return i >= 5 ? maxRadius * d : 0;
 				return maxRadius * d; 
 
 			})
