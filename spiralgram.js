@@ -245,6 +245,8 @@ function renderSpiralgram(data, element) {
 
 	function addTracks() { 
 
+		var trackColumns = ["Protein Variant", "Protein Variant", "Chromosome"];
+
 		var innerRadius = Math.min(width, height) / 2 - outerBuffer - tracksWidth + spindlesToTracksBuffer; 
 		var outerRadius = Math.min(width, height) / 2 - outerBuffer;    
 
@@ -262,9 +264,11 @@ function renderSpiralgram(data, element) {
 
 		); 
 
+		console.log(trackData); 
+
 		var rotationScale = d3.scaleLinear()
 			.domain([0, nVariants])
-			.range([0, Math.PI * 2]);
+			.range([0, Math.PI * 2]); //IS THIS RIGHT
 
 		var angularWidth = Math.PI * 2 / nVariants; 
 
@@ -308,13 +312,25 @@ function renderSpiralgram(data, element) {
 
 			}).attr("fill", function(d, i) {
 
-				if (isChromosome(this)) {
+				if (i == 2) {
 
 					return colorForChromosome(d)
 
 				} else { 
 
-					return colorForNucleotide(d);
+					console.log("finding fill for " + d + ": " + i); 
+
+					if (d == 0) {
+						return "black";
+					}
+
+					var fill = colorForProteinVariantData(d, i == 1);
+
+					console.log(fill);
+
+					return fill; 
+
+					// return colorForNucleotide(d);
 
 				}
 
@@ -571,6 +587,48 @@ function drawPedigree(gt, element) {
 		.attr("y2", diamondCenterY - radius)
 		.attr("stroke", "white")
 		.attr("stroke-radius", 5);
+}
+
+function colorForProteinVariantData(proteinVariant, getRef) {
+
+	console.log(proteinVariant);
+
+	var aminoAcids = proteinVariant.replace("p.", "") //remove "p."s
+								   .replace(/\d+/, "") //remove positions
+								   .split(";");
+
+	var tuples = $.map(aminoAcids, (aA, index) => { 
+
+		return aA[getRef ? 0 : 1];
+
+	}); 
+
+	var colors = {
+		"#20A39E" : ["A", "G", "I", "L", "P", "V"], //Ala, Gly, Ile, Leu, Pro, VaL: Aliphatic
+		"#98CE00" : ["F", "W", "Y"], //Phe, Trp Tyr: Aromatic
+		"#FF715B" : ["D", "E"], //Asp, Glu: Acidic
+		"#F0386B" : ["R", "H", "K"], //Arg, His, Lys: Basic
+		"#93E5AB" : ["S", "T"], //Ser, Thr: Hydroxylic
+		"#FB8B24" : ["C", "M"], //Cys, Met: Sulfur-containing
+		"#FB8B24" : ["N", "Q"], //Asn, Gln: Amidic
+		"#FB8B24" : ["Stop"] //Stop
+	}
+
+	var chosenAcid = tuples[0];
+	var color = "black";
+
+	$.each(colors, function(key, value) {
+
+		if ($.inArray(chosenAcid, value) !== -1) { 
+			color = key; 
+		} 
+
+	});
+
+	return color; 
+
+	// console.log(tuples);
+
 }
 
 function colorForGenotype(genotype) { 
