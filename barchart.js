@@ -40,8 +40,18 @@ function renderBarchart(data, element, variantIndex, headDisplayName) {
 	var maxFreq = 0; 
 
 	$.each(populationFrequencies, (i, pair) => { 
+
+		console.log(pair);
+		console.log(data[variantIndex]);
+
 		var freq = parseFloat(data[variantIndex].core[pair[0]].originalValue); 
-		var denominator = parseInt(data[variantIndex].core[pair[1]].originalValue);
+		var denominator = 0; 
+
+		if (pair[1] == "") { 
+			console.log("waiting for exac ns");
+		} else { 
+			denominator = parseInt(data[variantIndex].core[pair[1]].originalValue);
+		}
 
 		if (freq > maxFreq) { 
 			maxFreq = freq; 
@@ -80,6 +90,8 @@ function renderBarchart(data, element, variantIndex, headDisplayName) {
 		.domain([0, maxFreq])
 		.range([height, 0]);
 
+	console.log(labels);
+
 	var xScale = d3.scaleBand()
 		.domain(labels)
 		.range([0, width])
@@ -98,29 +110,34 @@ function renderBarchart(data, element, variantIndex, headDisplayName) {
 		.attr("height", (d, _) => { 
 			return height - yScale(frequencyData[d][0]); 
 		})
-		.attr("fill", getRandomColor)
-		// .on("mouseover", (d, _) => console.log(d));
+		.attr("fill", (d, _) => colorForPopulation(d))
 
-	g.selectAll("text.denominator")
-		.data(labels)
-		.enter()
-		.append("text")
-		.attr("x", (d, i) => xScale(d))
-		.attr("y", (d, _) => {
-			return yScale(frequencyData[d][0]) - 10; 
-		})
-		.attr("fill", "white")
-		.text((d, _) => frequencyData[d][1])
 
 	//x axis
+
+
 	var xAxis = d3.axisBottom()
 		.scale(xScale)
-		.tickFormat((d, i) => shortName(d));
+		.tickFormat((d, i) => axisLabel(d, frequencyData));
 
 	g.append("g")
 		.attr("class", "xAxis")
 		.attr("transform", "translate(0," + (height - 0) + ")")
 		.call(xAxis);
+
+
+	///
+
+	var denominators = ["100","100","100","100","100"]; 
+
+	var xAxis2 = d3.axisBottom()
+		.scale(xScale)
+		.tickFormat((d, i) => denominators[i]);
+
+	g.append("g")
+		.attr("class", "xAxis2")
+		.attr("transform", "translate(0," + (height + 10) + ")")
+		.call(xAxis)
 
 	//y axis
 	var yAxis = d3.axisLeft()
@@ -136,8 +153,11 @@ function renderBarchart(data, element, variantIndex, headDisplayName) {
 	// 	.data()
 }
 
-function shortName(d) {
-	return d.slice(d.indexOf("_") + 1);
+function axisLabel(d, frequencyData) {
+
+	var shortName = shortNameForPopulation(d);
+
+	var denominator = frequencyData[d][1];
+
+	return shortName;;
 }
-
-
