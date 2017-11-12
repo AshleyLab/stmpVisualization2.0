@@ -9,7 +9,6 @@
 //
 // ******************
 
-
 function removeSVGs(element) { //clean the SVG so previous visualizations aren't still there
 
 	d3.select(element)
@@ -54,6 +53,8 @@ function displayInfo(value, kind) {
 }
 
 console.log(visualizeProteinVariantColumn('p.E343G; p.E401G; p.E357G; p.E413G'))
+downloadDataAsXls();
+console.log('fibbonaci')
 
 //given a position and protein variant returns the full names of the proteins
 function parseProteinVariantData(proteinVariantData){
