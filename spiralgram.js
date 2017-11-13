@@ -75,8 +75,9 @@ function renderSpiralgram(data, element) {
 
 			[$.map(spindleColumns, column => {
 
-				var p = variant.core[column].value; 
-				return parseFloat(p); 
+				var p = variant.core[column].value;
+				var iM = variant.core[column].isMissing; 
+				return iM ? "???" : parseFloat(p); 
 
 			})]
 	
@@ -177,6 +178,11 @@ function renderSpiralgram(data, element) {
 			.attr("cx", 0)
 			.attr("r", (d, i) => {
 
+				if (d == "???") {
+					console.log("detected ???");
+					return 0; 
+				}
+
 				//maximum radius for an annotation should depend on number of annotations and distance from center
 
 				//distance between two neighboring (on consecutive spindles) points of this annotation
@@ -189,7 +195,7 @@ function renderSpiralgram(data, element) {
 				var maxRadius = Math.min(distanceAcross, distanceAlong) / 2; 
 
 				// return i >= 5 ? maxRadius * d : 0;
-				return maxRadius * d; 
+				return Math.max(maxRadius * d, 2); 
 
 			})
 			.attr("fill", (d, i) => colorForAnnotation(d, i, nSpindleColumns))
@@ -351,8 +357,20 @@ function renderSpiralgram(data, element) {
 
 				} else { 
 
+					console.log("finding fill for " + d + ": " + i); 
+
+					if (d == 0) {
+						return d3.select(this)
+							.attr("fill", "black")
+					}
+
+					var fill = colorForProteinVariantData(d, i == 1);
+
+					console.log(fill);
+
 					d3.select(this)
-						.attr("fill", colorForNucleotide);
+						.attr("fill", fill);
+
 
 				}
 
@@ -598,9 +616,7 @@ function colorForProteinVariantData(proteinVariant, getRef) {
 								   .split(";");
 
 	var tuples = $.map(aminoAcids, (aA, index) => { 
-
 		return aA[getRef ? 0 : 1];
-
 	}); 
 
 	var colors = {
@@ -611,7 +627,7 @@ function colorForProteinVariantData(proteinVariant, getRef) {
 		"#93E5AB" : ["S", "T"], //Ser, Thr: Hydroxylic
 		"#FB8B24" : ["C", "M"], //Cys, Met: Sulfur-containing
 		"#FB8B24" : ["N", "Q"], //Asn, Gln: Amidic
-		"#FB8B24" : ["Stop"] //Stop
+		"red" : ["*", "Stop"] //Stop
 	}
 
 	var chosenAcid = tuples[0];

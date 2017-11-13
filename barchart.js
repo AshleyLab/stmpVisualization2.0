@@ -41,9 +41,6 @@ function renderBarchart(data, element, variantIndex, headDisplayName) {
 
 	$.each(populationFrequencies, (i, pair) => { 
 
-		console.log(pair);
-		console.log(data[variantIndex]);
-
 		var freq = parseFloat(data[variantIndex].core[pair[0]].originalValue); 
 		var denominator = 0; 
 
@@ -154,10 +151,7 @@ function renderBarchart(data, element, variantIndex, headDisplayName) {
 }
 
 function axisLabel(d, frequencyData) {
-
 	var shortName = shortNameForPopulation(d);
-
 	var denominator = frequencyData[d][1];
-
-	return shortName;;
+	return shortName;
 }
