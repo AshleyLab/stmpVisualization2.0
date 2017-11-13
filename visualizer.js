@@ -518,7 +518,7 @@ function colorForAnnotation(datum, index, nSpiralAnnotations) {
 	// 	return "white";
 	// }
 
-	return "#" + Math.floor((index + 1) / (nSpiralAnnotations + 1) * 16777215).toString(16);
+	return "#" + Math.floor((index + 1) / (nSpiralAnnotations + 1 ) * 16777215).toString(16);
 
 }
 
