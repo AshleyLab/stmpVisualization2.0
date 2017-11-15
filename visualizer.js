@@ -58,11 +58,30 @@ function renderVisualization(isStreamgraph, element, data) {
 		console.log("rendering visualization!");
 
 		renderKaryotype(data, "#karyotypeElement");
-		renderBarchart(data, "#barchartElement", 3)		
+		// renderBarchart(data, "#barchartElement", 3)		
 		renderSpiralgram(data, "#spiralElement");
 		renderStaff(data, 0, "#staffElement", "#spiralElement");
 
+		showDownloadButton(); 
+
 	}
+
+}
+
+function hideDownloadButton() { 
+
+	$("#downloadLink")
+		.hide(); 
+
+}
+
+function showDownloadButton() {
+
+	// d3.select("#downloadLink")
+	// 	.attr("visibility", "visible");
+
+	$("#downloadLink")
+		.show(); 
 
 }
 
@@ -107,7 +126,7 @@ function displayInfo(value, kind, isFrequency, isMissing) {
 
 function formatFrequency(frequency) { 
 
-	console.log("formatting " + frequency); 
+	// console.log("formatting " + frequency); 
 
 	//only show three digits right of zero, unless that would mean presenting a nonzero frequency as zero
 
@@ -120,10 +139,10 @@ function formatFrequency(frequency) {
 	if (frequency >= .0005) { //anything that will become a one or more after Math.round(frequency * 1000)
 		//round to three decimal places
 		var rounded = Math.round(frequency * 1000) / 1000; 
-		console.log("rounding to three decimal places --> " + rounded);
+		// console.log("rounding to three decimal places --> " + rounded);
 	} else { 
 		var rounded = parseFloat(frequency.toPrecision(1));
-		console.log("rounding to one sig fig --> " + rounded); 
+		// console.log("rounding to one sig fig --> " + rounded); 
 	}
 
 	return rounded; 
@@ -423,9 +442,83 @@ function highlightForCircle() {
 
 }
 
+function colorForPopulation(populationColumnHeader) {
+
+	/*"AF_EAS", 		"ExAC East Asian Frequency",
+	"AF_NFE",		"ExAC European Frequency",
+	"AF_SAS",		"ExAC South Asian Frequency",
+	"AF_AMR",		"ExAC Latino Frequency",
+	"AF_AFR",		"ExAC African Frequency"*/
+
+	var populationCode = -1; 
+
+	switch(populationColumnHeader){
+		case "AF_EAS": 
+		case "ExAC East Asian Frequency": 
+			populationCode = 0; 
+			break; 
+		case "AF_NFE":
+		case "ExAC European Frequency":
+			populationCode = 1; 
+			break; 
+		case "AF_SAS":
+		case "ExAC South Asian Frequency": 
+			populationCode = 2; 
+			break; 
+		case "AF_AMR": 
+		case "ExAC Latino Frequency":
+			populationCode = 3; 
+			break; 
+		case "AF_AFR": 
+		case "ExAC African Frequency":
+			populationCode = 4; 
+			break; 
+		default: 
+			console.log("don't know what to do with population: " + populationColumnHeader);
+	}
+
+	var populationCodeColors = ["#967D69","#B9D2B1","#C7D66D","#2D4739","#61C3C"]; 
+
+	return populationCodeColors[populationCode];
+
+}
+
+function shortNameForPopulation(populationColumnHeader) { 
+
+	switch(populationColumnHeader){
+		case "AF_EAS": 
+		case "ExAC East Asian Frequency": 
+			return "EAS";
+		case "AF_NFE":
+		case "ExAC European Frequency":
+			return "NFE";
+		case "AF_SAS":
+		case "ExAC South Asian Frequency": 
+			return "SAS"; 
+		case "AF_AMR": 
+		case "ExAC Latino Frequency":
+			return "AMR";
+		case "AF_AFR": 
+		case "ExAC African Frequency":
+			return "AFR";
+		default: 
+			console.log("don't know what to do with population: " + populationColumnHeader);
+			return "???";
+	}
+
+}
+
 function colorForAnnotation(datum, index, nSpiralAnnotations) { 
 
-	return "#" + Math.floor((index + 1) / (nSpiralAnnotations + 1) * 16777215).toString(16);
+	// console.log(arguments);
+
+	// //make the gnomAD max frequency white 
+	// if (index + 1 == nSpiralAnnotations) {
+	// 	console.log("gnomAD");
+	// 	return "white";
+	// }
+
+	return "#" + Math.floor((index + 1) / (nSpiralAnnotations + 1 ) * 16777215).toString(16);
 
 }
 

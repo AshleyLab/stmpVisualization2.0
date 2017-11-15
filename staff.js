@@ -13,7 +13,7 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 		"Phylop",
 		"MutationTaster",
 		"fathmm",
-		"Sift",
+		// "Sift",
 
 		"1000 Genomes Frequency", 
 		"ExAC Frequency",
@@ -23,15 +23,11 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 
 	var nColumns = columns.length;
 
-	console.log(data);
-
 	var staffData = $.map(columns, column => {
 
 		return data[variantIndex].core[column].value;
 
 	});
-
-	console.log(staffData);
 
 	//space between top and bottom of staff and top and bottom of SVG
 	var bottomBuffer = 50; 
@@ -156,47 +152,51 @@ function addTopText(element, data) {
 	var FILTER = data.core["FILTER"].value; 
 	var GT = data.core["GT"].value; 
 
+	var translationImpact = data.core["Translation Impact"].value; //missense, nonsense, etc. 
+
+	var geneRegion = data.core["Gene Region"].value; 
+	var geneSymbol = data.core["Gene Symbol"].value; 
+
+	var transcriptVariant = data.core["Transcript Variant"].value; 
+	var proteinVariant = data.core["Protein Variant"].value; 
+
 	//[words (or symbol), whether it should be bold or not]
-	var topWords = [[variationType, true], [" at ", false], [chromosome + ":" + position, true]];
-	var middleWords = [["QUAL ", false], [QUAL, true], [", FILTER ", false], [FILTER, true]]; 
+	var words1 = [[variationType, true], [" at ", false], [chromosome + ":" + position, true]];
+	var words2 = [["QUAL ", false], [QUAL, true], [", FILTER ", false], [FILTER, true]]; 
+	var words3 = [[translationImpact, true]]; 
+	var words4 = [[geneSymbol, true], [", ", false], [geneRegion, true]];
+	var words5 = [[transcriptVariant, true]];
+	var words6 = [[proteinVariant, true]];
 
-	d3.select(element)
-		.append("text")
-		.attr("class","top-top")
-		.attr("x", 100)
-		.attr("y", 100)
-		.attr("text-anchor", "middle")
-		.attr("dominant-baseline", "central") //centers text vertically at this y position
-		.attr("fill", "white")
-		.attr("font-size", "16px"); 
+	renderWords(words1, "1", 100, 0);
+	renderWords(words2, "2", 100, 20); 
+	renderWords(words3, "3", 100, 40);
+	renderWords(words4, "4", 100, 60); 	
+	renderWords(words5, "5", 100, 80); 
+	renderWords(words6, "6", 100, 100);
 
-	d3.select(element)
-		.select(".top-top")
-		.selectAll("tspan")
-		.data(topWords)
-		.enter()
-		.append("tspan")
-		.text((d, _) => d[0])
-		.attr("font-weight", (d, _) => d[1] ? "bold" : "normal"); 
+	function renderWords(words, id, x, y) {
 
-	d3.select(element)
-		.append("text")
-		.attr("class","top-middle")
-		.attr("x", 100)
-		.attr("y", 120)
-		.attr("text-anchor", "middle")
-		.attr("dominant-baseline", "central") //centers text vertically at this y position
-		.attr("fill", "white")
-		.attr("font-size", "16px")
+		d3.select(element)
+			.append("text")
+			.attr("class","words" + id)
+			.attr("x", x)
+			.attr("y", y)
+			.attr("text-anchor", "middle")
+			.attr("dominant-baseline", "central") //centers text vertically at this y position
+			.attr("fill", "white")
+			.attr("font-size", "16px"); 
 
-	d3.select(element)
-		.select(".top-middle")
-		.selectAll("tspan")
-		.data(middleWords)
-		.enter()
-		.append("tspan")
-		.text((d, _) => d[0])
-		.attr("font-weight", (d, _) => d[1] ? "bold" : "normal"); 
+		d3.select(element)
+			.select(".words" + id)
+			.selectAll("tspan")
+			.data(words)
+			.enter()
+			.append("tspan")
+			.text((d, _) => d[0])
+			.attr("font-weight", (d, _) => d[1] ? "bold" : "normal"); 
+
+	}
 
 }
 

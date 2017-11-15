@@ -2,6 +2,8 @@ var element, axisSpace, pathClicks, outerElement, data, variantData;
 
 $(function() {
 
+	hideDownloadButton(); 
+
 	var element = "#graphics";
 
 	axisSpace = 15;
@@ -35,6 +37,13 @@ $(function() {
 	$("input[type=radio]").change(function() { 
 		console.log('bantamweight');
 		data = renderVisualization(this.value == "stream", element, data)
+
+	});
+
+	$("#downloadLink").on("click", function(event) {
+
+		event.preventDefault(); 
+		downloadButtonClicked(); 
 
 	});
 
@@ -130,7 +139,7 @@ function parseCrudeSheet(sheet) {
 		"Phylop",
 		"MutationTaster",
 		"fathmm",
-		"Sift",
+		// "Sift",
 
 		//frequencies:: LOTS OF MISSING CELLS
 		"1000 Genomes Frequency", 
@@ -344,26 +353,27 @@ function parseValue(originalValue, column) {
 
 		return [scaleValue(normalizedValue), displayName, false];
 
-	} else if (column == "Sift") {
-
-		var displayName = "Sift";
-		var originalDomain = [0, 1];
-
-		if (isNaN(originalValue)) { 
-			return [0, displayName, true]; 
-		} 
-
-		var parsedValue = parseFloat(originalValue);
-
-		if (parsedValue < originalDomain[0] || parsedValue > originalDomain[1]) { 
-			return [0, displayName, true];
-		}
-
-		//Range 0 to 1 with values less than 0.05 usually considered intolerant. 40% of the values in this database are below 0.01.
-		var normalizedValue = zeroOneNormalizeValue(parsedValue, originalDomain, column, true);
-
-		return [scaleValue(normalizedValue), displayName, false];
 	}
+	// } else if (column == "Sift") {
+
+	// 	var displayName = "Sift";
+	// 	var originalDomain = [0, 1];
+
+	// 	if (isNaN(originalValue)) { 
+	// 		return [0, displayName, true]; 
+	// 	} 
+
+	// 	var parsedValue = parseFloat(originalValue);
+
+	// 	if (parsedValue < originalDomain[0] || parsedValue > originalDomain[1]) { 
+	// 		return [0, displayName, true];
+	// 	}
+
+	// 	//Range 0 to 1 with values less than 0.05 usually considered intolerant. 40% of the values in this database are below 0.01.
+	// 	var normalizedValue = zeroOneNormalizeValue(parsedValue, originalDomain, column, true);
+
+	// 	return [scaleValue(normalizedValue), displayName, false];
+	// }
 
 	//frequencies
 	//should all be in [0, 1]
