@@ -4,7 +4,7 @@ $(function() {
 
 	var element = "#graphics";
 
-	axisSpace = 15; 
+	axisSpace = 15;
 
 	$("#uploadLink").on("click", function(event) { // code run whenever #uploadLink is clicked
 
@@ -33,7 +33,7 @@ $(function() {
 	});
 
 	$("input[type=radio]").change(function() { 
-
+		console.log('bantamweight');
 		data = renderVisualization(this.value == "stream", element, data)
 
 	});
@@ -205,8 +205,10 @@ function parseCrudeSheet(sheet) {
 	}
 	
 	variantData = visualizationData; 
-
-	renderVisualization(false, "#graphics", visualizationData); //render the visualization
+	console.log(variantData);
+	downloadDataAsXls(variantData);
+	console.log('todayisTuesday')
+	data = renderVisualization(false, "#graphics", visualizationData); //render the visualization
 	hideSpinner(); 
 
 }
