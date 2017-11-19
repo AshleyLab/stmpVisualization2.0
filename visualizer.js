@@ -510,15 +510,13 @@ function shortNameForPopulation(populationColumnHeader) {
 
 function colorForAnnotation(datum, index, nSpiralAnnotations) { 
 
-	// console.log(arguments);
+	var presets = ["#20A39E","#98CE00","#FF715B","#F0386B","#93E5AB","#FB8B24","#0CCE6B","#3FA7D6","#FF1B1C","#26F0F1","#5F4BB6"]; 
 
-	// //make the gnomAD max frequency white 
-	// if (index + 1 == nSpiralAnnotations) {
-	// 	console.log("gnomAD");
-	// 	return "white";
-	// }
+	if (index > presets.length - 1) {
+		return "#" + Math.floor((index + 1) / (nSpiralAnnotations + 1 ) * 16777215).toString(16);
+	}
 
-	return "#" + Math.floor((index + 1) / (nSpiralAnnotations + 1 ) * 16777215).toString(16);
+	return presets[index]; 
 
 }
 
