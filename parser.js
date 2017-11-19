@@ -81,7 +81,6 @@ function parseXLS(XLS) {
 		}
 
 		downloadDataAsXls(workbook);
-		    
 		readWorkbook(workbook);
 
 	};
@@ -216,7 +215,7 @@ function parseCrudeSheet(sheet) {
 	variantData = visualizationData; 
 	console.log(variantData);
 	downloadDataAsXls(variantData);
-	console.log('todayisTuesday')
+	console.log("todayisTuesday")
 	data = renderVisualization(false, "#graphics", visualizationData); //render the visualization
 	hideSpinner(); 
 
@@ -285,14 +284,13 @@ function parseValue(originalValue, column) {
 			parsedValue = 28; 
 		}
 
-
 		var normalizedValue = zeroOneNormalizeValue(parsedValue, [1, 28], column, false);
 
 		return [scaleValue(normalizedValue), displayName, false];
 
 	} else if (column == "Phylop") {
 
-		//we use the mamilian phylop rankscore
+		//we use the mammalian phylop rankscore
 		//a rank score is always between 0 and 1 and a score of 0.9 means it is more likely to be damaging than 90% of all potential nsSNVs predicted by that method   https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4752381/
 
 		var displayName = "phyloP";
@@ -314,7 +312,7 @@ function parseValue(originalValue, column) {
 
 	} else if (column == "MutationTaster") {
 
-		//we use mutation taster converted rankscore.  1 is more damaging, 0 is less damaging, see phylop above for more details
+		//we use mutation taster converted rankscore: 1 is more damaging, 0 is less damaging—see phyloP above for more details
 		
 		var displayName = "MutationTaster"; 
 		var originalDomain = [0, 1];

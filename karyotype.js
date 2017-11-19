@@ -1,4 +1,3 @@
-
 var nPairs = 22; //autosomal only?
 var hoverColor = "#ff0000"; 
 var colorForSNPs = "#27A4A8"
@@ -8,6 +7,7 @@ function renderKaryotype(data, element) {
 
 	console.log(data);
 	var variants = $.map(data, v => [[v.core.Chromosome.value, v.core.Position.value]]);
+	var chromosomes = $.map(data, v => v.core.Chromosome.value);
 
 	var cytobands = getCytobandData();
 
@@ -19,8 +19,6 @@ function renderKaryotype(data, element) {
 	var xScale = d3.scaleLinear()
 		.domain([0, maxLength])
 		.range([0,  width]);
-
-	var includesY
 
 	drawCytobands(cytobands, element, xScale);
 	drawVariants(variants, element, xScale, data);  
@@ -292,13 +290,13 @@ function getNext(band) {
 
 function getCytobandsForChromosome(cytobands, chromosome) {
 
-	return cyts = $(cytobands).filter(function(index, element) { 
+	return $(cytobands).filter(function(index, element) { 
 		return element[0] === chromosome; 
 	});
 }
 
 function randomColor() { 
-	return '#'+Math.floor(Math.random()*16777215).toString(16);
+	return "#" + Math.floor(Math.random() * 16777215).toString(16);
 }
 
 function getLengths(cytobands) {

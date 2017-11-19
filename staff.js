@@ -41,8 +41,8 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 		.selectAll("*")
 		.remove(); 
 
-	var staffX = (width) * (3 / 5); 
 	//since text on left is longer than text on right, and to create a greater visual distinction between the staffgram and spiralgram
+	var staffX = (width) * (3 / 5); 
 
 	//draw the staff 
 	d3.select(element)
@@ -147,16 +147,10 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 
 }
 
-function strongSpan(text) {
-
-}
-
 function addTopText(element, data) {
 
 	var chromosome = data.core["Chromosome"].value; 
 	var position = data.core["Position"].value; 
-	var referenceAllele = data.core["Reference Allele"].value;
-	var sampleAllele = data.core["Sample Allele"].value;
 	var variationType = data.core["Variation Type"].value; 
 	var QUAL = data.core["QUAL"].value; 
 	var FILTER = data.core["FILTER"].value; 
@@ -215,21 +209,11 @@ function addTopText(element, data) {
 	function parseItem(item) { //returns [[realText, true], [notRealText, false]]
 		//don't bold "c.", ">", or ";"
 
-		console.log(item);
-
 		var chars = item.split(""); 
 		var junkChars = [".",">",";",":",",", "c", "p"];
 
 		return  $.map(chars, (c, i) => {
-
-			if ($.inArray(c, junkChars) !== -1) { 
-
-				return [[c, false]]; 
-
-			}
-
-			return [[c, true]];
-
+			return [[c, $.inArray(c, junkChars) === -1]]
 		}); 
 
 	}
@@ -247,6 +231,7 @@ function renderBlocks(left, right, element, y, colorer) {
 	var refStartX = $(element).width() / 2 - separation / 2 - width; 
 	var altStartX = $(element).width() / 2 + separation / 2; 
 
+	//add blocks
 	d3.select(element)
 		.append("rect")
 		.attr("x", refStartX)

@@ -333,7 +333,7 @@ function renderSpiralgram(data, element) {
 
 				if (i == 2) {
 
-					return colorForChromosome(d)
+					return colorForChromosome(d);
 
 				} else { 
 
@@ -362,16 +362,12 @@ function renderSpiralgram(data, element) {
 
 				} else { 
 
-					console.log("finding fill for " + d + ": " + i); 
-
 					if (d == 0) {
 						return d3.select(this)
 							.attr("fill", "black")
 					}
 
 					var fill = colorForProteinVariantData(d, i == 1);
-
-					console.log(fill);
 
 					d3.select(this)
 						.attr("fill", fill);
@@ -392,14 +388,9 @@ function renderSpiralgram(data, element) {
 
 		var trackWidth = outerRadius - innerRadius; 
 
-		// var rotationScale = d3.scaleLinear()
-		// 	.domain([0, nVariants])
-		// 	.range([0, Math.PI * 2]);
-
 		var gRotationScale = d3.scaleLinear()
 			.domain([0, nVariants])
 			.range([0, 360]);
-
 
 		var angularWidth = Math.PI * 2 / (nVariants * 3); 
 
@@ -574,13 +565,9 @@ function drawPedigree(gt, element) {
 		.attr("d", () => {
 
 			var d = "M " + diamondCenterX + " " + (diamondCenterY - radius) + " "; 
-
 				d += "l " + radius + " " + radius + " "; 
-
 				d += "l " + -radius + " " + radius + " "; 
-
 				d += "l " + -radius + " " + -radius + " "; 
-
 				d += "Z";
 
 			return d;	
@@ -711,9 +698,7 @@ function colorForGenotype(genotype) {
 function getGenotypes() {
 
 	return $.map(variantData, (variant, index) => {
-
 		return [parseGenotype(variant.core["GT"].value)];
-
 	}); 
 
 }
