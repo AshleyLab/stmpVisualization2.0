@@ -17,7 +17,7 @@ function renderSpiralgram(data, element) {
 
 	var nSpindleColumns = spindleColumns.length; 
 
-	var trackColumns = ["Reference Allele", "Sample Allele", "Chromosome"];
+	var trackColumns = ["Reference Allele", "Sample Allele"];
 	var nTrackColumns = trackColumns.length; 
 
 	var width = $(element).width(); 
@@ -108,7 +108,7 @@ function renderSpiralgram(data, element) {
 			.attr("y2", maxRadius)
 			.attr("x2", 0)
 			.attr("class", "spindle")
-			.attr("stroke", colorForSpindle)
+			// .attr("stroke", colorForSpindle)
 			.attr("stroke-width", 2)
 			.attr("data-clicked", 0) //0 is falsey
 			.on("mouseover", function(d, i) {
@@ -148,7 +148,23 @@ function renderSpiralgram(data, element) {
 
 				renderStaff(data, i, "#staffElement", "#spiralElement");
 
+			}).attr("stroke", function() { 
+
+				var vI = d3.select(this).attr("variant-index"); 
+				var chromosome = data[vI].core["Chromosome"].value; 
+
+				return colorForSpindleWithChromosome(chromosome); 
+
 			}); 
+
+		function colorForSpindleWithChromosome(c) { 
+
+			if (!isNaN(c)) {
+				return "white"; 
+			}
+
+			return "red";
+		}
 
 		var cyScale = d3.scaleLinear()
 			.domain([0, spindleData[0].length - 1])
@@ -250,12 +266,12 @@ function renderSpiralgram(data, element) {
 
 	function addTracks() { 
 
-		var trackColumns = ["Protein Variant", "Protein Variant", "Chromosome"];
+		var trackColumns = ["Protein Variant", "Protein Variant"];
 
 		var innerRadius = Math.min(width, height) / 2 - outerBuffer - tracksWidth + spindlesToTracksBuffer; 
 		var outerRadius = Math.min(width, height) / 2 - outerBuffer;    
 
-		var nTracks = 3; 
+		var nTracks = trackColumns.length; 
 
 		var trackWidth = (outerRadius - innerRadius) / nTracks; 
 
@@ -264,9 +280,7 @@ function renderSpiralgram(data, element) {
 			.range([innerRadius, outerRadius]);
 
 		var trackData = $.map(data, variant => 
-
 			[$.map(trackColumns, column => variant.core[column].value)]
-
 		); 
 
 		console.log(trackData); 

@@ -138,12 +138,12 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 
 	var ref = data[variantIndex].core["Reference Allele"].value; 
 	var alt = data[variantIndex].core["Sample Allele"].value; 
-	renderBlocks(ref, alt, element, 160, colorForNucleotide); 
+	renderBlocks(ref, alt, element, 150, colorForNucleotide); 
 
 	var proteinVariant = data[variantIndex].core["Protein Variant"].value; 
 	var refProtein = getAcidSymbolFromProteinVariantData(proteinVariant, true);
 	var altProtein = getAcidSymbolFromProteinVariantData(proteinVariant, false);
-	renderBlocks(refProtein, altProtein, element, 180, colorForAcidSymbol)
+	renderBlocks(refProtein, altProtein, element, 175, colorForAcidSymbol)
 
 }
 
@@ -215,6 +215,8 @@ function addTopText(element, data) {
 	function parseItem(item) { //returns [[realText, true], [notRealText, false]]
 		//don't bold "c.", ">", or ";"
 
+		console.log(item);
+
 		var chars = item.split(""); 
 		var junkChars = [".",">",";",":",",", "c", "p"];
 
@@ -236,8 +238,6 @@ function addTopText(element, data) {
 
 //render visualizations of other features (genotypes, nucleotides? amino acid change?, ...) that are available in the spiralgram in the staffgram
 function renderBlocks(left, right, element, y, colorer) {
-
-	console.log("rendering staff blocks")
 
 	var width = 40; 
 	var height = 20; 
