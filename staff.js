@@ -135,6 +135,8 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 
 	addTopText(element, data[variantIndex]); 
 	addBottomText(element, data[variantIndex]);
+
+	renderStaffNucleotides(data[variantIndex], element)
 }
 
 function strongSpan(text) {
@@ -161,19 +163,23 @@ function addTopText(element, data) {
 	var proteinVariant = data.core["Protein Variant"].value; 
 
 	//[words (or symbol), whether it should be bold or not]
-	var words1 = [[variationType, true], [" at ", false], [chromosome + ":" + position, true]];
+	var words1 = [[variationType, true], [" at ", false], [chromosome, true], [":", false], [position, true]];
 	var words2 = [["QUAL ", false], [QUAL, true], [", FILTER ", false], [FILTER, true]]; 
 	var words3 = [[translationImpact, true]]; 
 	var words4 = [[geneSymbol, true], [", ", false], [geneRegion, true]];
-	var words5 = [[transcriptVariant, true]];
-	var words6 = [[proteinVariant, true]];
+	var words5 = parseItem(transcriptVariant); 
+	var words6 = parseItem(proteinVariant); 
 
-	renderWords(words1, "1", 100, 0);
-	renderWords(words2, "2", 100, 20); 
-	renderWords(words3, "3", 100, 40);
-	renderWords(words4, "4", 100, 60); 	
-	renderWords(words5, "5", 100, 80); 
-	renderWords(words6, "6", 100, 100);
+	var x = $(element).width() / 2; 
+	var startY = 20; 
+	var yStep = 20; 
+
+	renderWords(words1, "1", x, startY);
+	renderWords(words2, "2", x, startY + 1 * yStep); 
+	renderWords(words3, "3", x, startY + 2 * yStep);
+	renderWords(words4, "4", x, startY + 3 * yStep); 	
+	renderWords(words5, "5", x, startY + 4 * yStep); 
+	renderWords(words6, "6", x, startY + 5 * yStep);
 
 	function renderWords(words, id, x, y) {
 
@@ -198,10 +204,101 @@ function addTopText(element, data) {
 
 	}
 
+	function parseItem(item) { //returns [[realText, true], [notRealText, false]]
+		//don't bold "c.", ">", or ";"
+
+		var chars = item.split(""); 
+		var junkChars = [".",">",";",":",",", "c", "p"];
+
+		return  $.map(chars, (c, i) => {
+
+			if ($.inArray(c, junkChars) !== -1) { 
+
+				return [[c, false]]; 
+
+			}
+
+			return [[c, true]];
+
+		}); 
+
+	}
+
 }
 
 //render visualizations of other features (genotypes, nucleotides? amino acid change?, ...) that are available in the spiralgram in the staffgram
-function renderStaffNucleotides() {
+function renderStaffNucleotides(data, element) {
+
+	console.log("rendering staff nucleotides")
+
+	var reference = data.core["Reference Allele"].value;
+	var alternate = data.core["Sample Allele"].value;
+
+	var y = 160; 
+	var width = 40; 
+	var height = 20; 
+	var separation = 20; 
+	var roundingRadius = 10; 
+
+	var refStartX = $(element).width() / 2 - separation / 2 - width; 
+	var altStartX = $(element).width() / 2 + separation / 2; 
+
+	d3.select(element)
+		.append("rect")
+		.attr("x", refStartX)
+		.attr("y", y)
+		.attr("width", width)
+		.attr("height", height)
+		.attr("rx", roundingRadius)
+		.attr("ry", roundingRadius)
+		.attr("fill", colorForNucleotide(reference));
+
+	d3.select(element)
+		.append("rect")
+		.attr("x", altStartX)
+		.attr("y", y)
+		.attr("width", width)
+		.attr("height", height)
+		.attr("rx", roundingRadius)
+		.attr("ry", roundingRadius)
+		.attr("fill", colorForNucleotide(alternate));
+
+	//add letters
+	d3.select(element)
+		.append("text")
+		.attr("class","ref")
+		.attr("x", refStartX + width / 2)
+		.attr("y", y + height / 2)
+		.attr("text-anchor", "middle")
+		.attr("dominant-baseline", "central") //centers text vertically at this y position
+		.attr("fill", "white")
+		.attr("font-size", "16px")
+		.text(reference);
+
+	d3.select(element)
+		.append("text")
+		.attr("class","alt")
+		.attr("x", altStartX + width / 2) 
+		.attr("y", y + height / 2)
+		.attr("text-anchor", "middle")
+		.attr("dominant-baseline", "central") //centers text vertically at this y position
+		.attr("fill", "white")
+		.attr("font-size", "16px")
+		.text(alternate);
+
+	var arrow = "➞";
+
+	//add arrow
+	d3.select(element)
+		.append("text")
+		.attr("class","arrow")
+		.attr("x", $(element).width() / 2)
+		.attr("y", y + height / 2)
+		.attr("text-anchor", "middle")
+		.attr("dominant-baseline", "central") //centers text vertically at this y position
+		.attr("fill", "white")
+		.attr("font-size", "16px")
+		.text(arrow);
 
 }
 

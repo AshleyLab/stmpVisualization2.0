@@ -323,19 +323,11 @@ function renderSpiralgram(data, element) {
 
 				} else { 
 
-					console.log("finding fill for " + d + ": " + i); 
-
 					if (d == 0) {
 						return "black";
 					}
 
-					var fill = colorForProteinVariantData(d, i == 1);
-
-					console.log(fill);
-
-					return fill; 
-
-					// return colorForNucleotide(d);
+					return colorForProteinVariantData(d, i == 1);
 
 				}
 
@@ -607,8 +599,6 @@ function drawPedigree(gt, element) {
 }
 
 function colorForProteinVariantData(proteinVariant, getRef) {
-
-	console.log(proteinVariant);
 
 	var aminoAcids = proteinVariant.replace("p.", "") //remove "p."s
 								   .replace(/\d+/, "") //remove positions
