@@ -598,6 +598,47 @@ function drawPedigree(gt, element) {
 		.attr("stroke-radius", 5);
 }
 
+function getAcidSymbolFromProteinVariantData(proteinVariant, getRef) {
+
+	var aminoAcids = proteinVariant.replace("p.", "") //remove "p."s
+								   .replace(/\d+/, "") //remove positions
+								   .split(";");
+
+	var tuples = $.map(aminoAcids, (aA, index) => { 
+		return aA[getRef ? 0 : 1];
+	}); 
+
+	return tuples[0]; //still don't know what to do with multiple protein variants
+
+}
+
+function colorForAcidSymbol(symbol) {
+
+	var colors = {
+		"#20A39E" : ["A", "G", "I", "L", "P", "V"], //Ala, Gly, Ile, Leu, Pro, VaL: Aliphatic
+		"#98CE00" : ["F", "W", "Y"], //Phe, Trp Tyr: Aromatic
+		"#FF715B" : ["D", "E"], //Asp, Glu: Acidic
+		"#F0386B" : ["R", "H", "K"], //Arg, His, Lys: Basic
+		"#93E5AB" : ["S", "T"], //Ser, Thr: Hydroxylic
+		"#FB8B24" : ["C", "M"], //Cys, Met: Sulfur-containing
+		"#FB8B24" : ["N", "Q"], //Asn, Gln: Amidic
+		"red" : ["*", "Stop"] //Stop
+	};
+
+	var color = "black";
+
+	$.each(colors, function(key, value) {
+
+		if ($.inArray(symbol, value) !== -1) { 
+			color = key; 
+		} 
+
+	});
+
+	return color; 
+
+}
+
 function colorForProteinVariantData(proteinVariant, getRef) {
 
 	var aminoAcids = proteinVariant.replace("p.", "") //remove "p."s
@@ -617,7 +658,7 @@ function colorForProteinVariantData(proteinVariant, getRef) {
 		"#FB8B24" : ["C", "M"], //Cys, Met: Sulfur-containing
 		"#FB8B24" : ["N", "Q"], //Asn, Gln: Amidic
 		"red" : ["*", "Stop"] //Stop
-	}
+	};
 
 	var chosenAcid = tuples[0];
 	var color = "black";

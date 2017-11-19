@@ -136,7 +136,15 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 	addTopText(element, data[variantIndex]); 
 	addBottomText(element, data[variantIndex]);
 
-	renderStaffNucleotides(data[variantIndex], element)
+	var ref = data[variantIndex].core["Reference Allele"].value; 
+	var alt = data[variantIndex].core["Sample Allele"].value; 
+	renderBlocks(ref, alt, element, 160, colorForNucleotide); 
+
+	var proteinVariant = data[variantIndex].core["Protein Variant"].value; 
+	var refProtein = getAcidSymbolFromProteinVariantData(proteinVariant, true);
+	var altProtein = getAcidSymbolFromProteinVariantData(proteinVariant, false);
+	renderBlocks(refProtein, altProtein, element, 180, colorForAcidSymbol)
+
 }
 
 function strongSpan(text) {
@@ -227,14 +235,10 @@ function addTopText(element, data) {
 }
 
 //render visualizations of other features (genotypes, nucleotides? amino acid change?, ...) that are available in the spiralgram in the staffgram
-function renderStaffNucleotides(data, element) {
+function renderBlocks(left, right, element, y, colorer) {
 
-	console.log("rendering staff nucleotides")
+	console.log("rendering staff blocks")
 
-	var reference = data.core["Reference Allele"].value;
-	var alternate = data.core["Sample Allele"].value;
-
-	var y = 160; 
 	var width = 40; 
 	var height = 20; 
 	var separation = 20; 
@@ -251,7 +255,7 @@ function renderStaffNucleotides(data, element) {
 		.attr("height", height)
 		.attr("rx", roundingRadius)
 		.attr("ry", roundingRadius)
-		.attr("fill", colorForNucleotide(reference));
+		.attr("fill", colorer(left));
 
 	d3.select(element)
 		.append("rect")
@@ -261,7 +265,7 @@ function renderStaffNucleotides(data, element) {
 		.attr("height", height)
 		.attr("rx", roundingRadius)
 		.attr("ry", roundingRadius)
-		.attr("fill", colorForNucleotide(alternate));
+		.attr("fill", colorer(right));
 
 	//add letters
 	d3.select(element)
@@ -273,7 +277,7 @@ function renderStaffNucleotides(data, element) {
 		.attr("dominant-baseline", "central") //centers text vertically at this y position
 		.attr("fill", "white")
 		.attr("font-size", "16px")
-		.text(reference);
+		.text(left);
 
 	d3.select(element)
 		.append("text")
@@ -284,7 +288,7 @@ function renderStaffNucleotides(data, element) {
 		.attr("dominant-baseline", "central") //centers text vertically at this y position
 		.attr("fill", "white")
 		.attr("font-size", "16px")
-		.text(alternate);
+		.text(right);
 
 	var arrow = "➞";
 
