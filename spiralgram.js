@@ -615,28 +615,34 @@ function getAcidSymbolFromProteinVariantData(proteinVariant, getRef) {
 
 function colorForAcidSymbol(symbol) {
 
-	var colors = {
-		"#20A39E" : ["A", "G", "I", "L", "P", "V"], //Ala, Gly, Ile, Leu, Pro, VaL: Aliphatic
-		"#98CE00" : ["F", "W", "Y"], //Phe, Trp Tyr: Aromatic
-		"#FF715B" : ["D", "E"], //Asp, Glu: Acidic
-		"#F0386B" : ["R", "H", "K"], //Arg, His, Lys: Basic
-		"#93E5AB" : ["S", "T"], //Ser, Thr: Hydroxylic
-		"#FB8B24" : ["C", "M"], //Cys, Met: Sulfur-containing
-		"#FB8B24" : ["N", "Q"], //Asn, Gln: Amidic
-		"red" : ["*", "Stop"] //Stop
-	};
-
-	var color = "black";
-
-	$.each(colors, function(key, value) {
-
-		if ($.inArray(symbol, value) !== -1) { 
-			color = key; 
-		} 
-
-	});
-
-	return color; 
+	return {
+		"A":"#00ffd4",
+		"I":"#00ffee",
+		"L":"#00e1ff",
+		"G":"#00c8ff",
+		"P":"#00aaff",
+		"V":"#0077ff",
+		"":"",
+		"F":"#2aff00",
+		"W":"#00ff55",
+		"Y":"#00ff7b",
+		"":"",
+		"D":"#aa00ff",
+		"E":"#d500ff",
+		"":"",
+		"K":"#bbff00",
+		"H":"#99ff00",
+		"R":"#80ff00",
+		"":"",
+		"S":"#6600ff",
+		"T":"#8000ff",
+		"":"",
+		"C":"#ff00b3",
+		"M":"#ff0088",
+		"":"",
+		"N":"#ff8000",
+		"Q":"#ffb300"
+	}[symbol];
 
 }
 
@@ -650,31 +656,9 @@ function colorForProteinVariantData(proteinVariant, getRef) {
 		return aA[getRef ? 0 : 1];
 	}); 
 
-	var colors = {
-		"#20A39E" : ["A", "G", "I", "L", "P", "V"], //Ala, Gly, Ile, Leu, Pro, VaL: Aliphatic
-		"#98CE00" : ["F", "W", "Y"], //Phe, Trp Tyr: Aromatic
-		"#FF715B" : ["D", "E"], //Asp, Glu: Acidic
-		"#F0386B" : ["R", "H", "K"], //Arg, His, Lys: Basic
-		"#93E5AB" : ["S", "T"], //Ser, Thr: Hydroxylic
-		"#FB8B24" : ["C", "M"], //Cys, Met: Sulfur-containing
-		"#FB8B24" : ["N", "Q"], //Asn, Gln: Amidic
-		"red" : ["*", "Stop"] //Stop
-	};
-
 	var chosenAcid = tuples[0];
-	var color = "black";
-
-	$.each(colors, function(key, value) {
-
-		if ($.inArray(chosenAcid, value) !== -1) { 
-			color = key; 
-		} 
-
-	});
-
-	return color; 
-
-	// console.log(tuples);
+	
+	return colorForAcidSymbol(chosenAcid);
 
 }
 
