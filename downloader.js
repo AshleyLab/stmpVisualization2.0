@@ -1,7 +1,7 @@
 function downloadButtonClicked() { 
 
 	console.log("downloadButtonClicked called");
-
+	downloadDataAsXls(variantData);
 }
 
 function s2ab(s) {
@@ -33,7 +33,16 @@ function convertVariantDataToWorkbook(vData) {
 			row[col] = vData[i]["core"][col]["originalValue"] //should it be the variable original value
 		}
 
-		arr.push(row); 
+		row['notes']= (vData[i]['metadata']['workflow']['notes']) //write the notes
+		//write the deletion stats: TODO find a way to gray out the entire row
+		if(vData[i]['metadata']['workflow']['deleted'] == true){
+			row['curationStatus'] = 'deleted'
+		}
+		else{
+			row['curationStatus'] = 'no'
+		}
+		
+		arr.push(row)
 	}
 
 	var cols = []; //get the columns for the spreadsheet
