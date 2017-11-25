@@ -156,6 +156,17 @@ svg.starplot {
 	display: none;
 }
 
+/*added by noah*/
+#notesTextBox {
+  width:205px;
+  height: 100px;
+}
+
+#deleteVariant {
+  width:145px;
+  height: 10px;
+}
+
 #visualizer { 
     border: 0px solid white;
     border-top-width: 4px;
