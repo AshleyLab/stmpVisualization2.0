@@ -117,6 +117,8 @@ function renderSpiralgram(data, element) {
 					.attr("stroke", highlightForSpindle);
 
 				renderStaff(data, i, "#staffElement", "#spiralElement"); 
+				renderTextBox(i)
+				renderDeleteButton(i)
 
 			}).on("mouseout", function(d, i) {
 
