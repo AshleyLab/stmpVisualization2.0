@@ -80,7 +80,6 @@ function parseXLS(XLS) {
 
 		}
 
-		downloadDataAsXls(workbook);
 		readWorkbook(workbook);
 
 	};
@@ -181,7 +180,9 @@ function parseCrudeSheet(sheet) {
 					"nClicks" : 0
 				}, "workflow": { 
 					"curationMode" : "sheetname", 
-					"notes" : "notes"
+					"notes" : "",
+					"deleted": false,
+					"deletionReason": ""
 				}
 			}
 		}; 
@@ -213,8 +214,6 @@ function parseCrudeSheet(sheet) {
 	}
 	
 	variantData = visualizationData; 
-	console.log(variantData);
-	downloadDataAsXls(variantData);
 	console.log("todayisTuesday")
 	data = renderVisualization(false, "#graphics", visualizationData); //render the visualization
 	hideSpinner(); 
