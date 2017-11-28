@@ -183,6 +183,43 @@ function addTopText(element, data) {
 	renderWords(words5, "5", x, startY + 4 * yStep); 
 	renderWords(words6, "6", x, startY + 5 * yStep);
 
+	function colorVariantTag(element, textData, textElement, id, colorer, toHighlight) {
+
+		var indices = textData.split("")
+							  .map((c, i) => $.inArray(c, toHighlight) !== -1 ? [c, i] : [c, -1])
+							  .filter((d, _) => d[1] >= 0); 
+
+		var tE = document.getElementsByClassName(textElement)[0];
+
+		var rects = $.map(indices, (d, _) => {
+
+			var svgRect = tE.getExtentOfChar(d[1]); 
+			return [[svgRect.x, svgRect.y, svgRect.width, svgRect.height, d[0]]];
+
+		});
+
+		d3.select(element)
+			.append("g")
+			.attr("class","wordsHighlight" + id)
+			.selectAll("text")
+			.data(rects)
+			.enter()
+			.append("rect")
+			.attr("x", (d, i) => { console.log(d); return d[0]})
+			.attr("y", (d, i) => d[1])
+			.attr("width", (d, i) => d[2])
+			.attr("height", (d, i) => d[3])
+			.attr("fill", (d, i) => colorer(d[4]));
+
+	}
+
+	colorVariantTag(element, transcriptVariant, "words5", "5", colorForNucleotide, ["A","T","C","G","U"]);
+	renderWords(words5, "5-2", x, startY + 4 * yStep); //so text is on top
+
+	var acidSymbols = ["A","I","L","G","P","V","F","W","Y","D","E","K","H","R","S","T","C","M","N","Q"];
+	colorVariantTag(element, proteinVariant, "words6", "6", colorForAcidSymbol, acidSymbols); 
+	renderWords(words6, "6-2", x, startY + 5 * yStep);
+
 	function renderWords(words, id, x, y) {
 
 		d3.select(element)
@@ -212,7 +249,7 @@ function addTopText(element, data) {
 		var chars = item.split(""); 
 		var junkChars = [".",">",";",":",",", "c", "p"];
 
-		return  $.map(chars, (c, i) => {
+		return $.map(chars, (c, i) => {
 			return [[c, $.inArray(c, junkChars) === -1]]
 		}); 
 
