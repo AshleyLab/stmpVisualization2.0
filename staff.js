@@ -164,6 +164,15 @@ function addTopText(element, data) {
 	var transcriptVariant = data.core["Transcript Variant"].value; 
 	var proteinVariant = data.core["Protein Variant"].value; 
 
+	var tVChars = ["A","T","C","G","U"]; 
+	transcriptVariant = spaceify(transcriptVariant, tVChars);
+	console.log(transcriptVariant);
+
+	var pVChars = ["A","I","L","G","P","V","F","W","Y","D","E","K","H","R","S","T","C","M","N","Q"]
+	proteinVariant = spaceify(proteinVariant, pVChars);
+	console.log(pVChars);
+
+
 	//[words (or symbol), whether it should be bold or not]
 	var words1 = [[variationType, true], [" at ", false], [chromosome, true], [":", false], [position, true]];
 	var words2 = [["QUAL ", false], [QUAL, true], [", FILTER ", false], [FILTER, true]]; 
@@ -176,6 +185,19 @@ function addTopText(element, data) {
 	var startY = 20; 
 	var yStep = 20; 
 
+	function spaceify(text, chars) {
+		//add spaces around any occurences of specified chars in given text
+
+		return $.map(text.split(""), (c, _) => {
+
+			if ($.inArray(c, chars) === -1) { 
+				return c; 
+			} 
+
+			return [" ", c, " "];
+
+		}).join("")
+	}
 	renderWords(words1, "1", x, startY);
 	renderWords(words2, "2", x, startY + 1 * yStep); 
 	renderWords(words3, "3", x, startY + 2 * yStep);
@@ -205,7 +227,7 @@ function addTopText(element, data) {
 			.data(rects)
 			.enter()
 			.append("rect")
-			.attr("x", (d, i) => { console.log(d); return d[0]})
+			.attr("x", (d, i) => d[0])
 			.attr("y", (d, i) => d[1])
 			.attr("width", (d, i) => d[2])
 			.attr("height", (d, i) => d[3])
@@ -213,11 +235,10 @@ function addTopText(element, data) {
 
 	}
 
-	colorVariantTag(element, transcriptVariant, "words5", "5", colorForNucleotide, ["A","T","C","G","U"]);
+	colorVariantTag(element, transcriptVariant, "words5", "5", colorForNucleotide, tVChars);
 	renderWords(words5, "5-2", x, startY + 4 * yStep); //so text is on top
 
-	var acidSymbols = ["A","I","L","G","P","V","F","W","Y","D","E","K","H","R","S","T","C","M","N","Q"];
-	colorVariantTag(element, proteinVariant, "words6", "6", colorForAcidSymbol, acidSymbols); 
+	colorVariantTag(element, proteinVariant, "words6", "6", colorForAcidSymbol, pVChars); 
 	renderWords(words6, "6-2", x, startY + 5 * yStep);
 
 	function renderWords(words, id, x, y) {
