@@ -204,8 +204,8 @@ function addTopText(element, data) {
 	renderWords(words2, "2", x, startY + 1 * yStep); 
 	renderWords(words3, "3", x, startY + 2 * yStep);
 	renderWords(words4, "4", x, startY + 3 * yStep); 	
-	renderWords(words5, "5", x, startY + 6 * yStep); 
-	renderWords(words6, "6", x, startY + 7 * yStep);
+	renderWords(words5, "5", x, startY + 7 * yStep); 
+	renderWords(words6, "6", x, startY + 8 * yStep);
 
 	function colorVariantTag(element, textData, textElement, id, colorer, toHighlight) {
 
@@ -243,10 +243,10 @@ function addTopText(element, data) {
 	}
 
 	colorVariantTag(element, transcriptVariant, "words5", "5", colorForNucleotide, tVChars);
-	renderWords(words5, "5-2", x, startY + 6 * yStep); //so text is on top
+	renderWords(words5, "5-2", x, startY + 7 * yStep); //so text is on top
 
 	colorVariantTag(element, proteinVariant, "words6", "6", colorForAcidSymbol, pVChars); 
-	renderWords(words6, "6-2", x, startY + 7 * yStep);
+	renderWords(words6, "6-2", x, startY + 8 * yStep);
 
 	function renderWords(words, id, x, y) {
 
