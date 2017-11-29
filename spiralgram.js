@@ -441,7 +441,7 @@ function renderSpiralgram(data, element) {
 
 				var gt = getOriginalValue(vI, "GT");
 
-				drawPedigree(gt, element);
+				drawPedigree(gt, element, true);
 
 			}).on("mouseout", () => {
 
@@ -512,7 +512,7 @@ function renderSpiralgram(data, element) {
 	
 }
 
-function drawPedigree(gt, element) { 
+function drawPedigree(gt, element, isSpiral) { 
 
 	var parsed = parseGenotype(gt); 
 
@@ -527,6 +527,11 @@ function drawPedigree(gt, element) {
 	//this should be the halfway point of the vertical line that connects the proband and the parents line
 	var centerX = $(element).width() / 2; 
 	var centerY = $(element).height() / 2; 
+
+	if (!isSpiral) {
+		centerX = 350; 
+		centerY = 50; 
+	}
 
 	//draw a square for the father
 	var squareCenterX = centerX - radius * 2; 

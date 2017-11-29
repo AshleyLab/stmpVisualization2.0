@@ -30,7 +30,7 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 	});
 
 	//space between top and bottom of staff and top and bottom of SVG
-	var bottomBuffer = 50; 
+	var bottomBuffer = 100; 
 	var topBuffer = 200; 
 
 	var verticalScale = d3.scaleLinear()
@@ -144,6 +144,8 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 	// var refProtein = getAcidSymbolFromProteinVariantData(proteinVariant, true);
 	// var altProtein = getAcidSymbolFromProteinVariantData(proteinVariant, false);
 	// renderBlocks(refProtein, altProtein, element, 175, colorForAcidSymbol)
+
+	renderStaffPedigree(data, variantIndex, element);
 
 }
 
@@ -365,7 +367,11 @@ function renderBlocks(left, right, element, y, colorer) {
 
 }
 
-function renderStaffPedigree() {
+function renderStaffPedigree(data, variantIndex, element) {
+
+	var gt = getOriginalValue(variantIndex, "GT");
+
+	drawPedigree(gt, element, false);
 
 }
 
