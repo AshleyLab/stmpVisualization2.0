@@ -53,6 +53,9 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 		.attr("y2", verticalScale(staffData.length - 1))
 		.attr("stroke", colorForSpindle); 
 
+	var minKnownRadius = 3;
+	var maxRadius = 10;  
+
 	//draw the circles on the staff
 	d3.select(element)
 		.append("g")
@@ -63,7 +66,16 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 		.append("circle")
 		.attr("cx", staffX)
 		.attr("cy", (_, i) => verticalScale(i))
-		.attr("r", (d, i) => d * 10)
+		.attr("r", (d, i) => {
+
+			var iM = getIsMissing(variantIndex, columns[i])
+			if (iM) {
+				return 0; 
+			}
+
+			return Math.max(d * maxRadius, minKnownRadius); 
+
+		})
 		.attr("data-index", (_, i) => i) //the index that each datum is (can get lost in d3 selection)
 		.attr("fill", (d, i) => colorForAnnotation(d, i, nColumns))
 		.on("mouseenter", function(d, i) {
