@@ -138,12 +138,12 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 
 	var ref = data[variantIndex].core["Reference Allele"].value; 
 	var alt = data[variantIndex].core["Sample Allele"].value; 
-	renderBlocks(ref, alt, element, 150, colorForNucleotide); 
+	renderBlocks(ref, alt, element, 105, colorForNucleotide); 
 
-	var proteinVariant = data[variantIndex].core["Protein Variant"].value; 
-	var refProtein = getAcidSymbolFromProteinVariantData(proteinVariant, true);
-	var altProtein = getAcidSymbolFromProteinVariantData(proteinVariant, false);
-	renderBlocks(refProtein, altProtein, element, 175, colorForAcidSymbol)
+	// var proteinVariant = data[variantIndex].core["Protein Variant"].value; 
+	// var refProtein = getAcidSymbolFromProteinVariantData(proteinVariant, true);
+	// var altProtein = getAcidSymbolFromProteinVariantData(proteinVariant, false);
+	// renderBlocks(refProtein, altProtein, element, 175, colorForAcidSymbol)
 
 }
 
@@ -171,7 +171,6 @@ function addTopText(element, data) {
 	var pVChars = ["A","I","L","G","P","V","F","W","Y","D","E","K","H","R","S","T","C","M","N","Q"]
 	proteinVariant = spaceify(proteinVariant, pVChars);
 	console.log(pVChars);
-
 
 	//[words (or symbol), whether it should be bold or not]
 	var words1 = [[variationType, true], [" at ", false], [chromosome, true], [":", false], [position, true]];
@@ -203,8 +202,8 @@ function addTopText(element, data) {
 	renderWords(words2, "2", x, startY + 1 * yStep); 
 	renderWords(words3, "3", x, startY + 2 * yStep);
 	renderWords(words4, "4", x, startY + 3 * yStep); 	
-	renderWords(words5, "5", x, startY + 4 * yStep); 
-	renderWords(words6, "6", x, startY + 5 * yStep);
+	renderWords(words5, "5", x, startY + 6 * yStep); 
+	renderWords(words6, "6", x, startY + 7 * yStep);
 
 	function colorVariantTag(element, textData, textElement, id, colorer, toHighlight) {
 
@@ -213,8 +212,6 @@ function addTopText(element, data) {
 							  .filter((d, _) => d[1] >= 0); 
 
 		var tE = document.getElementsByClassName(textElement)[0];
-
-		console.log(indices);
 
 		var rects = $.map(indices, (d, _) => {
 
@@ -228,7 +225,7 @@ function addTopText(element, data) {
 
 		d3.select(element)
 			.append("g")
-			.attr("class","wordsHighlight" /*+ id*/)
+			.attr("class","wordsHighlight" + id)
 			.selectAll("text")
 			.data(rects)
 			.enter()
@@ -244,10 +241,10 @@ function addTopText(element, data) {
 	}
 
 	colorVariantTag(element, transcriptVariant, "words5", "5", colorForNucleotide, tVChars);
-	renderWords(words5, "5-2", x, startY + 4 * yStep); //so text is on top
+	renderWords(words5, "5-2", x, startY + 6 * yStep); //so text is on top
 
 	colorVariantTag(element, proteinVariant, "words6", "6", colorForAcidSymbol, pVChars); 
-	renderWords(words6, "6-2", x, startY + 5 * yStep);
+	renderWords(words6, "6-2", x, startY + 7 * yStep);
 
 	function renderWords(words, id, x, y) {
 
@@ -274,11 +271,10 @@ function addTopText(element, data) {
 
 	}
 
-	function parseItem(item) { //returns [[realText, true], [notRealText, false]]
-		//don't bold "c.", ">", or ";"
+	function parseItem(item) { //returns [[realText, true], [notRealText, false]] where boolean gives whether should be bolded
 
 		var chars = item.split(""); 
-		var junkChars = [".",">",";",":",",", "c", "p"];
+		var junkChars = [".",">",";",":",",", "c", "p"]; //don't bold these
 
 		return $.map(chars, (c, i) => {
 			return [[c, $.inArray(c, junkChars) === -1]]
@@ -288,7 +284,7 @@ function addTopText(element, data) {
 
 }
 
-//render visualizations of other features (genotypes, nucleotides? amino acid change?, ...) that are available in the spiralgram in the staffgram
+//render ref and alt amino acids
 function renderBlocks(left, right, element, y, colorer) {
 
 	var width = 40; 
@@ -343,19 +339,29 @@ function renderBlocks(left, right, element, y, colorer) {
 		.attr("font-size", "16px")
 		.text(right);
 
-	var arrow = "➞";
+	var textBuffer = 4; 
 
-	//add arrow
+	//add text
 	d3.select(element)
 		.append("text")
-		.attr("class","arrow")
-		.attr("x", $(element).width() / 2)
-		.attr("y", y + height / 2)
+		.attr("class","nucleotideDescriptions")
+		.attr("x", refStartX + width / 2)
+		.attr("y", y - textBuffer)
 		.attr("text-anchor", "middle")
-		.attr("dominant-baseline", "central") //centers text vertically at this y position
 		.attr("fill", "white")
 		.attr("font-size", "16px")
-		.text(arrow);
+		.text("ref");
+
+	d3.select(element)
+		.append("text")
+		.attr("class","nucleotideDescriptions")
+		.attr("x", altStartX + width / 2)
+		.attr("y", y - textBuffer)
+		.attr("text-anchor", "middle")
+		.attr("fill", "white")
+		.attr("font-size", "16px")
+		.text("alt");
+
 
 }
 
