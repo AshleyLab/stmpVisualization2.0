@@ -244,7 +244,7 @@ function parseValue(originalValue, column) {
 
 		var value = stringToNumber(originalValue, lookup, column);
 
-		return [scaleValue(value), displayName, false];
+		return [scaleValue(value, column), displayName, false];
 
 	} else if (column == "PolyPhen-2 Function Prediction") {
 
@@ -257,7 +257,7 @@ function parseValue(originalValue, column) {
 
 		var value = stringToNumber(originalValue, lookup, column);
 		
-		return [scaleValue(value), displayName, false];
+		return [scaleValue(value, column), displayName, false];
 
 	} else if (column == "CADD Score") { //TODO
 
@@ -285,7 +285,7 @@ function parseValue(originalValue, column) {
 
 		var normalizedValue = zeroOneNormalizeValue(parsedValue, [1, 28], column, false);
 
-		return [scaleValue(normalizedValue), displayName, false];
+		return [scaleValue(normalizedValue, column), displayName, false];
 
 	} else if (column == "Phylop") {
 
@@ -307,7 +307,7 @@ function parseValue(originalValue, column) {
 
 		var normalizedValue = zeroOneNormalizeValue(parsedValue, originalDomain, column, false);
 
-		return [scaleValue(normalizedValue), displayName, false];
+		return [scaleValue(normalizedValue, column), displayName, false];
 
 	} else if (column == "MutationTaster") {
 
@@ -328,7 +328,7 @@ function parseValue(originalValue, column) {
 
 		var normalizedValue = zeroOneNormalizeValue(parsedValue, originalDomain, column, false);
 
-		return [scaleValue(normalizedValue), displayName, false];
+		return [scaleValue(normalizedValue, column), displayName, false];
 
 	} else if (column == "fathmm") {
 
@@ -348,7 +348,7 @@ function parseValue(originalValue, column) {
 		//Positive FATHMM scores predict a tolerance to the variation while negative FATHMM scores predict intolerance to the variation, and is subsequently considered to be pathogenic. Following proof of concept analysis it was determined that the best possible cut-off value for the FATHMM score is 1.0  https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4929716/
 		var normalizedValue = zeroOneNormalizeValue(parsedValue, originalDomain, column, true);
 
-		return [scaleValue(normalizedValue), displayName, false];
+		return [scaleValue(normalizedValue, column), displayName, false];
 
 	}
 	// } else if (column == "Sift") {
@@ -414,7 +414,7 @@ function parseValue(originalValue, column) {
 
 		parsedValue = 1 - parsedValue; //for frequencies, 0 is more interesting (for model scores, 1 is more interesting)
 
-		return [scaleValue(parsedValue), displayName, false];
+		return [scaleValue(parsedValue, column), displayName, false];
 
 	}
 
@@ -503,14 +503,20 @@ function stringToNumber(value, lookup, column) {
 
 }
 
-function scaleValue(value) {
+function scaleValue(value, column) {
 
 	if (value < 0 || value > 1) {
 		console.log("error normalizing: " + value);
 	}
 
+	var exponent = 1; 
+
+	if (column == "GNOMADMaxAlleleFreq") {
+		exponent = 5000; 
+	}
+
 	var scale = d3.scalePow()
-		.exponent(1) //************
+		.exponent(exponent) //************
 		.domain([0, 1])
 		.range([0, 1]);
 
