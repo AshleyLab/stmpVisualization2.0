@@ -51,7 +51,7 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 		.attr("y1", verticalScale(0))
 		.attr("x2", staffX)
 		.attr("y2", verticalScale(staffData.length - 1))
-		.attr("stroke", colorForSpindle); 
+		.attr("stroke", highlightForSpindle); 
 
 	var minKnownRadius = 3;
 	var maxRadius = 10;  
@@ -75,8 +75,7 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 
 			return Math.max(d * maxRadius, minKnownRadius); 
 
-		})
-		.attr("data-index", (_, i) => i) //the index that each datum is (can get lost in d3 selection)
+		}).attr("data-index", (_, i) => i) //the index that each datum is (can get lost in d3 selection)
 		.attr("fill", (d, i) => colorForAnnotation(d, i, nColumns))
 		.on("mouseenter", function(d, i) {
 
@@ -340,6 +339,7 @@ function renderBlocks(left, right, element, y, colorer) {
 		.attr("dominant-baseline", "central") //centers text vertically at this y position
 		.attr("fill", "white")
 		.attr("font-size", "16px")
+		.attr("font-weight", "bold")
 		.text(left);
 
 	d3.select(element)
@@ -351,6 +351,7 @@ function renderBlocks(left, right, element, y, colorer) {
 		.attr("dominant-baseline", "central") //centers text vertically at this y position
 		.attr("fill", "white")
 		.attr("font-size", "16px")
+		.attr("font-weight", "bold")
 		.text(right);
 
 	var textBuffer = 4; 

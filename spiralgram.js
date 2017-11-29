@@ -152,10 +152,12 @@ function renderSpiralgram(data, element) {
 
 			}).attr("stroke", function() { 
 
-				var vI = d3.select(this).attr("variant-index"); 
-				var chromosome = data[vI].core["Chromosome"].value; 
+				return colorForSpindle(); 
 
-				return colorForSpindleWithChromosome(chromosome); 
+				// var vI = d3.select(this).attr("variant-index"); 
+				// var chromosome = data[vI].core["Chromosome"].value; 
+
+				// return colorForSpindleWithChromosome(chromosome); 
 
 			}); 
 

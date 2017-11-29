@@ -101,7 +101,7 @@ function colorForChromosome(d) {
 
 function colorForNucleotide(d) {
 
-	var colors = {"A" : "red", "G" : "green", "T" : "yellow", "U" : "yellow", "C" : "blue"}; 
+	var colors = {"A" : "red", "G" : "green", "T" : "orange", "U" : "orange", "C" : "blue"}; 
 	var c = d in colors ? colors[d] : "darkgrey";
 
 	return c;

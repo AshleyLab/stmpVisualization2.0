@@ -513,6 +513,8 @@ function scaleValue(value, column) {
 
 	if (column == "GNOMADMaxAlleleFreq") {
 		exponent = 5000; 
+	} else if (column == "ExAC Frequency") { 
+		exponent = 100; 
 	}
 
 	var scale = d3.scalePow()
