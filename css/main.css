@@ -109,7 +109,11 @@ path.mask {
   width: 100%;
   height: 100%;
 }
-
+/*
+.words5, .words6, .words5 tspan, .words6 tspan {
+  white-space: pre-wrap;
+}
+*/
 /* STYLE THE GLYPHPLOT */
 
 g.legend .star-label {

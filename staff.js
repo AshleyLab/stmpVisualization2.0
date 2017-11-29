@@ -194,10 +194,11 @@ function addTopText(element, data) {
 				return c; 
 			} 
 
-			return [" ", c, " "];
+			return ["   ", c, "   "];
 
 		}).join("")
 	}
+
 	renderWords(words1, "1", x, startY);
 	renderWords(words2, "2", x, startY + 1 * yStep); 
 	renderWords(words3, "3", x, startY + 2 * yStep);
@@ -213,25 +214,32 @@ function addTopText(element, data) {
 
 		var tE = document.getElementsByClassName(textElement)[0];
 
+		console.log(indices);
+
 		var rects = $.map(indices, (d, _) => {
 
 			var svgRect = tE.getExtentOfChar(d[1]); 
-			return [[svgRect.x, svgRect.y, svgRect.width, svgRect.height, d[0]]];
+			var left = tE.getExtentOfChar(d[1] - 1).width; 
+			return [[svgRect.x, svgRect.y, svgRect.width, svgRect.height, d[0], left * 2, left * 2]];
 
 		});
 
+		var roundingRadius = 10; 
+
 		d3.select(element)
 			.append("g")
-			.attr("class","wordsHighlight" + id)
+			.attr("class","wordsHighlight" /*+ id*/)
 			.selectAll("text")
 			.data(rects)
 			.enter()
 			.append("rect")
-			.attr("x", (d, i) => d[0])
+			.attr("x", (d, i) => d[0] - d[5])
 			.attr("y", (d, i) => d[1])
-			.attr("width", (d, i) => d[2])
+			.attr("width", (d, i) => d[2] + d[5] + d[6])
 			.attr("height", (d, i) => d[3])
-			.attr("fill", (d, i) => colorer(d[4]));
+			.attr("fill", (d, i) => colorer(d[4]))
+			.attr("rx", roundingRadius)
+			.attr("ry", roundingRadius);
 
 	}
 
@@ -251,7 +259,8 @@ function addTopText(element, data) {
 			.attr("text-anchor", "middle")
 			.attr("dominant-baseline", "central") //centers text vertically at this y position
 			.attr("fill", "white")
-			.attr("font-size", "16px"); 
+			.attr("font-size", "16px")
+			.attr("xml:space", "preserve");
 
 		d3.select(element)
 			.select(".words" + id)
@@ -260,7 +269,8 @@ function addTopText(element, data) {
 			.enter()
 			.append("tspan")
 			.text((d, _) => d[0])
-			.attr("font-weight", (d, _) => d[1] ? "bold" : "normal"); 
+			.attr("font-weight", (d, _) => d[1] ? "bold" : "normal")
+			.attr("xml:space", "preserve");
 
 	}
 
