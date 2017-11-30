@@ -368,6 +368,8 @@ function hideSpinner() {
 
 function scrollToElement(element) {
 
+	console.log("scrolling");
+
 	$("html, body").animate({
         scrollTop: $(element).offset().top
     }, 2000);

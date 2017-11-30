@@ -392,6 +392,8 @@ function renderSpiralgram(data, element) {
 
 				}
 
+				var buffer = angularWidth / 10; 
+
 				var arc = d3.arc()
 					.innerRadius(iR)
 					.outerRadius(iT ? iR + 5 : oR)

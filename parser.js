@@ -214,9 +214,9 @@ function parseCrudeSheet(sheet) {
 	}
 	
 	variantData = visualizationData; 
-	console.log("todayisTuesday")
 	data = renderVisualization(false, "#graphics", visualizationData); //render the visualization
 	hideSpinner(); 
+	scrollToElement("#graphics");
 
 }
 

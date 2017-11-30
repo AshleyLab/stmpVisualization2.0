@@ -149,7 +149,7 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 
 	var ref = data[variantIndex].core["Reference Allele"].value; 
 	var alt = data[variantIndex].core["Sample Allele"].value; 
-	renderBlocks(ref, alt, element, 105, colorForNucleotide); 
+	renderBlocks(ref, alt, element, 110, colorForNucleotide); 
 
 	// var proteinVariant = data[variantIndex].core["Protein Variant"].value; 
 	// var refProtein = getAcidSymbolFromProteinVariantData(proteinVariant, true);
@@ -200,23 +200,39 @@ function addTopText(element, data) {
 	function spaceify(text, chars) {
 		//add spaces around any occurences of specified chars in given text
 
-		return $.map(text.split(""), (c, _) => {
+		return $.map(text.split(""), (c, i) => {
 
 			if ($.inArray(c, chars) === -1) { 
 				return c; 
 			} 
 
-			return ["   ", c, "   "];
+			var isSecond = text.split("")[i + 1] == ";";
+
+			var spacesForFirst = "   ";
+			var spacesForSecondRight = "  ";
+
+			return [spacesForFirst, c, isSecond ? spacesForSecondRight : spacesForFirst];
 
 		}).join("")
 	}
 
-	renderWords(words1, "1", x, startY);
-	renderWords(words2, "2", x, startY + 1 * yStep); 
-	renderWords(words3, "3", x, startY + 2 * yStep);
-	renderWords(words4, "4", x, startY + 3 * yStep); 	
-	renderWords(words5, "5", x, startY + 7 * yStep); 
-	renderWords(words6, "6", x, startY + 8 * yStep);
+	var leftX = $(element).width() / 4; 
+
+	renderWords(words1, "1", leftX, startY);
+	renderWords(words2, "2", leftX, startY + 1 * yStep); 
+	renderWords(words3, "3", leftX, startY + 2 * yStep);
+	renderWords(words4, "4", leftX, startY + 3 * yStep); 	
+	//break for ref and alt 
+	renderWords(words5, "5", x, startY + 6.5 * yStep); 
+	renderWords(words6, "6", x, startY + 7.75 * yStep);
+
+	colorVariantTag(element, transcriptVariant, "words5", "5", colorForNucleotide, tVChars);
+	colorVariantTag(element, proteinVariant, "words6", "6", colorForAcidSymbol, pVChars); 
+	
+	//rerender words, so they're on top of shapes
+	renderWords(words5, "5-2", x, startY + 6.5 * yStep); 
+	renderWords(words6, "6-2", x, startY + 7.75 * yStep);
+
 
 	function colorVariantTag(element, textData, textElement, id, colorer, toHighlight) {
 
@@ -253,11 +269,6 @@ function addTopText(element, data) {
 
 	}
 
-	colorVariantTag(element, transcriptVariant, "words5", "5", colorForNucleotide, tVChars);
-	renderWords(words5, "5-2", x, startY + 7 * yStep); //so text is on top
-
-	colorVariantTag(element, proteinVariant, "words6", "6", colorForAcidSymbol, pVChars); 
-	renderWords(words6, "6-2", x, startY + 8 * yStep);
 
 	function renderWords(words, id, x, y) {
 
