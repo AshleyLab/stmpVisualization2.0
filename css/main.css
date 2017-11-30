@@ -52,7 +52,7 @@ path {
   stroke-width: 0;
 }
 
-g.track path { 
+g.track path:not(.contiguous) { 
   stroke: #22262e;
   stroke-width: 1.5;
 }

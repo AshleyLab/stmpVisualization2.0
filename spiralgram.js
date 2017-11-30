@@ -271,8 +271,9 @@ function renderSpiralgram(data, element) {
 	function addTracks() { 
 
 		var trackColumns = ["GNOMAD_Max_Allele_Freq_POP","Chromosome","Protein Variant","Protein Variant"]; 
-		var colorers = [colorForPopulation, colorForChromosome, colorForProteinVariantData, colorForProteinVariantData];
+		var colorers = [colorForPopulation, colorForChromosomeBinary, colorForProteinVariantData, colorForProteinVariantData];
 		var isThin = [true, true, false, false];
+		var isContiguous = [true, true, false, false]; //true --> no lines between neighboring arcs
 
 		var innerRadius = Math.min(width, height) / 2 - outerBuffer - tracksWidth + spindlesToTracksBuffer; 
 		var outerRadius = Math.min(width, height) / 2 - outerBuffer;    
@@ -303,8 +304,7 @@ function renderSpiralgram(data, element) {
 			.enter()
 			.append("g")
 			.attr("class", "track")
-			// .attr("variant-index", function() { return d3.select(this.parentNode).attr("variant-index"); })
-			.attr("data-index", (_, i) => i)
+			.attr("variant-index", (_, i) => i)
 			.attr("transform", "translate(" + center[0] + "," + center[1] + ")"); 
 
 		var lastText = ""; 
@@ -316,24 +316,89 @@ function renderSpiralgram(data, element) {
 			.enter()
 			.append("path")
 			.attr("variant-index", function() { return d3.select(this.parentNode).attr("variant-index"); })
+			.classed("contiguous", function(d, i) {
+				if (isContiguous[i]) { 
+					return true; 
+				} 
+
+				if (!isThin[i]) {
+					return false;
+				}
+
+				return false; 
+
+				// var vI = parseInt(d3.select(this.parentNode).attr("variant-index")); 
+
+				// var lvI = vI == 0 ? data.length - 1 : vI - 1; 
+				// var rvI = vI == data.length - 1 ? 0 : vI + 1; 
+
+				// var siblingData = d3.select(element)
+				// 					.selectAll("g.track")
+				// 		  			.data(); 
+
+				// console.log(lvI + ", " + rvI); 
+
+				// var lD = siblingData[lvI][i]; 
+				// var rD = siblingData[rvI][i];
+
+				// console.log(lD + " | " + d + " | " + rD);
+
+				// var contig = lD == d && rD == d; 
+				// console.log(contig);
+
+				// return contig; 
+
+				//population groups
+				//should be contiguous if neighboring arcs are same group
+			})
+			// .attr("class", (d, i) => isContiguous[i] ? "contiguous" : "")
+			// .attr("class", (d, i) => isThin[i] ? "thin" : "")
 			.attr("data-isChromosome", (_, i) => i == 2 ? "1" : "0")
-			.attr("d", function(d, index) { //manually specify the shape of the path
+			.attr("d", function(d, i) { //manually specify the shape of the path
 
-				var i = parseInt(d3.select(this.parentNode).attr("data-index")); 
+				var vI = parseInt(d3.select(this.parentNode).attr("variant-index")); 
 
-				var iR = innerRadiusScale(index); 
-				var oR = innerRadiusScale(index) + trackWidth; 
+				var iR = innerRadiusScale(i); 
+				var oR = innerRadiusScale(i) + trackWidth; 
 
-				var sA = rotationScale(i);
-				var eA = rotationScale(i) + angularWidth;
+				var sA = rotationScale(vI);
+				var eA = rotationScale(vI) + angularWidth;
 
-				var iT = isThin[index];
+				var iT = isThin[i];
+
+				//check whether this arc should touch the other neighbor arcs
+
+				var extend = shouldExtend(d, i, vI);
+				console.log(extend);
+
+				function shouldExtend(d, i, vI) {
+					if (i != 0) { 
+						return false;  
+					} 
+
+					var siblingData = d3.select(element)
+									.selectAll("g.track")
+						  			.data();
+
+					var lvI = vI == 0 ? data.length - 1 : vI - 1; 
+					console.log(lvI);
+					console.log(i);
+					console.log(siblingData);
+					var lD = siblingData[lvI][i];
+
+					console.log(d + " | " + lD);
+
+					return lD == d; 
+
+				}
 
 				var arc = d3.arc()
 					.innerRadius(iR)
 					.outerRadius(iT ? iR + 5 : oR)
-					.startAngle(sA)
+					.startAngle(extend ? sA - angularWidth / 2 : sA)
 					.endAngle(eA);
+
+
 
 				return arc(); 
 

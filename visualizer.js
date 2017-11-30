@@ -85,9 +85,15 @@ function showDownloadButton() {
 
 }
 
+function colorForChromosomeBinary(d) {
+
+	return isNaN(d) ? "#ff8026" : "#22262e"; 
+
+}
+
 function colorForChromosome(d) {
 
-	if (d.toLowerCase() == "x" || d.toLowerCase() == "y") { 
+	if (isNaN(d)) { 
 		return "#ff8026"
 	}
 
