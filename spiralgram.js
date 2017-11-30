@@ -272,7 +272,7 @@ function renderSpiralgram(data, element) {
 
 		var trackColumns = ["GNOMAD_Max_Allele_Freq_POP","Chromosome","Protein Variant","Protein Variant"]; 
 		var colorers = [colorForPopulation, colorForChromosome, colorForProteinVariantData, colorForProteinVariantData];
-		var widthRatios = [.1, .1, .4, .4]; 
+		var isThin = [true, true, false, false];
 
 		var innerRadius = Math.min(width, height) / 2 - outerBuffer - tracksWidth + spindlesToTracksBuffer; 
 		var outerRadius = Math.min(width, height) / 2 - outerBuffer;    
@@ -327,9 +327,11 @@ function renderSpiralgram(data, element) {
 				var sA = rotationScale(i);
 				var eA = rotationScale(i) + angularWidth;
 
+				var iT = isThin[index];
+
 				var arc = d3.arc()
 					.innerRadius(iR)
-					.outerRadius(oR)
+					.outerRadius(iT ? iR + 5 : oR)
 					.startAngle(sA)
 					.endAngle(eA);
 
