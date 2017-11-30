@@ -278,6 +278,17 @@ function renderSpiralgram(data, element) {
 		var innerRadius = Math.min(width, height) / 2 - outerBuffer - tracksWidth + spindlesToTracksBuffer; 
 		var outerRadius = Math.min(width, height) / 2 - outerBuffer;    
 
+		var mRadius = (innerRadius + outerRadius) / 2; 
+		
+		var thinness = 4;
+		var thinThickBorder = 10;  
+		var radii = [
+						[innerRadius, innerRadius + thinness], 
+					 	[innerRadius + thinness * 3, innerRadius + thinness * 4], 
+						[mRadius, (mRadius + outerRadius) / 2 ],
+					 	[(mRadius + outerRadius) / 2, outerRadius]
+		];
+
 		var nTracks = trackColumns.length; 
 
 		var trackWidth = (outerRadius - innerRadius) / nTracks; 
@@ -326,50 +337,27 @@ function renderSpiralgram(data, element) {
 				}
 
 				return false; 
-
-				// var vI = parseInt(d3.select(this.parentNode).attr("variant-index")); 
-
-				// var lvI = vI == 0 ? data.length - 1 : vI - 1; 
-				// var rvI = vI == data.length - 1 ? 0 : vI + 1; 
-
-				// var siblingData = d3.select(element)
-				// 					.selectAll("g.track")
-				// 		  			.data(); 
-
-				// console.log(lvI + ", " + rvI); 
-
-				// var lD = siblingData[lvI][i]; 
-				// var rD = siblingData[rvI][i];
-
-				// console.log(lD + " | " + d + " | " + rD);
-
-				// var contig = lD == d && rD == d; 
-				// console.log(contig);
-
-				// return contig; 
-
-				//population groups
-				//should be contiguous if neighboring arcs are same group
 			})
-			// .attr("class", (d, i) => isContiguous[i] ? "contiguous" : "")
-			// .attr("class", (d, i) => isThin[i] ? "thin" : "")
 			.attr("data-isChromosome", (_, i) => i == 2 ? "1" : "0")
 			.attr("d", function(d, i) { //manually specify the shape of the path
 
 				var vI = parseInt(d3.select(this.parentNode).attr("variant-index")); 
 
-				var iR = innerRadiusScale(i); 
-				var oR = innerRadiusScale(i) + trackWidth; 
+				// var iR = innerRadiusScale(i); 
+				// var oR = innerRadiusScale(i) + trackWidth; 
+
+				var iR = radii[i][0];
+				var oR = radii[i][1]; 
 
 				var sA = rotationScale(vI);
 				var eA = rotationScale(vI) + angularWidth;
 
-				var iT = isThin[i];
+				// var iT = isThin[i];
 
 				//check whether this arc should touch the other neighbor arcs
 
-				var extend = shouldExtend(d, i, vI);
-				console.log(extend);
+				// var extend = shouldExtend(d, i, vI);
+				// console.log(extend);
 
 				function shouldExtend(d, i, vI) {
 					if (i != 0) { 
@@ -396,8 +384,8 @@ function renderSpiralgram(data, element) {
 
 				var arc = d3.arc()
 					.innerRadius(iR)
-					.outerRadius(iT ? iR + 5 : oR)
-					.startAngle(extend ? sA - angularWidth / 2 : sA)
+					.outerRadius(oR)
+					.startAngle(sA)
 					.endAngle(eA);
 
 

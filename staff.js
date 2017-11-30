@@ -197,6 +197,8 @@ function addTopText(element, data) {
 	var startY = 20; 
 	var yStep = 20; 
 
+	var spaces = "   "; 
+
 	function spaceify(text, chars) {
 		//add spaces around any occurences of specified chars in given text
 
@@ -206,14 +208,18 @@ function addTopText(element, data) {
 				return c; 
 			} 
 
-			var isSecond = text.split("")[i + 1] == ";";
+			var previousChar = text.split("")[i - 1]; 
+			var nextChar = text.split("")[i + 1];
 
-			var spacesForFirst = "   ";
-			var spacesForSecondRight = "  ";
+			var shouldSpaceLeft = $.inArray(previousChar, chars) === -1; 
+			var shouldSpaceRight = $.inArray(nextChar, chars) === -1; 
 
-			return [spacesForFirst, c, isSecond ? spacesForSecondRight : spacesForFirst];
+			var leftSpaces = shouldSpaceLeft ? spaces : "";
+			var rightSpaces = shouldSpaceRight ? spaces : ""; 
 
-		}).join("")
+			return [leftSpaces, c, rightSpaces];
+
+		}).join(""); 
 	}
 
 	var leftX = $(element).width() / 4; 
@@ -239,6 +245,8 @@ function addTopText(element, data) {
 		var indices = textData.split("")
 							  .map((c, i) => $.inArray(c, toHighlight) !== -1 ? [c, i] : [c, -1])
 							  .filter((d, _) => d[1] >= 0); 
+
+		// var spacePai
 
 		var tE = document.getElementsByClassName(textElement)[0];
 
