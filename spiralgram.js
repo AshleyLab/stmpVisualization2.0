@@ -290,7 +290,7 @@ function renderSpiralgram(data, element) {
 			[$.map(trackColumns, column => variant.core[column].value)]
 		); 
 
-		console.log(trackData); 
+		// console.log(trackData); 
 
 		var rotationScale = d3.scaleLinear()
 			.domain([0, nVariants])
@@ -381,12 +381,12 @@ function renderSpiralgram(data, element) {
 						  			.data();
 
 					var lvI = vI == 0 ? data.length - 1 : vI - 1; 
-					console.log(lvI);
-					console.log(i);
-					console.log(siblingData);
+					// console.log(lvI);
+					// console.log(i);
+					// console.log(siblingData);
 					var lD = siblingData[lvI][i];
 
-					console.log(d + " | " + lD);
+					// console.log(d + " | " + lD);
 
 					return lD == d; 
 
@@ -404,7 +404,7 @@ function renderSpiralgram(data, element) {
 
 			}).attr("fill", function(d, i) {
 
-				console.log(i);
+				// console.log(i);
 				return colorers[i](d, i == 2);
 
 			}).on("mouseover", function(d, i) {
@@ -417,8 +417,8 @@ function renderSpiralgram(data, element) {
 
 			}).on("mouseout", function(d, i) {
 
-				console.log(i);
-				console.log(d);
+				// console.log(i);
+				// console.log(d);
 				d3.select(this)
 					.attr("fill", colorers[i](d, i == 2)); 
 
@@ -704,7 +704,7 @@ function colorForProteinVariantData(proteinVariant, getRef) {
 		return "black";
 	}
 
-	console.log(proteinVariant);
+	// console.log(proteinVariant);
 
 	var aminoAcids = proteinVariant.replace("p.", "") //remove "p."s
 								   .replace(/\d+/, "") //remove positions

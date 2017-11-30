@@ -122,8 +122,29 @@ function displayInfo(value, kind, isFrequency, isMissing) {
 		value = formatFrequency(parseFloat(value));
 	}
 
+	var r = 75; 
+
+	console.log("YYY");
+
 	d3.select("#valueInfo")
-		.text(isMissing ? "" : value);
+		.text(isMissing ? "" : value)
+ 		.style("font-size", function(d, i) { 
+
+ 			var cTL = this.getComputedTextLength(); 
+ 			if (cTL > 2 * r) {
+ 				console.log("changing");
+ 				return (r * 2 - 8) / (cTL / 20); //20 is default font-size for svg text
+ 			}
+
+ 		});
+
+	// function getScale(d) {
+ // 		var bbox = this.getBBox(),
+ //      	cbbox = this.parentNode.getBBox(),
+ //      	scale = Math.min(cbbox.width/bbox.width, cbbox.height/bbox.height);
+ 	
+ // 		return scale; 
+	// }
 
 	d3.select("#kindInfo")
 		.text(kind);
