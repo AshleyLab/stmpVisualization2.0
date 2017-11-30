@@ -455,22 +455,28 @@ function colorForPopulation(populationColumnHeader) {
 	switch(populationColumnHeader){
 		case "AF_EAS": 
 		case "ExAC East Asian Frequency": 
+		case "EAS": 
 			populationCode = 0; 
 			break; 
 		case "AF_NFE":
 		case "ExAC European Frequency":
+		case "NFE":
 			populationCode = 1; 
 			break; 
 		case "AF_SAS":
 		case "ExAC South Asian Frequency": 
+		case "SAS":
 			populationCode = 2; 
 			break; 
 		case "AF_AMR": 
 		case "ExAC Latino Frequency":
+		case "AMR":
+		case "MR": //is that what MR means?
 			populationCode = 3; 
 			break; 
 		case "AF_AFR": 
 		case "ExAC African Frequency":
+		case "AFR":
 			populationCode = 4; 
 			break; 
 		default: 

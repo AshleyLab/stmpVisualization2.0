@@ -28,7 +28,7 @@ function renderSpiralgram(data, element) {
 	var outerBuffer = 40; 
 	var tracksWidth = 70; 
 	var spindlesToTracksBuffer = 20; 
-	var innerBuffer = 50; 
+	var innerBuffer = 75; 
 
 	function addText() {
 
@@ -270,7 +270,9 @@ function renderSpiralgram(data, element) {
 
 	function addTracks() { 
 
-		var trackColumns = ["Protein Variant", "Protein Variant"];
+		var trackColumns = ["GNOMAD_Max_Allele_Freq_POP","Chromosome","Protein Variant","Protein Variant"]; 
+		var colorers = [colorForPopulation, colorForChromosome, colorForProteinVariantData, colorForProteinVariantData];
+		var widthRatios = [.1, .1, .4, .4]; 
 
 		var innerRadius = Math.min(width, height) / 2 - outerBuffer - tracksWidth + spindlesToTracksBuffer; 
 		var outerRadius = Math.min(width, height) / 2 - outerBuffer;    
@@ -335,19 +337,8 @@ function renderSpiralgram(data, element) {
 
 			}).attr("fill", function(d, i) {
 
-				if (i == 2) {
-
-					return colorForChromosome(d);
-
-				} else { 
-
-					if (d == 0) {
-						return "black";
-					}
-
-					return colorForProteinVariantData(d, i == 1);
-
-				}
+				console.log(i);
+				return colorers[i](d, i == 2);
 
 			}).on("mouseover", function(d, i) {
 
@@ -359,25 +350,10 @@ function renderSpiralgram(data, element) {
 
 			}).on("mouseout", function(d, i) {
 
-				if (isChromosome(this)) {
-
-					d3.select(this)
-						.attr("fill", colorForChromosome)
-
-				} else { 
-
-					if (d == 0) {
-						return d3.select(this)
-							.attr("fill", "black")
-					}
-
-					var fill = colorForProteinVariantData(d, i == 1);
-
-					d3.select(this)
-						.attr("fill", fill);
-
-
-				}
+				console.log(i);
+				console.log(d);
+				d3.select(this)
+					.attr("fill", colorers[i](d, i == 2)); 
 
 				displayInfo("", "", false, false)
 
@@ -656,6 +632,12 @@ function colorForAcidSymbol(symbol) {
 }
 
 function colorForProteinVariantData(proteinVariant, getRef) {
+
+	if (!isNaN(proteinVariant) || proteinVariant.length <= 1) { //sometimes proteinVariant is 0
+		return "black";
+	}
+
+	console.log(proteinVariant);
 
 	var aminoAcids = proteinVariant.replace("p.", "") //remove "p."s
 								   .replace(/\d+/, "") //remove positions
