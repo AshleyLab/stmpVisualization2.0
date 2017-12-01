@@ -1,6 +1,7 @@
 function renderSpiralgram(data, element) {
 
 	var nVariants = data.length; 
+	var angularStep = Math.PI * 2 / nVariants; 
 
 	var spindleColumns = [
 		"SIFT Function Prediction",
@@ -9,16 +10,12 @@ function renderSpiralgram(data, element) {
 		"Phylop",
 		"MutationTaster",
 		"fathmm",
-		// "Sift",
 		"1000 Genomes Frequency", 
 		"ExAC Frequency",
 		"GNOMADMaxAlleleFreq"
 	];
 
 	var nSpindleColumns = spindleColumns.length; 
-
-	var trackColumns = ["Reference Allele", "Sample Allele"];
-	var nTrackColumns = trackColumns.length; 
 
 	var width = $(element).width(); 
 	var height = $(element).height();
@@ -29,6 +26,13 @@ function renderSpiralgram(data, element) {
 	var tracksWidth = 70; 
 	var spindlesToTracksBuffer = 20; 
 	var innerBuffer = 75; 
+
+	var staffElement = "#staffElement";
+
+	//[0, Math.min(center[0], center[1])]
+	// var radii = { 
+
+	// };
 
 	function addText() {
 
@@ -60,15 +64,12 @@ function renderSpiralgram(data, element) {
 
 		var rotationScale = d3.scaleLinear()
 			.domain([0, nVariants])
-			.range([180, 540]); //some acrobatics to make the first variant starts at 12 o'clock
+			.range([180, 540]); //make the first variant starts at 12 o'clock
 
 		var maxRadius = Math.min(width, height) / 2 - outerBuffer - tracksWidth; 
 
-		//part of spindle there's no circles on
-		var tailLength = 0; 
-
-		//the angular distance between consecutive spindles
-		var radiusStep = (maxRadius - innerBuffer - tailLength) / (nSpindleColumns - 1);
+		//the lienar distance between consecutive annotations
+		var radiusStep = (maxRadius - innerBuffer) / (nSpindleColumns - 1);
 
 		//flatten the data into an array (easier to visualize with d3)
 		var spindleData = $.map(data, variant => 
@@ -83,10 +84,6 @@ function renderSpiralgram(data, element) {
 	
 		);
 
-		console.log(spindleData);
-
-		var angularWidth = 2 * Math.PI / nVariants; 
-
 		//create container elements for the spindles with the right rotation 
 		d3.select(element)
 			.selectAll("g")
@@ -96,19 +93,18 @@ function renderSpiralgram(data, element) {
 			.attr("transform", (_, i) => "translate(" + center[0] + "," + center[1] + ") rotate(" + (rotationScale(i) + rotationScale(i + 1)) / 2 + ")")
 			.attr("variant-index", (_, i) => i);
 
-		var staffElement = "#staffElement";
-
 		//render the spindles
 		d3.select(element)
 			.selectAll("g")
 			.append("line")
 			.attr("variant-index", function() { return d3.select(this.parentNode).attr("variant-index"); })
-			.attr("y1", innerBuffer) //since the spindles' parents gs are tilted, we can just draw a straight line
+			// .attr("y1", innerBuffer) //since the spindles' parents gs are tilted, we can just draw a straight line
+			.attr("y1", 120)
 			.attr("x1", 0)
-			.attr("y2", maxRadius)
+			// .attr("y2", maxRadius)
+			.attr("y2", Math.min(width, height) / 2 - outerBuffer)
 			.attr("x2", 0)
 			.attr("class", "spindle")
-			// .attr("stroke", colorForSpindle)
 			.attr("stroke-width", 2)
 			.attr("data-clicked", 0) //0 is falsey
 			.on("mouseover", function(d, i) {
@@ -128,10 +124,6 @@ function renderSpiralgram(data, element) {
 
 				d3.select(this)
 					.attr("stroke", colorForSpindle);
-
-				//find a way to go back to data staff was showing before
-				// renderStaff(lastStaffData, "#staffElement"); 
-				// and higlight that last variant
 
 			}).on("click", function(d, i) {
 
@@ -154,25 +146,18 @@ function renderSpiralgram(data, element) {
 
 				return colorForSpindle(); 
 
-				// var vI = d3.select(this).attr("variant-index"); 
-				// var chromosome = data[vI].core["Chromosome"].value; 
-
-				// return colorForSpindleWithChromosome(chromosome); 
-
 			}); 
 
-		function colorForSpindleWithChromosome(c) { 
+		addCircles(spindleData); 
 
-			if (!isNaN(c)) {
-				return "white"; 
-			}
+	}
 
-			return "red";
-		}
+	function addCircles(spindleData) { 
 
 		var cyScale = d3.scaleLinear()
 			.domain([0, spindleData[0].length - 1])
-			.range([innerBuffer, maxRadius]);
+			.range([120, Math.min(width, height) / 2 - outerBuffer])
+			// .range([innerBuffer, maxRadius]);
 
 		var spiralgramFrequenciesDisplayNames = [
 			"1000 Genomes Frequency", 
@@ -199,13 +184,10 @@ function renderSpiralgram(data, element) {
 			.attr("r", (d, i) => {
 
 				if (d == "???") {
-					console.log("detected ???");
 					return 0; 
 				}
 
-				//maximum radius for an annotation should depend on number of annotations and distance from center
-
-				//distance between two neighboring (on consecutive spindles) points of this annotation
+				//distance between two neighboring (on consecutive spindles) points of this same annotation
 				var theta = (Math.PI * 2) / (nVariants) / 2; 
 				var distanceAcross = 2 * cyScale(i) * Math.sin(theta);
 
@@ -216,8 +198,7 @@ function renderSpiralgram(data, element) {
 
 				return Math.max(maxRadius * d, 2); 
 
-			})
-			.attr("fill", (d, i) => colorForAnnotation(d, i, nSpindleColumns))
+			}).attr("fill", (d, i) => colorForAnnotation(i, nSpindleColumns))
 			.on("mouseover", function(d, i) { 
 
 				var variantIndex = d3.select(this).attr("variant-index"); 
@@ -226,8 +207,8 @@ function renderSpiralgram(data, element) {
 				var property = spindleColumns[dataIndex];
 
 				var originalValue = getOriginalValue(variantIndex, property);
-				var displayName = getDisplayName(variantIndex, property);
-				var isMissing = getIsMissing(variantIndex, property);
+				var displayName =   getDisplayName(variantIndex, property);
+				var isMissing =     getIsMissing(variantIndex, property);
 
 				var isFrequency = $.inArray(displayName, spiralgramFrequenciesDisplayNames) !== -1; 
 
@@ -256,37 +237,45 @@ function renderSpiralgram(data, element) {
 					.selectAll("g")
 					.selectAll("circle")
 					.filter((_, index) => i == index)
-					.attr("fill", colorForAnnotation(d, i, nSpindleColumns)); 
+					.attr("fill", colorForAnnotation(i, nSpindleColumns)); 
 
 				displayInfo("","", false, false);
 
 				d3.select(staffElement)
 					.select("circle[data-index=\"" + i + "\"")
-					.attr("fill", colorForAnnotation(d, i, nSpindleColumns));
+					.attr("fill", colorForAnnotation(i, nSpindleColumns));
 
 			});
 
-	}
+		}
+
+	
 
 	function addTracks() { 
 
-		var trackColumns = ["GNOMAD_Max_Allele_Freq_POP","Chromosome","Protein Variant","Protein Variant"]; 
-		var colorers = [colorForPopulation, colorForChromosomeBinary, colorForProteinVariantData, colorForProteinVariantData];
+		var trackColumns = ["Chromosome","GNOMAD_Max_Allele_Freq_POP","Protein Variant","Protein Variant"]; 
+		var colorers = [colorForChromosomeBinary, colorForPopulation, colorForProteinVariantData, colorForProteinVariantData];
 		var isThin = [true, true, false, false];
 		var isContiguous = [true, true, false, false]; //true --> no lines between neighboring arcs
 
-		var innerRadius = Math.min(width, height) / 2 - outerBuffer - tracksWidth + spindlesToTracksBuffer; 
-		var outerRadius = Math.min(width, height) / 2 - outerBuffer;    
+		// var innerRadius = Math.min(width, height) / 2 - outerBuffer - tracksWidth + spindlesToTracksBuffer; 
+		// var outerRadius = Math.min(width, height) / 2 - outerBuffer;  
+
+		var innerRadius = 0; 
+		var outerRadius = 100;   
 
 		var mRadius = (innerRadius + outerRadius) / 2; 
 		
 		var thinness = 4;
 		var thinThickBorder = 10;  
+
+		var r = Math.min(width, height) / 2 - outerBuffer; 
+
 		var radii = [
-						[innerRadius, innerRadius + thinness], 
-					 	[innerRadius + thinness * 3, innerRadius + thinness * 4], 
-						[mRadius, (mRadius + outerRadius) / 2 ],
-					 	[(mRadius + outerRadius) / 2, outerRadius]
+			[95, 100], 
+			[105, 110], 
+			[r + 10, r + 30], 
+			[r + 35, r + 55]
 		];
 
 		var nTracks = trackColumns.length; 
@@ -301,11 +290,9 @@ function renderSpiralgram(data, element) {
 			[$.map(trackColumns, column => variant.core[column].value)]
 		); 
 
-		// console.log(trackData); 
-
 		var rotationScale = d3.scaleLinear()
 			.domain([0, nVariants])
-			.range([0, Math.PI * 2]); //IS THIS RIGHT
+			.range([0, Math.PI * 2]); 
 
 		var angularWidth = Math.PI * 2 / nVariants; 
 
@@ -343,44 +330,11 @@ function renderSpiralgram(data, element) {
 
 				var vI = parseInt(d3.select(this.parentNode).attr("variant-index")); 
 
-				// var iR = innerRadiusScale(i); 
-				// var oR = innerRadiusScale(i) + trackWidth; 
-
 				var iR = radii[i][0];
 				var oR = radii[i][1]; 
 
 				var sA = rotationScale(vI);
 				var eA = rotationScale(vI) + angularWidth;
-
-				// var iT = isThin[i];
-
-				//check whether this arc should touch the other neighbor arcs
-
-				// var extend = shouldExtend(d, i, vI);
-				// console.log(extend);
-
-				function shouldExtend(d, i, vI) {
-					if (i != 0) { 
-						return false;  
-					} 
-
-					var siblingData = d3.select(element)
-									.selectAll("g.track")
-						  			.data();
-
-					var lvI = vI == 0 ? data.length - 1 : vI - 1; 
-					// console.log(lvI);
-					// console.log(i);
-					// console.log(siblingData);
-					var lD = siblingData[lvI][i];
-
-					// console.log(d + " | " + lD);
-
-					return lD == d; 
-
-				}
-
-				var buffer = angularWidth / 10; 
 
 				var arc = d3.arc()
 					.innerRadius(iR)
@@ -388,13 +342,10 @@ function renderSpiralgram(data, element) {
 					.startAngle(sA)
 					.endAngle(eA);
 
-
-
 				return arc(); 
 
 			}).attr("fill", function(d, i) {
 
-				// console.log(i);
 				return colorers[i](d, i == 2);
 
 			}).on("mouseover", function(d, i) {
@@ -407,8 +358,6 @@ function renderSpiralgram(data, element) {
 
 			}).on("mouseout", function(d, i) {
 
-				// console.log(i);
-				// console.log(d);
 				d3.select(this)
 					.attr("fill", colorers[i](d, i == 2)); 
 
@@ -435,7 +384,6 @@ function renderSpiralgram(data, element) {
 
 		//genotypes are currently [[proband, dad, mom], [proband, dad, mom], ...]
 		//switch them to be [[dad, proband, mom], [dad, proband, mom], ...]
-
 		var genotypes = $.map(rawGenotypes, (g, i) => [[g[1], g[0], g[2]]])
 
 		d3.select(element)
@@ -473,7 +421,6 @@ function renderSpiralgram(data, element) {
 			.on("mouseover", function(datum, index) {
 
 				var vI = d3.select(this).attr("variant-index");
-
 				var gt = getOriginalValue(vI, "GT");
 
 				drawPedigree(gt, element, true);
@@ -518,17 +465,17 @@ function renderSpiralgram(data, element) {
 				var controlPointRadius = innerRadius + (outerRadius - innerRadius) / 1;
 				var controlPoint = [controlPointRadius * Math.cos(mA), controlPointRadius * Math.sin(mA)]
 
-				var d = "M " + innerCorner1[0] + " " + innerCorner1[1] + " ";
+				var d  = "M " + innerCorner1[0] + " " + innerCorner1[1] + " ";
 
 					d += "L " + outerCorner1[0] + " " + outerCorner1[1] + " ";
 
-				   d += "A " + outerRadius + " " + outerRadius + " " + 0 + " " + 0 + " " + 0 + " " + outerCorner2[0] + " " + outerCorner2[1] + " ";
+				    d += "A " + outerRadius     + " " + outerRadius     + " " + 0 + " " + 0 + " " + 0 + " " + outerCorner2[0] + " " + outerCorner2[1] + " ";
 
-				   d += "L " + innerCorner2[0] + " " + innerCorner2[1] + " ";
+				    d += "L " + innerCorner2[0] + " " + innerCorner2[1] + " ";
 
-				   d += "Q " + controlPoint[0] + " " + controlPoint[1] + " " + innerCorner1[0] + " " + innerCorner1[1] + " "; 
+				    d += "Q " + controlPoint[0] + " " + controlPoint[1] + " " + innerCorner1[0] + " " + innerCorner1[1] + " "; 
 
-				   d += "Z";
+				    d += "Z";
 
 				return d; 
 
@@ -545,100 +492,6 @@ function renderSpiralgram(data, element) {
 	addTracks(); 
 	addCrescents(); 
 	
-}
-
-function drawPedigree(gt, element, isSpiral) { 
-
-	var parsed = parseGenotype(gt); 
-
-	var probandColor = colorForGenotype(parsed[0]); 
-	var fatherColor = colorForGenotype(parsed[1]);
-	var motherColor = colorForGenotype(parsed[2]);
-
-	var strokeWidthForUnknownGenotype = 1; //thickness of the outline of the shape be when we don't the genotype
-
-	var radius = 10; 
-
-	//this should be the halfway point of the vertical line that connects the proband and the parents line
-	var centerX = $(element).width() / 2; 
-	var centerY = $(element).height() / 2; 
-
-	if (!isSpiral) {
-		centerX = 350; 
-		centerY = 50; 
-	}
-
-	//draw a square for the father
-	var squareCenterX = centerX - radius * 2; 
-	var squareCenterY = centerY - radius;  
-
-	d3.select(element)
-		.append("rect")
-		.attr("class", "pedigree")
-		.attr("x", squareCenterX - radius)
-		.attr("y", squareCenterY - radius)
-		.attr("width", radius * 2)
-		.attr("height", radius * 2)
-		.attr("fill", fatherColor)
-		.attr("stroke", "white")
-		.attr("stroke-width", parsed[1] == -1 ? strokeWidthForUnknownGenotype : 0);
-
-	//draw a circle for the mother
-	var circleCenterX = centerX + radius * 2; 
-	var circleCenterY = centerY - radius; 
-
-	d3.select(element)
-		.append("circle")
-		.attr("class", "pedigree")
-		.attr("cx", circleCenterX)
-		.attr("cy", circleCenterY)
-		.attr("r", radius)
-		.attr("fill", motherColor)
-		.attr("stroke", "white")
-		.attr("stroke-width", parsed[2] == -1 ? strokeWidthForUnknownGenotype : 0);
-
-	//draw a diamond for the proband 
-	var diamondCenterX = centerX; 
-	var diamondCenterY = centerY + radius * 2; 
-
-	d3.select(element)
-		.append("path")
-		.attr("class", "pedigree")
-		.attr("d", () => {
-
-			var d = "M " + diamondCenterX + " " + (diamondCenterY - radius) + " "; 
-				d += "l " + radius + " " + radius + " "; 
-				d += "l " + -radius + " " + radius + " "; 
-				d += "l " + -radius + " " + -radius + " "; 
-				d += "Z";
-
-			return d;	
-
-		}).attr("fill", probandColor)
-		.attr("stroke", "white")
-		.attr("stroke-width", parsed[0] == -1 ? strokeWidthForUnknownGenotype : 0);
-
-	//draw a line connecting the mother and the father
-	d3.select(element)
-		.append("line")
-		.attr("class", "pedigree")
-		.attr("x1", squareCenterX + radius)
-		.attr("y1", squareCenterY)
-		.attr("x2", circleCenterX - radius)
-		.attr("y2", squareCenterY)
-		.attr("stroke", "white")
-		.attr("stroke-radius", 5);
-
-	//draw a line connecting the proband to the line between the mother and the father
-	d3.select(element)
-		.append("line")
-		.attr("class", "pedigree")
-		.attr("x1", (squareCenterX + circleCenterX) / 2)
-		.attr("y1", squareCenterY)
-		.attr("x2", (squareCenterX + circleCenterX) / 2)
-		.attr("y2", diamondCenterY - radius)
-		.attr("stroke", "white")
-		.attr("stroke-radius", 5);
 }
 
 function getAcidSymbolFromProteinVariantData(proteinVariant, getRef) {
@@ -664,24 +517,24 @@ function colorForAcidSymbol(symbol) {
 		"G":"#00c8ff",
 		"P":"#00aaff",
 		"V":"#0077ff",
-		"":"",
+
 		"F":"#2aff00",
 		"W":"#00ff55",
 		"Y":"#00ff7b",
-		"":"",
+
 		"D":"#aa00ff",
 		"E":"#d500ff",
-		"":"",
+
 		"K":"#bbff00",
 		"H":"#99ff00",
 		"R":"#80ff00",
-		"":"",
+
 		"S":"#6600ff",
 		"T":"#8000ff",
-		"":"",
+
 		"C":"#ff00b3",
 		"M":"#ff0088",
-		"":"",
+
 		"N":"#ff8000",
 		"Q":"#ffb300"
 	}[symbol];
@@ -693,8 +546,6 @@ function colorForProteinVariantData(proteinVariant, getRef) {
 	if (!isNaN(proteinVariant) || proteinVariant.length <= 1) { //sometimes proteinVariant is 0
 		return "black";
 	}
-
-	// console.log(proteinVariant);
 
 	var aminoAcids = proteinVariant.replace("p.", "") //remove "p."s
 								   .replace(/\d+/, "") //remove positions

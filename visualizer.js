@@ -60,7 +60,7 @@ function renderVisualization(isStreamgraph, element, data) {
 		renderKaryotype(data, "#karyotypeElement");
 		// renderBarchart(data, "#barchartElement", 3)		
 		renderSpiralgram(data, "#spiralElement");
-		renderStaff(data, 0, "#staffElement", "#spiralElement");
+		// renderStaff(data, 0, "#staffElement", "#spiralElement");
 
 		showDownloadButton(); 
 
@@ -543,7 +543,7 @@ function shortNameForPopulation(populationColumnHeader) {
 
 }
 
-function colorForAnnotation(datum, index, nSpiralAnnotations) { 
+function colorForAnnotation(index, nSpiralAnnotations) { 
 
 	var presets = ["#20A39E","#98CE00","#FF715B","#F0386B","#93E5AB","#FB8B24","#0CCE6B","#3FA7D6","#FF1B1C","#26F0F1","#5F4BB6"]; 
 
