@@ -46,6 +46,21 @@ input[type="radio"] {
   color: white;
 }
 
+/* STAFFGRAM */
+
+tspan.regular { 
+  font-weight: bold;
+}
+
+tspan.junk {
+
+}
+
+tspan.special {
+  font-weight: bold;
+  dx: "5";
+}
+
 /* STYLE THE SPIRALGRAM */
 
 path {

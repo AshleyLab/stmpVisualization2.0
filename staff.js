@@ -162,6 +162,10 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 
 function addTopText(element, data) {
 
+	var x = $(element).width() / 2; 
+	var startY = 20; 
+	var yStep = 20; 
+
 	var chromosome = data.core["Chromosome"].value; 
 	var position = data.core["Position"].value; 
 	var variationType = data.core["Variation Type"].value; 
@@ -177,86 +181,81 @@ function addTopText(element, data) {
 	var transcriptVariant = data.core["Transcript Variant"].value; 
 	var proteinVariant = data.core["Protein Variant"].value; 
 
-	var tVChars = ["A","T","C","G","U"]; 
-	transcriptVariant = spaceify(transcriptVariant, tVChars);
-	console.log(transcriptVariant);
+	//[words, id (what kind of string it is)]
 
-	var pVChars = ["A","I","L","G","P","V","F","W","Y","D","E","K","H","R","S","T","C","M","N","Q"]
-	proteinVariant = spaceify(proteinVariant, pVChars);
-	console.log(pVChars);
+	//0: regular (not junk or special--positions in tag) (bolded)
+	//1: junk (not bolded)
+	//2: special char (nucleotide or amino acid abbreviation) (given background)
 
-	//[words (or symbol), whether it should be bold or not]
-	var words1 = [[variationType, true], [" at ", false], [chromosome, true], [":", false], [position, true]];
-	var words2 = [["QUAL ", false], [QUAL, true], [", FILTER ", false], [FILTER, true]]; 
-	var words3 = [[translationImpact, true]]; 
-	var words4 = [[geneSymbol, true], [", ", false], [geneRegion, true]];
-	var words5 = parseItem(transcriptVariant); 
-	var words6 = parseItem(proteinVariant); 
+	var words1 = [[variationType, 0], [" at ", 1], [chromosome, 0], [":", 1], [position, 0]];
+	var words2 = [["QUAL ", 1], [QUAL, 0], [", FILTER ", 1], [FILTER, 0]]; 
+	var words3 = [[translationImpact, 0]]; 
+	var words4 = [[geneSymbol, 0], [", ", 1], [geneRegion, 0]];
+	
+	//parse transcript variant and protein variant data
+	var tVSpecialChars = ["A","T","C","G","U"]; 	
+	var pVSpecialChars = ["A","I","L","G","P","V","F","W","Y","D","E","K","H","R","S","T","C","M","N","Q"]
 
-	var x = $(element).width() / 2; 
-	var startY = 20; 
-	var yStep = 20; 
+	var parsedTV = parseVariantTag(transcriptVariant, tVSpecialChars); 
+	var parsedPV = parseVariantTag(proteinVariant, pVSpecialChars);
 
-	var spaces = "   "; 
+	console.log(parsedTV);
+	console.log(parsedPV);
 
-	function spaceify(text, chars) {
-		//add spaces around any occurences of specified chars in given text
-
-		return $.map(text.split(""), (c, i) => {
-
-			if ($.inArray(c, chars) === -1) { 
-				return c; 
-			} 
-
-			var previousChar = text.split("")[i - 1]; 
-			var nextChar = text.split("")[i + 1];
-
-			var shouldSpaceLeft = $.inArray(previousChar, chars) === -1; 
-			var shouldSpaceRight = $.inArray(nextChar, chars) === -1; 
-
-			var leftSpaces = shouldSpaceLeft ? spaces : "";
-			var rightSpaces = shouldSpaceRight ? spaces : ""; 
-
-			return [leftSpaces, c, rightSpaces];
-
-		}).join(""); 
-	}
+	
 
 	var leftX = $(element).width() / 4; 
 
-	renderWords(words1, "1", leftX, startY);
-	renderWords(words2, "2", leftX, startY + 1 * yStep); 
-	renderWords(words3, "3", leftX, startY + 2 * yStep);
-	renderWords(words4, "4", leftX, startY + 3 * yStep); 	
-	//break for ref and alt 
-	renderWords(words5, "5", x, startY + 6.5 * yStep); 
-	renderWords(words6, "6", x, startY + 7.75 * yStep);
+	var specialRectOffset = 5; 
 
-	colorVariantTag(element, transcriptVariant, "words5", "5", colorForNucleotide, tVChars);
-	colorVariantTag(element, proteinVariant, "words6", "6", colorForAcidSymbol, pVChars); 
+	renderWords(words1, "1", x, startY, specialRectOffset);
+	renderWords(words2, "2", x, startY + 1 * yStep, specialRectOffset); 
+	renderWords(words3, "3", x, startY + 2 * yStep, specialRectOffset);
+	renderWords(words4, "4", x, startY + 3 * yStep, specialRectOffset); 
+
+	//break for ref and alt
+	renderWords(parsedTV, "5", x, startY + 6.5 * yStep, specialRectOffset); 
+	renderWords(parsedPV, "6", x, startY + 7.75 * yStep, specialRectOffset);
+
+
+
+	colorVariantTag(transcriptVariant, ".words5", "5", colorForNucleotide, specialRectOffset);
+	colorVariantTag(proteinVariant, ".words6", "6", colorForAcidSymbol, specialRectOffset); 
 	
 	//rerender words, so they're on top of shapes
-	renderWords(words5, "5-2", x, startY + 6.5 * yStep); 
-	renderWords(words6, "6-2", x, startY + 7.75 * yStep);
+	renderWords(parsedTV, "5-2", x, startY + 6.5 * yStep, specialRectOffset); 
+	renderWords(parsedPV, "6-2", x, startY + 7.75 * yStep, specialRectOffset);
 
 
-	function colorVariantTag(element, textData, textElement, id, colorer, toHighlight) {
+	function colorVariantTag(textData, textElement, id, colorer, offset) {
 
-		var indices = textData.split("")
-							  .map((c, i) => $.inArray(c, toHighlight) !== -1 ? [c, i] : [c, -1])
-							  .filter((d, _) => d[1] >= 0); 
+		var rects = []; 
 
-		// var spacePai
+		d3.select(textElement)
+			.selectAll("tspan")
+			.each(function(d, i) { 
 
-		var tE = document.getElementsByClassName(textElement)[0];
+				if (d[1] != 2) { 
+					return; 
+				}
 
-		var rects = $.map(indices, (d, _) => {
+				var firstCharExtent = this.getExtentOfChar(0);
+				var width = this.getComputedTextLength(); 
 
-			var svgRect = tE.getExtentOfChar(d[1]); 
-			var left = tE.getExtentOfChar(d[1] - 1).width; 
-			return [[svgRect.x, svgRect.y, svgRect.width, svgRect.height, d[0], left * 2, left * 2]];
+				var rect = { 
+					x : firstCharExtent.x - offset,
+					y : firstCharExtent.y, 
+					width : width + offset * 2, 
+					height: firstCharExtent.height
+				};
 
-		});
+				console.log(rect);
+
+				rects.push([rect, d[0]]); 
+
+			}); 
+
+		console.log(rects); 
 
 		var roundingRadius = 10; 
 
@@ -267,18 +266,18 @@ function addTopText(element, data) {
 			.data(rects)
 			.enter()
 			.append("rect")
-			.attr("x", (d, i) => d[0] - d[5])
-			.attr("y", (d, i) => d[1])
-			.attr("width", (d, i) => d[2] + d[5] + d[6])
-			.attr("height", (d, i) => d[3])
-			.attr("fill", (d, i) => colorer(d[4]))
+			.attr("x", (d, i) => d[0].x)
+			.attr("y", (d, i) => d[0].y)
+			.attr("width", (d, i) => d[0].width)
+			.attr("height", (d, i) => d[0].height)
+			.attr("fill", (d, i) => colorer(d[1]))
 			.attr("rx", roundingRadius)
 			.attr("ry", roundingRadius);
 
 	}
 
 
-	function renderWords(words, id, x, y) {
+	function renderWords(words, id, x, y, offset) {
 
 		d3.select(element)
 			.append("text")
@@ -298,19 +297,28 @@ function addTopText(element, data) {
 			.enter()
 			.append("tspan")
 			.text((d, _) => d[0])
-			.attr("font-weight", (d, _) => d[1] ? "bold" : "normal")
-			.attr("xml:space", "preserve");
+			.each(function(d, i) { 
 
-	}
+				if (d[1] == 0) { 
+					this.classList.add("regular");
+				} else if (d[1] == 1) {
+					this.classList.add("junk");
+				} else {
+					this.classList.add("special");
+				}
 
-	function parseItem(item) { //returns [[realText, true], [notRealText, false]] where boolean gives whether should be bolded
+			}, true).attr("xml:space", "preserve")
+			.attr("dx", (d, i) => {
 
-		var chars = item.split(""); 
-		var junkChars = [".",">",";",":",",", "c", "p"]; //don't bold these
+				//offset the text horizontally if this is a special string 
+				var isThis = d[1] == 2; 
 
-		return $.map(chars, (c, i) => {
-			return [[c, $.inArray(c, junkChars) === -1]]
-		}); 
+				//or if the string before was a special string
+				var wasLast = i > 0 ? (d3.select(".words" + id).selectAll("tspan").data()[i - 1][1] == 2) : false; 
+
+				return isThis || wasLast ? offset : 0;
+
+			});
 
 	}
 
@@ -399,11 +407,61 @@ function renderBlocks(left, right, element, y, colorer) {
 
 }
 
+function parseVariantTag(text, specialChars) {
+
+	var junkChars = [".",">",";",":",",","c","p"," "]; //don't bold these
+
+	var chars = text.split("");
+	var parsed = []; //should become an array of [[chars], id]
+
+	$.each(chars, (i, c) => {
+
+		var kind = getKind(c, junkChars, specialChars);
+
+		if (i == 0) { //always a p or c
+
+			parsed.push([[c], kind]);
+
+		} else { 
+
+			var lastKind = getKind(chars[i - 1], junkChars, specialChars);
+
+			if (kind == lastKind) {
+				parsed[parsed.length - 1][0].push(c);
+			} else { 
+				parsed.push([[c], kind])
+			}
+
+		}
+
+	}); 
+
+	return $.map(parsed, (d, i) => { //merge [[chars], id] into [string, id]
+
+		return [[ d[0].join(""), d[1] ]];
+
+	}); 
+
+	function getKind(c, junk, special) {
+
+		if ($.inArray(c, junk) !== -1) {
+			return 1; 
+		}
+
+		if ($.inArray(c, special) !== -1) {
+			return 2; 
+		}
+
+		return 0; 
+
+	}
+}
+
 function renderStaffPedigree(data, variantIndex, element) {
 
 	var gt = getOriginalValue(variantIndex, "GT");
 
-	drawPedigree(gt, element, false);
+	// drawPedigree(gt, element, false);
 
 }
 
