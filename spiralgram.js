@@ -29,10 +29,14 @@ function renderSpiralgram(data, element) {
 
 	var staffElement = "#staffElement";
 
-	//[0, Math.min(center[0], center[1])]
-	// var radii = { 
-
-	// };
+	var end = Math.min(center[0], center[1]); 
+	// [0, Math.min(center[0], center[1])]
+	var radiusMap = { 
+		"innerTracks" : [60, 75],
+		"spindles" : [85, 210],
+		"outerTracks" : [220, 260],
+		"crescents" : [265, 285]
+	};
 
 	function addText() {
 
@@ -93,16 +97,17 @@ function renderSpiralgram(data, element) {
 			.attr("transform", (_, i) => "translate(" + center[0] + "," + center[1] + ") rotate(" + (rotationScale(i) + rotationScale(i + 1)) / 2 + ")")
 			.attr("variant-index", (_, i) => i);
 
+		var y1 = radiusMap["spindles"][0]; 
+		var y2 = radiusMap["spindles"][1]; 
+
 		//render the spindles
 		d3.select(element)
 			.selectAll("g")
 			.append("line")
 			.attr("variant-index", function() { return d3.select(this.parentNode).attr("variant-index"); })
-			// .attr("y1", innerBuffer) //since the spindles' parents gs are tilted, we can just draw a straight line
-			.attr("y1", 120)
+			.attr("y1", y1)
 			.attr("x1", 0)
-			// .attr("y2", maxRadius)
-			.attr("y2", Math.min(width, height) / 2 - outerBuffer)
+			.attr("y2", y2)
 			.attr("x2", 0)
 			.attr("class", "spindle")
 			.attr("stroke-width", 2)
@@ -156,8 +161,7 @@ function renderSpiralgram(data, element) {
 
 		var cyScale = d3.scaleLinear()
 			.domain([0, spindleData[0].length - 1])
-			.range([120, Math.min(width, height) / 2 - outerBuffer])
-			// .range([innerBuffer, maxRadius]);
+			.range(radiusMap["spindles"]);
 
 		var spiralgramFrequenciesDisplayNames = [
 			"1000 Genomes Frequency", 
@@ -269,22 +273,21 @@ function renderSpiralgram(data, element) {
 		var thinness = 4;
 		var thinThickBorder = 10;  
 
-		var r = Math.min(width, height) / 2 - outerBuffer; 
+		var buffer = 3; 
+
+		var innerBand = radiusMap["innerTracks"];
+		var mInnerBand = (innerBand[0] + innerBand[1]) / 2; 
+		var outerBand = radiusMap["outerTracks"];
+		var mOuterBand = (outerBand[0] + outerBand[1]) / 2; 
 
 		var radii = [
-			[95, 100], 
-			[105, 110], 
-			[r + 10, r + 30], 
-			[r + 35, r + 55]
+			[innerBand[0], mInnerBand - buffer], 
+			[mInnerBand + buffer, innerBand[1]], 
+			[outerBand[0], mOuterBand - buffer], 
+			[mOuterBand + buffer, outerBand[1]]
 		];
 
 		var nTracks = trackColumns.length; 
-
-		var trackWidth = (outerRadius - innerRadius) / nTracks; 
-
-		var innerRadiusScale = d3.scaleLinear()
-			.domain([0, nTracks])
-			.range([innerRadius, outerRadius]);
 
 		var trackData = $.map(data, variant => 
 			[$.map(trackColumns, column => variant.core[column].value)]
@@ -369,8 +372,8 @@ function renderSpiralgram(data, element) {
 
 	function addCrescents() { 
 
-		var innerRadius = Math.min(width, height) / 2 - outerBuffer + 10;  
-		var outerRadius = innerRadius + 20; 
+		var innerRadius = radiusMap["crescents"][0];
+		var outerRadius = radiusMap["crescents"][1];
 
 		var trackWidth = outerRadius - innerRadius; 
 

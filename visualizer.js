@@ -60,7 +60,7 @@ function renderVisualization(isStreamgraph, element, data) {
 		renderKaryotype(data, "#karyotypeElement");
 		// renderBarchart(data, "#barchartElement", 3)		
 		renderSpiralgram(data, "#spiralElement");
-		// renderStaff(data, 0, "#staffElement", "#spiralElement");
+		renderStaff(data, 0, "#staffElement", "#spiralElement");
 
 		showDownloadButton(); 
 

@@ -76,7 +76,7 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 			return Math.max(d * maxRadius, minKnownRadius); 
 
 		}).attr("data-index", (_, i) => i) //the index that each datum is (can get lost in d3 selection)
-		.attr("fill", (d, i) => colorForAnnotation(d, i, nColumns))
+		.attr("fill", (d, i) => colorForAnnotation(i, nColumns))
 		.on("mouseenter", function(d, i) {
 
 			//highlight the circle when moused over
@@ -91,11 +91,11 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 
 			//unhighlight the circle when unmoused over
 			d3.select(this)	
-				.attr("fill", colorForAnnotation(d, i, nColumns)); 
+				.attr("fill", colorForAnnotation(i, nColumns)); 
 
 			d3.select(spiralElement)
 				.selectAll("circle[data-index=\"" + i + "\"]") 
-				.attr("fill", colorForAnnotation(d, i, nColumns))
+				.attr("fill", colorForAnnotation(i, nColumns))
 		
 		}); 
 
