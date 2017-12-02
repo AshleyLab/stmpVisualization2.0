@@ -209,13 +209,12 @@ function addTopText(element, data) {
 	renderWords(element, parsedPV, "words6", x, startY + 7.75 * yStep, specialRectOffset, true);
 
 	//add the colored circles behind nucleotide and amino acid abbreviations
-	colorVariantTag(element, transcriptVariant, "#words5", colorForNucleotide, specialRectOffset * .65, true);
-	colorVariantTag(element, proteinVariant, "#words6", colorForAcidSymbol, specialRectOffset * .65, true); 
-	
+	colorVariantTag(element, transcriptVariant, "#words5", colorForNucleotide, specialRectOffset * .65, "#words5Colors", false, false);
+	colorVariantTag(element, proteinVariant, "#words6", colorForAcidSymbol, specialRectOffset * .65, "#words6Colors", false, false); 	
 
 }
 
-function colorVariantTag(element, textData, textElement, colorer, offset, id) {
+function colorVariantTag(element, textData, textElement, colorer, offset, id, greyRef, greyAlt) {
 
 	var rects = []; 
 
@@ -244,7 +243,7 @@ function colorVariantTag(element, textData, textElement, colorer, offset, id) {
 	var roundingRadius = 10; 
 
 	d3.select(element)
-		.insert("g", textElement) //so rects will be *behing* text
+		.insert("g", textElement) //so rects will be *behind* text
 		.attr("id", id)
 		.selectAll("rects")
 		.data(rects)
@@ -254,15 +253,24 @@ function colorVariantTag(element, textData, textElement, colorer, offset, id) {
 		.attr("y", (d, i) => d[0].y)
 		.attr("width", (d, i) => d[0].width)
 		.attr("height", (d, i) => d[0].height)
-		.attr("fill", (d, i) => colorer(d[1]))
-		.attr("rx", roundingRadius)
+		.attr("fill", (d, i) => {
+
+			console.log(i);
+
+			if (i % 2 == 0 /*ref*/ && greyRef) {
+				return "grey";
+			} else if (i % 2 == 1 /*alt*/ && greyAlt) {
+				return "grey";
+			}
+
+			return colorer(d[1]);
+
+		}).attr("rx", roundingRadius)
 		.attr("ry", roundingRadius);
 
 }
 
 function renderWords(element, words, id, x, y, offset, appendText) {
-
-	console.log(arguments);
 
 	if (appendText) {
 

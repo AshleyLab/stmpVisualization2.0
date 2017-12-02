@@ -135,7 +135,7 @@ function displayInfo(value, kind, isFrequency, isMissing, proteinVariant) {
 		d3.select(element).select(valueInfo).selectAll("*").remove(); 
 
 		renderWords(element, parsedPV, valueInfo, 0, 0, specialRectOffset, false); 
-		colorVariantTag(element, value, valueInfo, colorForAcidSymbol, specialRectOffset * .65, colorsID); 
+		colorVariantTag(element, value, valueInfo, colorForAcidSymbol, specialRectOffset * .65, colorsID, proteinVariant == "alt", proteinVariant == "ref"); 
 
 	} else {
 
