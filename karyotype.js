@@ -62,7 +62,8 @@ function drawCytobands(cytobands, element, xScale) {
 				xScale(element[1]), 
 				((height / nPairs - chromosomeHeight) / 2), 
 				xScale(parseInt(element[2]) - parseInt(element[1])), 
-				chromosomeHeight, 
+				2,
+				// chromosomeHeight, 
 				(chromosomeHeight / 2), 
 				isLeftRounded, 
 				isRightRounded 
@@ -161,11 +162,9 @@ function getSNPsForChromosome(SNPs, id) {
 
 	var chromosome = parseInt(id.slice(7));
 
-	var SNPs = $(SNPs).filter(function(index, element) {
+	return $(SNPs).filter(function(index, element) {
 		return element[0] == chromosome; 
 	}); 
-
-	return SNPs;
 
 }
 
@@ -176,7 +175,7 @@ function colorForStain(stain) {
 		return "#832226";
 	}
 
-	return "#7f7f7f"; 
+	return "#f2f2f2"; 
 
 	// switch (stain) {
 	// 	case "gneg": 

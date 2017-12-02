@@ -64,6 +64,16 @@ a.staffBottom {
   background-color: red;
 }
 
+/* STYLE THE KARYOTYPE */
+
+#karyotypeElement g.chromosome > path { /* cytobands */
+  fill: orange;
+}
+
+#karyotypeElement g.chromosome g > path { /* SNPs */
+  fill: red;
+}
+
 /* STYLE THE SPIRALGRAM */
 
 path {
