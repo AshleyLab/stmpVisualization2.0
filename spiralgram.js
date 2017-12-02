@@ -30,7 +30,7 @@ function renderSpiralgram(data, element) {
 	var staffElement = "#staffElement";
 
 	var end = Math.min(center[0], center[1]); 
-	// [0, Math.min(center[0], center[1])]
+
 	var radiusMap = { 
 		"innerTracks" : [60, 75],
 		"spindles" : [85, 210],

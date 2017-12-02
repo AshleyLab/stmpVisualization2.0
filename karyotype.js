@@ -1,7 +1,11 @@
+//always renders chromosomes 1 - 22, X, Y
+var allChromosomes = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y"];
+
 var nPairs = 22; //autosomal only?
 var hoverColor = "#ff0000"; 
 var colorForSNPs = "#27A4A8"
 var highlightColor = "#007fff"; 
+
 
 function renderKaryotype(data, element) {
 
@@ -16,9 +20,11 @@ function renderKaryotype(data, element) {
 
 	var width = $(element).width();
 
+	var leftBuffer = 20; //for chromosome labels
+
 	var xScale = d3.scaleLinear()
 		.domain([0, maxLength])
-		.range([0,  width]);
+		.range([leftBuffer,  width]);
 
 	drawCytobands(cytobands, element, xScale);
 	drawVariants(variants, element, xScale, data);  
@@ -48,27 +54,24 @@ function drawCytobands(cytobands, element, xScale) {
 		.attr("transform", function(d, i) { return "translate(0, " + i * (height / nPairs) + ")"; }); 
 
 	canvas.selectAll(".chromosome")
-		.selectAll("path")
-		.data(function() { return getCytobandsForChromosome(cytobands, d3.select(this).attr("id")); })
-		.enter()
-		.append("path")
-		.attr("fill", function(element, index) { return colorForStain(element[4]); })
-		.attr("d", function(element, index) {
+		.append("line")
+		.attr("stroke-linecap", "round") //round the ends of the lines
+		.attr("x1", xScale(0))
+		.attr("y1", 0)
+		.attr("x2", (d, _) => xScale(d))
+		.attr("y2", 0)
+		.attr("stroke", "white")
+		.attr("stroke-width", 2);
 
-			var isLeftRounded = roundLeft(element, lengths); 
-			var isRightRounded = roundRight(element, lengths);
+	canvas.selectAll(".chromosome")
+		.append("text")
+		.text((_, i) => allChromosomes[i])
+		.attr("x", 0)
+		.attr("y", 0)
+		.attr("fill", "white")
+		.attr("dominant-baseline", "central") //centers text vertically at this y position
+		.attr("font-size", 10);
 
-			return rounded_rect(
-				xScale(element[1]), 
-				((height / nPairs - chromosomeHeight) / 2), 
-				xScale(parseInt(element[2]) - parseInt(element[1])), 
-				2,
-				// chromosomeHeight, 
-				(chromosomeHeight / 2), 
-				isLeftRounded, 
-				isRightRounded 
-			);
-		});
 }
 
 function drawVariants(SNPs, element, xScale, data) { // SNPs is expected to be of the foramt [[chr, pos], [chr, pos]]
@@ -80,6 +83,8 @@ function drawVariants(SNPs, element, xScale, data) { // SNPs is expected to be o
 	var SNPHeight = 10;
 	var SNPWidth = 4; 
 
+	var bandWidth = 2; 
+
 	var colorForSNPs = "#27A4A8";
 
 	canvas.selectAll(".chromosome")
@@ -88,23 +93,15 @@ function drawVariants(SNPs, element, xScale, data) { // SNPs is expected to be o
 		.selectAll("path")
 		.data(function() { return getSNPsForChromosome(SNPs, d3.select(this).attr("id")); })
 		.enter()
-		.append("path")
+		.append("rect")
 		.attr("fill", colorForSNPs)
 		.attr("variant-index", function(element, index) { return getVariantIndex(SNPs, element); })
 		.attr("id", function(element, index) { return "SNP" + element[0] + "_" + element[1]; })
-		.attr("d", function(element, index) {
-
-			return rounded_rect(
-				xScale(element[1]), 
-				((height / nPairs - SNPHeight) / 2), 
-				SNPWidth, 
-				SNPHeight, 
-				0, 
-				false, 
-				false 
-			);
-
-		}).on("mouseover", function(element, index) {
+		.attr("x", (d, i) => xScale(d[1]))
+		.attr("y", (d, i) => 0 - SNPHeight / 2)
+		.attr("width", SNPWidth)
+		.attr("height", SNPHeight)
+		.on("mouseover", function(element, index) {
 
 			if (!d3.select(this).classed("presentedSNP")) {
 				d3.select(this).attr("fill", hoverColor);
@@ -130,8 +127,7 @@ function drawVariants(SNPs, element, xScale, data) { // SNPs is expected to be o
 
 			var id = d3.select(this).attr("id");
 
-			$("#H3" + id.slice(3)).click(); 
-		})
+		}); 
 
 }
 
@@ -168,105 +164,6 @@ function getSNPsForChromosome(SNPs, id) {
 
 }
 
-function colorForStain(stain) {
-
-	//simplified
-	if (stain == "acen") { 
-		return "#832226";
-	}
-
-	return "#f2f2f2"; 
-
-	// switch (stain) {
-	// 	case "gneg": 
-	// 		return "#DDDDDD";
-	// 	case "gvar": 
-	// 		return "#000000";
-	// 	case "gpos25":
-	// 		return "#7B7B7B";
-	// 	case "gpos50":
-	// 		return "#444444"; 
-	// 	case "gpos75":
-	// 		return "#2B2B2B";
-	// 	case "gpos100":
-	// 		return "#000000";
-	// 	case "acen":
-	// 		return "#2B2B2B";
-	// 	case "stalk":
-	// 		return "#2B2B2B";
-	// 	default: 
-	// 		return "#0061ff";
-	// }
-
-}
-
-function rounded_rect(x, y, width, height, radius, roundLeft, roundRight) {
-
-    var path  = "M" + (x + radius) + "," + y;
-    path += "h" + (width - 2 * radius);
-
-    if (roundRight) { 
-    	path += "a" + radius + "," + radius + " 0 0 1 " + radius + "," + radius; 
-    	path += "v" + (height - 2 * radius);
-    	path += "a" + radius+ "," + radius + " 0 0 1 " + -radius + "," + radius;
-    } else { 
-    	path += "h" + radius; path += "v" + radius; 
-    	path += "v" + (height - 2 * radius);
-    	path += "v" + radius; path += "h" + -radius;
-    }
-
-    path += "h" + (2 * radius - width);
-
-    if (roundLeft) { 
-    	path += "a" + radius + "," + radius + " 0 0 1 " + -radius+ "," + -radius; 
-    	path += "v" + (2 * radius - height);
-    	path += "a" + radius + "," + radius + " 0 0 1 " + radius + "," + -radius;
-    } else { 
-    	path += "h" + -radius; path += "v" + -radius; 
-    	path += "v" + (2 * radius - height);
-    	path += "v" + -radius; path += "h" + radius;
-    }
-
-    path += "z";
-
-    return path;
-}
-
-function roundLeft(band, lengths) {
-
-	var previous = getPrevious(band);
-
-	if (previous.length == 0) {
-		return true; //this is the first band in the cytoband; there is no previous band
-	} 
-
-	if (isCent(band) && isCent(previous.get(0))) {
-		return true; 
-	}
-
-	return false; 
-
-	
-}
-
-function roundRight(band, lengths) {
-
-	var chromosome = parseInt(band[0].slice(3));
-
-	var next = getNext(band);
-
-	if (next.length == 0) { 
-		return true; 
-	}
-
-	if (isCent(band) && isCent(next.get(0))) {
-		return true; 
-	}
-
-	return false; 
-
-}
-
 function isCent(band) {
 	return band[4] === "acen";
 }
@@ -292,10 +189,6 @@ function getCytobandsForChromosome(cytobands, chromosome) {
 	return $(cytobands).filter(function(index, element) { 
 		return element[0] === chromosome; 
 	});
-}
-
-function randomColor() { 
-	return "#" + Math.floor(Math.random() * 16777215).toString(16);
 }
 
 function getLengths(cytobands) {

@@ -198,7 +198,7 @@ function addTopText(element, data) {
 
 	var specialRectOffset = 8; 
 
-	renderWords(element, words1, "words1", x, startY, specialRectOffset);
+	renderWords(element, words1, "words1", x, startY, specialRectOffset, true);
 	renderWords(element, words2, "words2", x, startY + 1 * yStep, specialRectOffset, true); 
 	renderWords(element, words3, "words3", x, startY + 2 * yStep, specialRectOffset, true);
 	renderWords(element, words4, "words4", x, startY + 3 * yStep, specialRectOffset, true); 
