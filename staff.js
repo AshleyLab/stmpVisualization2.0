@@ -182,8 +182,9 @@ function addTopText(element, data) {
 	//0: regular (not junk or special--positions in tag) (bolded)
 	//1: junk (not bolded)
 	//2: special char (nucleotide or amino acid abbreviation) (given background)
+	//3: chromosome (color according to colorForChromosomeStaff())
 
-	var words1 = [[variationType, 0], [" at ", 1], [chromosome, 0], [":", 1], [position, 0]];
+	var words1 = [[variationType, 0], [" at ", 1], [chromosome, 3], [":", 1], [position, 0]];
 	var words2 = [["QUAL ", 1], [QUAL, 0], [", FILTER ", 1], [FILTER, 0]]; 
 	var words3 = [[translationImpact, 0]]; 
 
@@ -313,6 +314,12 @@ function renderWords(element, words, id, x, y, offset, appendText) {
 			var wasLast = i > 0 ? (d3.select(id).selectAll("tspan").data()[i - 1][1] == 2) : false; 
 
 			return isThis || wasLast ? offset : 0;
+
+		}).attr("fill", (d, _) => {
+
+			if (d[1] == 3) {
+				return colorForChromosomeStaff(d[0]);
+			}
 
 		});
 
