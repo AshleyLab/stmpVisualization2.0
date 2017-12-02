@@ -177,6 +177,10 @@ function addTopText(element, data) {
 	var transcriptVariant = data.core["Transcript Variant"].value; 
 	var proteinVariant = data.core["Protein Variant"].value; 
 
+	simplified = simplifyProteinVariant(proteinVariant);
+	console.log(simplified);
+	proteinVariant = simplified; 
+
 	//[words, id (what kind of string it is)]
 
 	//0: regular (not junk or special--positions in tag) (bolded)
@@ -215,11 +219,104 @@ function addTopText(element, data) {
 }
 
 function simplifyProteinVariant(text) { 
+	
+	var separator = ",";
 
 	//p.S981P; p.S997P --> 
 	//p.S981,997P
 	//but don't merge if not same acid change
 
+	String.prototype.replaceAll = function(search, replacement) { //https://stackoverflow.com/questions/1144783/how-to-replace-all-occurrences-of-a-string-in-javascript
+	    var target = this;
+	    return target.split(search).join(replacement);
+	};
+
+	var tags = text.replace(/\s/g, "") //remove all whitespace
+				   .split(";") //split on semicolons
+				   .map((d, i) => d.split("")); //split each tag into an array of characters
+
+	console.log(tags);
+
+	for (var i = 1; i < tags.length; i++) { 
+
+		var tag = tags[i];
+		var previousTag = tags[i - 1];
+
+		//starting at the beginning, see what the tags have in common
+		//but don't match numbers (we don't want to condense the positions)
+		var commonLettersFromStart = ""; 
+		for (var j = 0; j < tag.length; j++) {
+			if (!isNaN(tag[j])) { //if the other tag letter is NaN, we'll break anywa
+				break; 
+			}
+			if (tag[j] == previousTag[j]) {
+				commonLettersFromStart += tag[j];
+			} else { 
+				break;
+			}
+		}
+
+		//starting at the end, see what the tags have in common
+		//but don't match numbers UNLESS we haven't seen a nonnumber yet 
+			//some frame shifts end in numbers, e.g., p.G1309fs*11
+		var haveSeenNonLetter = false; 
+		var commonLettersFromEnd = ""; 
+		for (var k = tag.length - 1; k >= 0; k--) {
+
+			var dk = (tag.length - 1) - k; 
+			var kPT = (previousTag.length - 1) - dk; 
+
+			if (!isNaN(tag[k]) && !haveSeenNonLetter) {
+				break; 
+			} else if (isNaN(tag[k])) {
+				haveSeenNonLetter = true; 
+			}
+
+			if (tag[k] == previousTag[kPT]) {
+				commonLettersFromEnd += tag[k];
+			} else { 
+				break;
+			}
+		}
+		commonLettersFromEnd = commonLettersFromEnd.split("").reverse().join(""); //invert the string (so the letters in proper order)
+
+		console.log("commonLettersFromStart: " + commonLettersFromStart);
+		console.log("commonLettersFromEnd: " + commonLettersFromEnd);
+
+		console.log(previousTag);
+
+		if (commonLettersFromStart.length > 2 && /*the tags share more than "p."*/
+			commonLettersFromEnd.length >= 0) { /*the tags share a final amino acid or other thing (like "fs") */
+
+			console.log(tag.join("") + " and " + previousTag.join("") + " match"); 
+			//merge the tags
+
+			//this is where the tags differ
+			var tagInterior = tag.slice(j, k + 1).join("");
+			var previousTagInterior = previousTag.slice(j, kPT + 1).join("");
+
+			var mergedTag = (commonLettersFromStart + previousTagInterior + separator + tagInterior + commonLettersFromEnd).split("");
+			console.log(mergedTag);
+
+			//replace the current tag with the merged tag, 
+			tags[i] = mergedTag; 
+			//and remove previousTag
+			tags.splice(i - 1, 1); 
+
+			//decrement i to account for the smaller tags array
+			i--;
+
+		}
+
+	}
+
+	console.log(tags);
+
+	var condensedText = $.map(tags, (tag, i) => {
+		return tag.join("");
+	}).join("; ");
+
+	return condensedText; 
 }
 
 function colorVariantTag(element, textData, textElement, colorer, offset, id, greyRef, greyAlt) {
