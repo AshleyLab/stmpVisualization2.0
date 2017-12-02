@@ -214,6 +214,14 @@ function addTopText(element, data) {
 
 }
 
+function simplifyProteinVariant(text) { 
+
+	//p.S981P; p.S997P --> 
+	//p.S981,997P
+	//but don't merge if not same acid change
+
+}
+
 function colorVariantTag(element, textData, textElement, colorer, offset, id, greyRef, greyAlt) {
 
 	var rects = []; 
