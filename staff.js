@@ -6,18 +6,14 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 	var height = $(element).height();
 
 	var columns = [
-
 		"SIFT Function Prediction",
 		"PolyPhen-2 Function Prediction",
 		"CADD Score",
 		"Phylop",
 		"MutationTaster",
 		"fathmm",
-		// "Sift",
-
 		"1000 Genomes Frequency", 
 		"ExAC Frequency",
-
 		"GNOMADMaxAlleleFreq"
 	];
 
@@ -68,7 +64,8 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 		.attr("cy", (_, i) => verticalScale(i))
 		.attr("r", (d, i) => {
 
-			var iM = getIsMissing(variantIndex, columns[i])
+			var iM = getIsMissing(variantIndex, columns[i]); 
+
 			if (iM) {
 				return 0; 
 			}
@@ -221,9 +218,6 @@ function addTopText(element, data) {
 	colorVariantTag(element, transcriptVariant, "#words5", colorForNucleotide, specialRectOffset * .65, true);
 	colorVariantTag(element, proteinVariant, "#words6", colorForAcidSymbol, specialRectOffset * .65, true); 
 	
-	//rerender words, so they're on top of shapes
-	renderWords(element, parsedTV, "words5-2", x, startY + 6.5 * yStep, specialRectOffset, true); 
-	renderWords(element, parsedPV, "words6-2", x, startY + 7.75 * yStep, specialRectOffset, true);
 
 }
 
@@ -256,7 +250,7 @@ function colorVariantTag(element, textData, textElement, colorer, offset, id) {
 	var roundingRadius = 10; 
 
 	d3.select(element)
-		.append("g")
+		.insert("g", textElement) //so rects will be *behing* text
 		.attr("id", id)
 		.selectAll("rects")
 		.data(rects)
