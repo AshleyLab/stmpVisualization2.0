@@ -116,11 +116,9 @@ function colorForNucleotide(d) {
 
 function displayInfo(value, kind, isFrequency, isMissing, proteinVariant) {
 
-	//check whether is missing
+	console.log(arguments);
 
 	var valueInfo = "#valueInfo";
-	// var valueInfo2 = "#valueInfo2"; 
-
 	var element = "#spiralElement";
 
 	if (isFrequency) { //change to isNumeric to round frequencies and numerical model scores
@@ -129,19 +127,15 @@ function displayInfo(value, kind, isFrequency, isMissing, proteinVariant) {
 
 	if (proteinVariant) { //false if not, otherwise "ref" or "alt"
 
-
-		var pVSpecialChars = ["A","I","L","G","P","V","F","W","Y","D","E","K","H","R","S","T","C","M","N","Q"]
-		var parsedPV = parseVariantTag(value, pVSpecialChars);
+		var parsedPV = parseVariantTag(value, true);
 		var specialRectOffset = 8; 
 
-
 		var colorsID = "valueInfoColors";
+		d3.select(element).select("#" + colorsID).remove(); 
+		d3.select(element).select(valueInfo).selectAll("*").remove(); 
 
-		d3.select(element).select("#" + colorsID).remove(); //clear
-
-		renderWords(element, parsedPV, valueInfo, 0, 0, specialRectOffset, false); //#valueInfo and #valueInfo2 are static, acdded to the page earlier
-
-		colorVariantTag(element, value, valueInfo, colorForAcidSymbol, specialRectOffset * .65, colorsID); //so new color rects will always be on top
+		renderWords(element, parsedPV, valueInfo, 0, 0, specialRectOffset, false); 
+		colorVariantTag(element, value, valueInfo, colorForAcidSymbol, specialRectOffset * .65, colorsID); 
 
 	} else {
 

@@ -53,17 +53,6 @@ function renderSpiralgram(data, element) {
 
 		d3.select(element)
 			.append("text")
-			.attr("id", "valueInfo2")
-			.attr("x", center[0])
-			.attr("y", center[1] - 10)
-			.attr("text-anchor", "middle")
-			.attr("font-family", "sans-serif")
-			.attr("font-size", "20px")
-			.attr("fill", "white")
-			.attr("dominant-baseline","central");
-
-		d3.select(element)
-			.append("text")
 			.attr("id", "kindInfo")
 			.attr("x", center[0])
 			.attr("y", center[1] + 10)

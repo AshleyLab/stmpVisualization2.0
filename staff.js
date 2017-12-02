@@ -189,15 +189,9 @@ function addTopText(element, data) {
 	var words3 = [[translationImpact, 0]]; 
 	var words4 = [[geneSymbol, 0], [", ", 1], [geneRegion, 0]];
 	
-	//parse transcript variant and protein variant data
-	var tVSpecialChars = ["A","T","C","G","U"]; 	
-	var pVSpecialChars = ["A","I","L","G","P","V","F","W","Y","D","E","K","H","R","S","T","C","M","N","Q"]
+	var parsedTV = parseVariantTag(transcriptVariant, false); 
+	var parsedPV = parseVariantTag(proteinVariant, true);
 
-	var parsedTV = parseVariantTag(transcriptVariant, tVSpecialChars); 
-	var parsedPV = parseVariantTag(proteinVariant, pVSpecialChars);
-
-	console.log(parsedTV);
-	console.log(parsedPV);
 
 	
 
@@ -402,7 +396,13 @@ function renderBlocks(left, right, element, y, colorer) {
 
 }
 
-function parseVariantTag(text, specialChars) {
+function parseVariantTag(text, isProteinVariant) {
+
+	var specialChars = ["A","T","C","G","U"]; 
+
+	if (isProteinVariant) {
+		specialChars = ["A","I","L","G","P","V","F","W","Y","D","E","K","H","R","S","T","C","M","N","Q"];
+	}
 
 	var junkChars = [".",">",";",":",","," "]; //don't bold these
 	var junkIfBeforePeriod = ["c","p"]; //don't bold these if they come before a period
