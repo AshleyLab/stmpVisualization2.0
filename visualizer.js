@@ -114,40 +114,59 @@ function colorForNucleotide(d) {
 
 }
 
-function displayInfo(value, kind, isFrequency, isMissing) {
+function displayInfo(value, kind, isFrequency, isMissing, proteinVariant) {
 
 	//check whether is missing
+
+	var valueInfo = "#valueInfo";
+	var valueInfo2 = "#valueInfo2"; 
+
+	var element = "#spiralElement";
 
 	if (isFrequency) { //change to isNumeric to round frequencies and numerical model scores
 		value = formatFrequency(parseFloat(value));
 	}
 
-	var r = 75; 
+	if (proteinVariant) { //false if not, otherwise "ref" or "alt"
 
-	console.log("YYY");
+		console.log("proteinVariant")
 
-	d3.select("#valueInfo")
-		.text(isMissing ? "" : value)
- 		.style("font-size", function(d, i) { 
+		var pVSpecialChars = ["A","I","L","G","P","V","F","W","Y","D","E","K","H","R","S","T","C","M","N","Q"]
+		var parsedPV = parseVariantTag(value, pVSpecialChars);
+		var specialRectOffset = 8; 
 
- 			var cTL = this.getComputedTextLength(); 
- 			if (cTL > 2 * r) {
- 				console.log("changing");
- 				return (r * 2 - 8) / (cTL / 20); //20 is default font-size for svg text
- 			}
 
- 		});
+		var colorsID = "valueInfoColors";
+		console.log("removing: " + colorsID);
+		d3.select(element).select("#" + colorsID).remove(); //clear
 
-	// function getScale(d) {
- // 		var bbox = this.getBBox(),
- //      	cbbox = this.parentNode.getBBox(),
- //      	scale = Math.min(cbbox.width/bbox.width, cbbox.height/bbox.height);
- 	
- // 		return scale; 
-	// }
+		renderWords(element, parsedPV, valueInfo, 0, 0, specialRectOffset, false); //#valueInfo and #valueInfo2 are static, acdded to the page earlier
 
-	d3.select("#kindInfo")
-		.text(kind);
+		colorVariantTag(element, value, valueInfo, colorForAcidSymbol, specialRectOffset * .65, colorsID); //so new color rects will always be on top
+
+		renderWords(element, parsedPV, valueInfo2, 0, 0, specialRectOffset, false);
+
+	} else {
+
+
+		var r = 75; 
+
+		// d3.select(valueInfo)
+		// 	.text(isMissing ? "" : value)
+	 // 		.style("font-size", function(d, i) { 
+
+	 // 			var cTL = this.getComputedTextLength(); 
+	 // 			if (cTL > 2 * r) {
+	 // 				console.log("changing");
+	 // 				return (r * 2 - 8) / (cTL / 20); //20 is default font-size for svg text
+	 // 			}
+
+	 // 		});
+
+		d3.select("#kindInfo")
+			.text(kind);
+
+	}
 
 }
 

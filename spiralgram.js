@@ -53,6 +53,17 @@ function renderSpiralgram(data, element) {
 
 		d3.select(element)
 			.append("text")
+			.attr("id", "valueInfo2")
+			.attr("x", center[0])
+			.attr("y", center[1] - 10)
+			.attr("text-anchor", "middle")
+			.attr("font-family", "sans-serif")
+			.attr("font-size", "20px")
+			.attr("fill", "white")
+			.attr("dominant-baseline","central");
+
+		d3.select(element)
+			.append("text")
 			.attr("id", "kindInfo")
 			.attr("x", center[0])
 			.attr("y", center[1] + 10)
@@ -216,7 +227,7 @@ function renderSpiralgram(data, element) {
 
 				var isFrequency = $.inArray(displayName, spiralgramFrequenciesDisplayNames) !== -1; 
 
-				displayInfo(originalValue, displayName, isFrequency, isMissing);
+				displayInfo(originalValue, displayName, isFrequency, isMissing, false);
 
 				d3.select(element)
 					.selectAll("g")
@@ -243,7 +254,7 @@ function renderSpiralgram(data, element) {
 					.filter((_, index) => i == index)
 					.attr("fill", colorForAnnotation(i, nSpindleColumns)); 
 
-				displayInfo("","", false, false);
+				displayInfo("","", false, false, false);
 
 				d3.select(staffElement)
 					.select("circle[data-index=\"" + i + "\"")
@@ -357,14 +368,20 @@ function renderSpiralgram(data, element) {
 				d3.select(this)
 					.attr("fill", highlightForTrack)
 
-				displayInfo(d, trackColumns[i], false, false);
+				var pV = false; 
+
+				if (i == 2 || i == 3) {
+					pV = i == 2 ? "ref" : "alt";
+				}
+
+				displayInfo(d, trackColumns[i], false, false, pV);
 
 			}).on("mouseout", function(d, i) {
 
 				d3.select(this)
 					.attr("fill", colorers[i](d, i == 2)); 
 
-				displayInfo("", "", false, false)
+				displayInfo("", "", false, false, false)
 
 			});
 
@@ -539,7 +556,9 @@ function colorForAcidSymbol(symbol) {
 		"M":"#ff0088",
 
 		"N":"#ff8000",
-		"Q":"#ffb300"
+		"Q":"#ffb300",
+
+		"*":"red"
 	}[symbol];
 
 }

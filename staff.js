@@ -206,82 +206,81 @@ function addTopText(element, data) {
 
 	var leftX = $(element).width() / 4; 
 
-	var specialRectOffset = 5; 
+	var specialRectOffset = 8; 
 
-	renderWords(words1, "1", x, startY, specialRectOffset);
-	renderWords(words2, "2", x, startY + 1 * yStep, specialRectOffset); 
-	renderWords(words3, "3", x, startY + 2 * yStep, specialRectOffset);
-	renderWords(words4, "4", x, startY + 3 * yStep, specialRectOffset); 
+	renderWords(element, words1, "words1", x, startY, specialRectOffset);
+	renderWords(element, words2, "words2", x, startY + 1 * yStep, specialRectOffset, true); 
+	renderWords(element, words3, "words3", x, startY + 2 * yStep, specialRectOffset, true);
+	renderWords(element, words4, "words4", x, startY + 3 * yStep, specialRectOffset, true); 
 
 	//break for ref and alt
-	renderWords(parsedTV, "5", x, startY + 6.5 * yStep, specialRectOffset); 
-	renderWords(parsedPV, "6", x, startY + 7.75 * yStep, specialRectOffset);
+	renderWords(element, parsedTV, "words5", x, startY + 6.5 * yStep, specialRectOffset, true); 
+	renderWords(element, parsedPV, "words6", x, startY + 7.75 * yStep, specialRectOffset, true);
 
-
-
-	colorVariantTag(transcriptVariant, ".words5", "5", colorForNucleotide, specialRectOffset);
-	colorVariantTag(proteinVariant, ".words6", "6", colorForAcidSymbol, specialRectOffset); 
+	//add the colored circles behind nucleotide and amino acid abbreviations
+	colorVariantTag(element, transcriptVariant, "#words5", colorForNucleotide, specialRectOffset * .65, true);
+	colorVariantTag(element, proteinVariant, "#words6", colorForAcidSymbol, specialRectOffset * .65, true); 
 	
 	//rerender words, so they're on top of shapes
-	renderWords(parsedTV, "5-2", x, startY + 6.5 * yStep, specialRectOffset); 
-	renderWords(parsedPV, "6-2", x, startY + 7.75 * yStep, specialRectOffset);
+	renderWords(element, parsedTV, "words5-2", x, startY + 6.5 * yStep, specialRectOffset, true); 
+	renderWords(element, parsedPV, "words6-2", x, startY + 7.75 * yStep, specialRectOffset, true);
 
+}
 
-	function colorVariantTag(textData, textElement, id, colorer, offset) {
+function colorVariantTag(element, textData, textElement, colorer, offset, id) {
 
-		var rects = []; 
+	var rects = []; 
 
-		d3.select(textElement)
-			.selectAll("tspan")
-			.each(function(d, i) { 
+	d3.select(textElement)
+		.selectAll("tspan")
+		.each(function(d, i) { 
 
-				if (d[1] != 2) { 
-					return; 
-				}
+			if (d[1] != 2) { 
+				return; 
+			}
 
-				var firstCharExtent = this.getExtentOfChar(0);
-				var width = this.getComputedTextLength(); 
+			var firstCharExtent = this.getExtentOfChar(0);
+			var width = this.getComputedTextLength(); 
 
-				var rect = { 
-					x : firstCharExtent.x - offset,
-					y : firstCharExtent.y, 
-					width : width + offset * 2, 
-					height: firstCharExtent.height
-				};
+			var rect = { 
+				x : firstCharExtent.x - offset,
+				y : firstCharExtent.y, 
+				width : width + offset * 2, 
+				height: firstCharExtent.height
+			};
 
-				console.log(rect);
+			rects.push([rect, d[0]]); 
 
-				rects.push([rect, d[0]]); 
+		}); 
 
-			}); 
+	var roundingRadius = 10; 
 
-		console.log(rects); 
+	d3.select(element)
+		.append("g")
+		.attr("id", id)
+		.selectAll("rects")
+		.data(rects)
+		.enter()
+		.append("rect")
+		.attr("x", (d, i) => d[0].x)
+		.attr("y", (d, i) => d[0].y)
+		.attr("width", (d, i) => d[0].width)
+		.attr("height", (d, i) => d[0].height)
+		.attr("fill", (d, i) => colorer(d[1]))
+		.attr("rx", roundingRadius)
+		.attr("ry", roundingRadius);
 
-		var roundingRadius = 10; 
+}
 
-		d3.select(element)
-			.append("g")
-			.attr("class","wordsHighlight" + id)
-			.selectAll("text")
-			.data(rects)
-			.enter()
-			.append("rect")
-			.attr("x", (d, i) => d[0].x)
-			.attr("y", (d, i) => d[0].y)
-			.attr("width", (d, i) => d[0].width)
-			.attr("height", (d, i) => d[0].height)
-			.attr("fill", (d, i) => colorer(d[1]))
-			.attr("rx", roundingRadius)
-			.attr("ry", roundingRadius);
+function renderWords(element, words, id, x, y, offset, appendText) {
 
-	}
+	console.log(arguments);
 
-
-	function renderWords(words, id, x, y, offset) {
+	if (appendText) {
 
 		d3.select(element)
 			.append("text")
-			.attr("class","words" + id)
+			.attr("id", id)
 			.attr("x", x)
 			.attr("y", y)
 			.attr("text-anchor", "middle")
@@ -290,37 +289,39 @@ function addTopText(element, data) {
 			.attr("font-size", "16px")
 			.attr("xml:space", "preserve");
 
-		d3.select(element)
-			.select(".words" + id)
-			.selectAll("tspan")
-			.data(words)
-			.enter()
-			.append("tspan")
-			.text((d, _) => d[0])
-			.each(function(d, i) { 
-
-				if (d[1] == 0) { 
-					this.classList.add("regular");
-				} else if (d[1] == 1) {
-					this.classList.add("junk");
-				} else {
-					this.classList.add("special");
-				}
-
-			}, true).attr("xml:space", "preserve")
-			.attr("dx", (d, i) => {
-
-				//offset the text horizontally if this is a special string 
-				var isThis = d[1] == 2; 
-
-				//or if the string before was a special string
-				var wasLast = i > 0 ? (d3.select(".words" + id).selectAll("tspan").data()[i - 1][1] == 2) : false; 
-
-				return isThis || wasLast ? offset : 0;
-
-			});
+		id = "#" + id;
 
 	}
+
+	d3.select(element)
+		.select(id)
+		.selectAll("tspan")
+		.data(words)
+		.enter()
+		.append("tspan")
+		.text((d, _) => d[0])
+		.each(function(d, i) { 
+
+			if (d[1] == 0) { 
+				this.classList.add("regular");
+			} else if (d[1] == 1) {
+				this.classList.add("junk");
+			} else {
+				this.classList.add("special");
+			}
+
+		}, true).attr("xml:space", "preserve")
+		.attr("dx", (d, i) => {
+
+			//offset the text horizontally if this is a special string 
+			var isThis = d[1] == 2; 
+
+			//or if the string before was a special string
+			var wasLast = i > 0 ? (d3.select(id).selectAll("tspan").data()[i - 1][1] == 2) : false; 
+
+			return isThis || wasLast ? offset : 0;
+
+		});
 
 }
 
@@ -409,14 +410,15 @@ function renderBlocks(left, right, element, y, colorer) {
 
 function parseVariantTag(text, specialChars) {
 
-	var junkChars = [".",">",";",":",",","c","p"," "]; //don't bold these
+	var junkChars = [".",">",";",":",","," "]; //don't bold these
+	var junkIfBeforePeriod = ["c","p"]; //don't bold these if they come before a period
 
 	var chars = text.split("");
 	var parsed = []; //should become an array of [[chars], id]
 
 	$.each(chars, (i, c) => {
 
-		var kind = getKind(c, junkChars, specialChars);
+		var kind = getKind(chars, i, junkChars, junkIfBeforePeriod, specialChars);
 
 		if (i == 0) { //always a p or c
 
@@ -424,7 +426,7 @@ function parseVariantTag(text, specialChars) {
 
 		} else { 
 
-			var lastKind = getKind(chars[i - 1], junkChars, specialChars);
+			var lastKind = getKind(chars, i - 1, junkChars, junkIfBeforePeriod, specialChars);
 
 			if (kind == lastKind) {
 				parsed[parsed.length - 1][0].push(c);
@@ -442,7 +444,18 @@ function parseVariantTag(text, specialChars) {
 
 	}); 
 
-	function getKind(c, junk, special) {
+	function getKind(chars, i, junk, junkIfBeforePeriod, special) {
+		
+		var c = chars[i];
+
+		if (i < chars.length - 1) {
+			var nextChar = chars[i + 1];
+
+			if ($.inArray(c, junkIfBeforePeriod) !== -1 && nextChar == ".") {
+				return 1; 
+			}
+
+		}
 
 		if ($.inArray(c, junk) !== -1) {
 			return 1; 
@@ -466,5 +479,17 @@ function renderStaffPedigree(data, variantIndex, element) {
 }
 
 function addBottomText(element, data) {
+
+	var chromosome = data.core["Chromosome"].value; 
+	var position = data.core["Position"].value; 
+	var ref = data.core["Reference Allele"].value; 
+	var alt = data.core["Sample Allele"].value; 
+
+	var gene = data.core["Gene Symbol"].value; 
+
+	//add links to stuff
+	var varsomeVariant = "https://varsome.com/variant/hg19/" + chromosome + "-" + position + "-" + ref + "-" + alt; 
+	var varsomeGene = "https://varsome.com/gene/" + gene; 
+
 
 }
