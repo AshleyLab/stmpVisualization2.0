@@ -58,7 +58,10 @@ tspan.junk {
 
 tspan.special {
   font-weight: bold;
-  dx: "5";
+}
+
+a.staffBottom { 
+  background-color: red;
 }
 
 /* STYLE THE SPIRALGRAM */

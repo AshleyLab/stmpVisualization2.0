@@ -187,7 +187,12 @@ function addTopText(element, data) {
 	var words1 = [[variationType, 0], [" at ", 1], [chromosome, 0], [":", 1], [position, 0]];
 	var words2 = [["QUAL ", 1], [QUAL, 0], [", FILTER ", 1], [FILTER, 0]]; 
 	var words3 = [[translationImpact, 0]]; 
-	var words4 = [[geneSymbol, 0], [", ", 1], [geneRegion, 0]];
+
+	var parsedGeneSymbol = parseGeneSymbol(geneSymbol); 
+		parsedGeneSymbol.push([", ", 1]);
+		parsedGeneSymbol.push([geneRegion, 0]);
+
+	var words4 = parsedGeneSymbol; 
 	
 	var parsedTV = parseVariantTag(transcriptVariant, false); 
 	var parsedPV = parseVariantTag(proteinVariant, true);
@@ -404,6 +409,26 @@ function renderBlocks(left, right, element, y, colorer) {
 
 }
 
+function parseGeneSymbol(text) { 
+
+	//assumes there will only be one set of parenthese
+	var getTextInParentheses = /\(([^)]+)\)/;
+
+	var tiP = getTextInParentheses.exec(text); 
+
+	if (tiP == null) { 
+		return [[text, 0]]
+	}
+
+	tiP = tiP[0];
+
+	var textBeforeParentheses = text.substring(0, text.indexOf(tiP));
+	var textAfterParentheses = text.substring(text.indexOf(tiP) + tiP.length);
+
+	return [[textBeforeParentheses, 0], [tiP, 1], [textAfterParentheses, 0]];
+
+}
+
 function parseVariantTag(text, isProteinVariant) {
 
 	var specialChars = ["A","T","C","G","U"]; 
@@ -492,6 +517,24 @@ function addBottomText(element, data) {
 	//add links to stuff
 	var varsomeVariant = "https://varsome.com/variant/hg19/" + chromosome + "-" + position + "-" + ref + "-" + alt; 
 	var varsomeGene = "https://varsome.com/gene/" + gene; 
+
+	var varsomeVariantA = makeA(varsomeVariant, "Variant");
+	var varsomeGeneA = makeA(varsomeGene, "Gene");
+
+	console.log("appending to " + element); 
+	console.log(varsomeVariantA);
+	console.log(varsomeGeneA)
+
+	$(element).prepend(varsomeVariantA); 
+	$(element).prepend(varsomeGeneA);
+
+	function makeA(link, text) {
+
+		var assignedClass = "staffBottom";
+
+		return "<a class=\"" + assignedClass + "\" href=\"" + link + "\">" + text + "</a>";
+
+	}
 
 
 }
