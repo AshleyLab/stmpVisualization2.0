@@ -163,18 +163,17 @@ function addTopText(element, data) {
 	var startY = 20; 
 	var yStep = 20; 
 
+	//get data to rendered
+
 	var chromosome = data.core["Chromosome"].value; 
 	var position = data.core["Position"].value; 
 	var variationType = data.core["Variation Type"].value; 
 	var QUAL = data.core["QUAL"].value; 
 	var FILTER = data.core["FILTER"].value; 
 	var GT = data.core["GT"].value; 
-
-	var translationImpact = data.core["Translation Impact"].value; //missense, nonsense, etc. 
-
+	var translationImpact = data.core["Translation Impact"].value; 
 	var geneRegion = data.core["Gene Region"].value; 
 	var geneSymbol = data.core["Gene Symbol"].value; 
-
 	var transcriptVariant = data.core["Transcript Variant"].value; 
 	var proteinVariant = data.core["Protein Variant"].value; 
 
@@ -188,17 +187,12 @@ function addTopText(element, data) {
 	var words2 = [["QUAL ", 1], [QUAL, 0], [", FILTER ", 1], [FILTER, 0]]; 
 	var words3 = [[translationImpact, 0]]; 
 
-	var parsedGeneSymbol = parseGeneSymbol(geneSymbol); 
-		parsedGeneSymbol.push([", ", 1]);
-		parsedGeneSymbol.push([geneRegion, 0]);
-
-	var words4 = parsedGeneSymbol; 
+	var words4 = parseGeneSymbol(geneSymbol); 
+		words4.push([", ", 1]);
+		words4.push([geneRegion, 0]);
 	
 	var parsedTV = parseVariantTag(transcriptVariant, false); 
 	var parsedPV = parseVariantTag(proteinVariant, true);
-
-
-	
 
 	var leftX = $(element).width() / 4; 
 
@@ -259,8 +253,6 @@ function colorVariantTag(element, textData, textElement, colorer, offset, id, gr
 		.attr("width", (d, i) => d[0].width)
 		.attr("height", (d, i) => d[0].height)
 		.attr("fill", (d, i) => {
-
-			console.log(i);
 
 			if (i % 2 == 0 /*ref*/ && greyRef) {
 				return "grey";

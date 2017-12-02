@@ -262,17 +262,6 @@ function renderSpiralgram(data, element) {
 		var isThin = [true, true, false, false];
 		var isContiguous = [true, true, false, false]; //true --> no lines between neighboring arcs
 
-		// var innerRadius = Math.min(width, height) / 2 - outerBuffer - tracksWidth + spindlesToTracksBuffer; 
-		// var outerRadius = Math.min(width, height) / 2 - outerBuffer;  
-
-		var innerRadius = 0; 
-		var outerRadius = 100;   
-
-		var mRadius = (innerRadius + outerRadius) / 2; 
-		
-		var thinness = 4;
-		var thinThickBorder = 10;  
-
 		var buffer = 3; 
 
 		var innerBand = radiusMap["innerTracks"];
@@ -286,8 +275,6 @@ function renderSpiralgram(data, element) {
 			[outerBand[0], mOuterBand - buffer], 
 			[mOuterBand + buffer, outerBand[1]]
 		];
-
-		var nTracks = trackColumns.length; 
 
 		var trackData = $.map(data, variant => 
 			[$.map(trackColumns, column => variant.core[column].value)]
@@ -318,18 +305,15 @@ function renderSpiralgram(data, element) {
 			.append("path")
 			.attr("variant-index", function() { return d3.select(this.parentNode).attr("variant-index"); })
 			.classed("contiguous", function(d, i) {
+
 				if (isContiguous[i]) { 
 					return true; 
 				} 
 
-				if (!isThin[i]) {
-					return false;
-				}
-
 				return false; 
 			})
 			.attr("data-isChromosome", (_, i) => i == 2 ? "1" : "0")
-			.attr("d", function(d, i) { //manually specify the shape of the path
+			.attr("d", function(d, i) { 
 
 				var vI = parseInt(d3.select(this.parentNode).attr("variant-index")); 
 

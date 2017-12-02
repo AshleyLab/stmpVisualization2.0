@@ -116,13 +116,16 @@ function colorForNucleotide(d) {
 
 function displayInfo(value, kind, isFrequency, isMissing, proteinVariant) {
 
-	console.log(arguments);
-
 	var valueInfo = "#valueInfo";
 	var element = "#spiralElement";
+	var colorsID = "valueInfoColors";
+
+	var diameter = 120; 
 
 	if (isFrequency) { //change to isNumeric to round frequencies and numerical model scores
+
 		value = formatFrequency(parseFloat(value));
+
 	}
 
 	if (proteinVariant) { //false if not, otherwise "ref" or "alt"
@@ -130,34 +133,49 @@ function displayInfo(value, kind, isFrequency, isMissing, proteinVariant) {
 		var parsedPV = parseVariantTag(value, true);
 		var specialRectOffset = 8; 
 
-		var colorsID = "valueInfoColors";
 		d3.select(element).select("#" + colorsID).remove(); 
 		d3.select(element).select(valueInfo).selectAll("*").remove(); 
 
 		renderWords(element, parsedPV, valueInfo, 0, 0, specialRectOffset, false); 
-		colorVariantTag(element, value, valueInfo, colorForAcidSymbol, specialRectOffset * .65, colorsID, proteinVariant == "alt", proteinVariant == "ref"); 
 
 	} else {
 
+		d3.select(element).select("#" + colorsID).remove(); 
+		d3.select(element).select(valueInfo).selectAll("*").remove(); 
 
-		var r = 75; 
-
-		// d3.select(valueInfo)
-		// 	.text(isMissing ? "" : value)
-	 // 		.style("font-size", function(d, i) { 
-
-	 // 			var cTL = this.getComputedTextLength(); 
-	 // 			if (cTL > 2 * r) {
-	 // 				console.log("changing");
-	 // 				return (r * 2 - 8) / (cTL / 20); //20 is default font-size for svg text
-	 // 			}
-
-	 // 		});
-
-		d3.select("#kindInfo")
-			.text(kind);
+		d3.select(valueInfo)
+			.text(isMissing ? "" : value)
 
 	}
+
+	d3.select(valueInfo)
+ 		.style("font-size", function() { 
+
+ 			var currentFontSize = d3.select(this).attr("font-size");
+ 			console.log("original size: " + currentFontSize);
+
+ 			var cTL = this.getComputedTextLength(); 
+ 			console.log("original length: " + cTL);
+
+ 			if (cTL > diameter) {
+
+ 				var newSize = (diameter) / (cTL / 20) + "px"; 
+ 				console.log("changing size to " + newSize);
+
+ 				return newSize; 
+ 			}
+
+ 		});
+
+ 	if (proteinVariant) {
+		
+		colorVariantTag(element, value, valueInfo, colorForAcidSymbol, specialRectOffset * .65, colorsID, proteinVariant == "alt", proteinVariant == "ref"); 
+
+ 	}
+
+
+	d3.select("#kindInfo")
+		.text(kind);
 
 }
 
