@@ -129,7 +129,6 @@ function renderSpiralgram(data, element) {
 
 				displayInfo(words, translationImpact, false, false, false, true); 
 
-
 				renderStaff(data, i, "#staffElement", "#spiralElement"); 
 				renderTextBox(i);
 				renderDeleteButton(i); 
@@ -275,7 +274,8 @@ function renderSpiralgram(data, element) {
 		var isThin = [true, true, false, false];
 		var isContiguous = [true, true, false, false]; //true --> no lines between neighboring arcs
 
-		var buffer = 3; 
+		var innerBuffer = 2;
+		var outerBuffer = .5;  
 
 		var innerBand = radiusMap["innerTracks"];
 		var mInnerBand = (innerBand[0] + innerBand[1]) / 2; 
@@ -283,10 +283,10 @@ function renderSpiralgram(data, element) {
 		var mOuterBand = (outerBand[0] + outerBand[1]) / 2; 
 
 		var radii = [
-			[innerBand[0], mInnerBand - buffer], 
-			[mInnerBand + buffer, innerBand[1]], 
-			[outerBand[0], mOuterBand - buffer], 
-			[mOuterBand + buffer, outerBand[1]]
+			[innerBand[0], mInnerBand - innerBuffer], 
+			[mInnerBand + innerBuffer, innerBand[1]], 
+			[outerBand[0], mOuterBand - outerBuffer], 
+			[mOuterBand + outerBuffer, outerBand[1]]
 		];
 
 		var trackData = $.map(data, variant => 
@@ -364,8 +364,9 @@ function renderSpiralgram(data, element) {
 				}
 
 				var displayName = getDisplayName(vI, property);
+				var iM = getIsMissing(vI, property)
 
-				displayInfo(d, displayName, false, false, pV, false);
+				displayInfo(iM ? "n/a" : d, displayName, false, false, pV, false);
 
 			}).on("mouseout", function(d, i) {
 
@@ -406,6 +407,8 @@ function renderSpiralgram(data, element) {
 			.attr("variant-index", (_, i) => i)
 			.attr("transform", (d, i) => "translate(" + center[0] + "," + center[1] + ") rotate(" + gRotationScale(i) + ")"); 
 
+		var dA = .001; //avoid hairline cracks between components of crescents
+
 		d3.select(element)
 			.selectAll("g.crescent")
 			.selectAll("path")
@@ -423,7 +426,7 @@ function renderSpiralgram(data, element) {
 					.innerRadius(innerRadius)
 					.outerRadius(outerRadius)
 					.startAngle(sA)
-					.endAngle(eA);
+					.endAngle(eA + dA);
 
 				return arc(); 
 

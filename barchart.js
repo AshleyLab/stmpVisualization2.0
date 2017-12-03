@@ -36,6 +36,8 @@ function renderBarchart(data, element, variantIndex, headDisplayName) {
 	var frequencyData = {}; 
 	var maxFreq = 0; 
 
+	var denominators = []; 
+
 	$.each(populationFrequencies, (i, pair) => { 
 
 		var freq = parseFloat(data[variantIndex].core[pair[0]].originalValue); 
@@ -51,6 +53,8 @@ function renderBarchart(data, element, variantIndex, headDisplayName) {
 			maxFreq = freq; 
 		}
 
+		denominators.push(denominator);
+
 		frequencyData[pair[0]] = [freq, denominator]; 
 	});
 
@@ -59,7 +63,7 @@ function renderBarchart(data, element, variantIndex, headDisplayName) {
 	//LAYOUT
 
 	var margin = {
-		top: 20, bottom: 20, 
+		top: 20, bottom: 40, 
 		left: 40, right: 20
 	};
 
@@ -122,8 +126,6 @@ function renderBarchart(data, element, variantIndex, headDisplayName) {
 
 	///
 
-	var denominators = ["100","100","100","100","100"]; 
-
 	var xAxis2 = d3.axisBottom()
 		.scale(xScale)
 		.tickFormat((d, i) => denominators[i]);
@@ -131,7 +133,13 @@ function renderBarchart(data, element, variantIndex, headDisplayName) {
 	g.append("g")
 		.attr("class", "xAxis2")
 		.attr("transform", "translate(0," + (height + 10) + ")")
-		.call(xAxis)
+		.call(xAxis2)
+
+	//remove the actual lines, so just the denominator ns remain
+
+	d3.select(".xAxis2")
+		.selectAll("line")
+		.remove(); 
 
 	//y axis
 	var yAxis = d3.axisLeft()

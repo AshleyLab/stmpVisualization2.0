@@ -138,6 +138,9 @@ function displayInfo(value, kind, isFrequency, isMissing, proteinVariant, isLine
 	if (proteinVariant) { //false if not, otherwise "ref" or "alt"
 
 		//just display the first tag
+
+		console.log(value);
+
 		var tags = value.split(";");
 		if (tags.length > 1) {
 			value = tags[0] + "...";
@@ -303,33 +306,33 @@ function deepClone(thing) {
 
 }
 
-function getColor(index, total, highlight) {
+// function getColor(index, total, highlight) {
 
-	if (!highlight) {
+// 	if (!highlight) {
 
-		return d3.interpolateSpectral(index / (total - 1));
+// 		return d3.interpolateSpectral(index / (total - 1));
 
-	} else {
+// 	} else {
 
-		var rgb = d3.interpolateSpectral(index / (total - 1)).replace(/ /g, ""); 
-		var rgbValues = rgb.substring(rgb.indexOf("(") + 1, rgb.length - 2); 
+// 		var rgb = d3.interpolateSpectral(index / (total - 1)).replace(/ /g, ""); 
+// 		var rgbValues = rgb.substring(rgb.indexOf("(") + 1, rgb.length - 2); 
 		
-		var r = parseInt(rgbValues.split(",")[0]); 
-		var g = parseInt(rgbValues.split(",")[1]); 
-		var b = parseInt(rgbValues.split(",")[2]); 
+// 		var r = parseInt(rgbValues.split(",")[0]); 
+// 		var g = parseInt(rgbValues.split(",")[1]); 
+// 		var b = parseInt(rgbValues.split(",")[2]); 
 
-		var hsvOriginal = RGBtoHSV(r, g, b); 
-		var h = hsvOriginal.h; 
-		var s = hsvOriginal.s; 
-		var v = hsvOriginal.v; 
+// 		var hsvOriginal = RGBtoHSV(r, g, b); 
+// 		var h = hsvOriginal.h; 
+// 		var s = hsvOriginal.s; 
+// 		var v = hsvOriginal.v; 
 
-		var finalRGB = HSVtoRGB(h / 360, 0 / 100, 100 / 100); //white (for now)
+// 		var finalRGB = HSVtoRGB(h / 360, 0 / 100, 100 / 100); //white (for now)
 
-		return "rgb(" + finalRGB.r + "," + finalRGB.g + "," + finalRGB.b + ")";
+// 		return "rgb(" + finalRGB.r + "," + finalRGB.g + "," + finalRGB.b + ")";
 
-	}
+// 	}
 
-}
+// }
 
 function sortOnKeys(data, keys, increasing) { 
 
@@ -517,9 +520,10 @@ function colorForPopulation(populationColumnHeader) {
 			console.log("don't know what to do with population: " + populationColumnHeader);
 	}
 
-	var populationCodeColors = ["#967D69","#B9D2B1","#C7D66D","#2D4739","#61C3C"]; 
+	// var populationCodeColors = ["#967D69","#B9D2B1","#C7D66D","#2D4739","#61C3C"]; 
+	var palette = ["#98CE00","#16E0BD","#EE6352","#EAC435","#89A6FB"];
 
-	return populationCodeColors[populationCode];
+	return palette[populationCode];
 
 }
 
