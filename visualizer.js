@@ -120,7 +120,7 @@ function colorForNucleotide(d) {
 
 }
 
-function displayInfo(value, kind, isFrequency, isMissing, proteinVariant) {
+function displayInfo(value, kind, isFrequency, isMissing, proteinVariant, isLine) {
 
 	var valueInfo = "#valueInfo";
 	var element = "#spiralElement";
@@ -134,6 +134,8 @@ function displayInfo(value, kind, isFrequency, isMissing, proteinVariant) {
 
 	}
 
+	d3.select(element).select(valueInfo).selectAll("*").remove(); 
+
 	if (proteinVariant) { //false if not, otherwise "ref" or "alt"
 
 		//just display the first tag
@@ -146,14 +148,18 @@ function displayInfo(value, kind, isFrequency, isMissing, proteinVariant) {
 		var specialRectOffset = 8; 
 
 		d3.select(element).select("#" + colorsID).remove(); 
-		d3.select(element).select(valueInfo).selectAll("*").remove(); 
+		// d3.select(element).select(valueInfo).selectAll("*").remove(); 
 
 		renderWords(element, parsedPV, valueInfo, 0, 0, specialRectOffset, false); 
+
+	} else if (isLine) { 
+
+		renderWords(element, value, valueInfo, 0, 0, specialRectOffset, false); 
 
 	} else {
 
 		d3.select(element).select("#" + colorsID).remove(); 
-		d3.select(element).select(valueInfo).selectAll("*").remove(); 
+		// d3.select(element).select(valueInfo).selectAll("*").remove(); 
 
 		d3.select(valueInfo)
 			.text(isMissing ? "" : value)

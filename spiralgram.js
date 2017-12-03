@@ -117,9 +117,22 @@ function renderSpiralgram(data, element) {
 				d3.select(this)
 					.attr("stroke", highlightForSpindle);
 
+				var vI = parseInt(d3.select(this).attr("variant-index"));
+
+				//assemble words
+				var vD = data[vI];
+				var chromosome = vD.core["Chromosome"].value; 
+				var position = vD.core["Position"].value; 
+				var variationType = vD.core["Variation Type"].value;
+				var translationImpact = vD.core["Translation Impact"].value; 
+				var words = [[variationType, 0], [" at ", 1], [chromosome, 3], [":", 1], [position, 0]];
+
+				displayInfo(words, translationImpact, false, false, false, true); 
+
+
 				renderStaff(data, i, "#staffElement", "#spiralElement"); 
-				renderTextBox(i)
-				renderDeleteButton(i)
+				renderTextBox(i);
+				renderDeleteButton(i); 
 
 			}).on("mouseout", function(d, i) {
 
@@ -216,7 +229,7 @@ function renderSpiralgram(data, element) {
 
 				var isFrequency = $.inArray(displayName, spiralgramFrequenciesDisplayNames) !== -1; 
 
-				displayInfo(originalValue, displayName, isFrequency, isMissing, false);
+				displayInfo(originalValue, displayName, isFrequency, isMissing, false, false);
 
 				d3.select(element)
 					.selectAll("g")
@@ -243,7 +256,7 @@ function renderSpiralgram(data, element) {
 					.filter((_, index) => i == index)
 					.attr("fill", colorForAnnotation(i, nSpindleColumns)); 
 
-				displayInfo("","", false, false, false);
+				displayInfo("","", false, false, false, false);
 
 				d3.select(staffElement)
 					.select("circle[data-index=\"" + i + "\"")
@@ -352,14 +365,14 @@ function renderSpiralgram(data, element) {
 
 				var displayName = getDisplayName(vI, property);
 
-				displayInfo(d, displayName, false, false, pV);
+				displayInfo(d, displayName, false, false, pV, false);
 
 			}).on("mouseout", function(d, i) {
 
 				d3.select(this)
 					.attr("fill", colorers[i](d, i == 2)); 
 
-				displayInfo("", "", false, false, false)
+				displayInfo("", "", false, false, false, false)
 
 			});
 
