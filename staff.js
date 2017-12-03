@@ -220,8 +220,8 @@ function addTopText(element, data) {
 	renderWords(element, parsedPV, "words6", x, startY + 7.75 * yStep, specialRectOffset, true);
 
 	//add the colored circles behind nucleotide and amino acid abbreviations
-	colorVariantTag(element, transcriptVariant, "#words5", colorForNucleotide, specialRectOffset * .65, "#words5Colors", false, false);
-	colorVariantTag(element, proteinVariant, "#words6", colorForAcidSymbol, specialRectOffset * .65, "#words6Colors", false, false); 	
+	colorVariantTag(element, "#words5", colorForNucleotide, specialRectOffset * .65, "#words5Colors", false, false);
+	colorVariantTag(element, "#words6", colorForAcidSymbol, specialRectOffset * .65, "#words6Colors", false, false); 	
 
 }
 
@@ -372,13 +372,17 @@ function simplifyVariantTag(text, isProtein) {
 	return condensedText; 
 }
 
-function colorVariantTag(element, textData, textElement, colorer, offset, id, greyRef, greyAlt) {
+function colorVariantTag(element, textElement, colorer, offset, id, greyRef, greyAlt) {
+
+	console.log(arguments);
 
 	var rects = []; 
 
 	d3.select(textElement)
 		.selectAll("tspan")
 		.each(function(d, i) { 
+
+			console.log("each")
 
 			if (d[1] != 2) { 
 				return; 
@@ -397,6 +401,8 @@ function colorVariantTag(element, textData, textElement, colorer, offset, id, gr
 			rects.push([rect, d[0]]); 
 
 		}); 
+
+	console.log(rects);
 
 	var roundingRadius = 10; 
 
@@ -486,83 +492,62 @@ function renderWords(element, words, id, x, y, offset, appendText) {
 //render ref and alt amino acids
 function renderBlocks(left, right, element, y, colorer) {
 
-	var width = 40; 
+	var width = $(element).width(); 
 	var height = 20; 
-	var separation = 20; 
-	var roundingRadius = 10; 
 
 	var refStartX = $(element).width() / 2 - separation / 2 - width; 
 	var altStartX = $(element).width() / 2 + separation / 2; 
 
-	//add blocks
-	d3.select(element)
-		.append("rect")
-		.attr("x", refStartX)
-		.attr("y", y)
-		.attr("width", width)
-		.attr("height", height)
-		.attr("rx", roundingRadius)
-		.attr("ry", roundingRadius)
-		.attr("fill", colorer(left));
-
-	d3.select(element)
-		.append("rect")
-		.attr("x", altStartX)
-		.attr("y", y)
-		.attr("width", width)
-		.attr("height", height)
-		.attr("rx", roundingRadius)
-		.attr("ry", roundingRadius)
-		.attr("fill", colorer(right));
-
 	//add letters
-	d3.select(element)
+	var text = d3.select(element)
 		.append("text")
-		.attr("class","ref")
-		.attr("x", refStartX + width / 2)
+		.attr("class","nucleotides")
+		.attr("x", width / 2)
 		.attr("y", y + height / 2)
-		.attr("text-anchor", "middle")
 		.attr("dominant-baseline", "central") //centers text vertically at this y position
 		.attr("fill", "white")
 		.attr("font-size", "16px")
 		.attr("font-weight", "bold")
-		.text(left);
 
-	d3.select(element)
+	var separation = 10; 
+	var labelSeparation = separation - 4;
+
+	var xs = [width / 2 - separation, width / 2 + separation];
+	var labelsXs = [width / 2 - labelSeparation, width / 2 + labelSeparation];
+	var anchors = ["end", "start"]; 
+
+	var nucleotideData = [[left, 2], [right, 2]]; 
+
+	text.selectAll("tspan")
+		.data(nucleotideData)
+		.enter()
+		.append("tspan")
+		.text(d => d[0])
+		.attr("x", (_, i) => xs[i])
+		.attr("text-anchor", (_, i) => anchors[i]); 
+
+	//add labels
+	var labels = ["ref", "alt"];
+
+	var labelsText = d3.select(element)
 		.append("text")
-		.attr("class","alt")
-		.attr("x", altStartX + width / 2) 
-		.attr("y", y + height / 2)
-		.attr("text-anchor", "middle")
+		.attr("class","nucleotideLabels")
+		.attr("x", width / 2)
+		.attr("y", y - height / 2)
 		.attr("dominant-baseline", "central") //centers text vertically at this y position
 		.attr("fill", "white")
-		.attr("font-size", "16px")
-		.attr("font-weight", "bold")
-		.text(right);
+		.attr("font-size", "16px");
 
-	var textBuffer = 4; 
+	labelsText.selectAll("tspan")
+		.data(labels)
+		.enter()
+		.append("tspan")
+		.text(d => d)
+		.attr("x", (_, i) => labelsXs[i])
+		.attr("text-anchor", (_, i) => anchors[i]);
 
-	//add text
-	d3.select(element)
-		.append("text")
-		.attr("class","nucleotideDescriptions")
-		.attr("x", refStartX + width / 2)
-		.attr("y", y - textBuffer)
-		.attr("text-anchor", "middle")
-		.attr("fill", "white")
-		.attr("font-size", "16px")
-		.text("ref");
-
-	d3.select(element)
-		.append("text")
-		.attr("class","nucleotideDescriptions")
-		.attr("x", altStartX + width / 2)
-		.attr("y", y - textBuffer)
-		.attr("text-anchor", "middle")
-		.attr("fill", "white")
-		.attr("font-size", "16px")
-		.text("alt");
-
+	console.log("coloring color variant tag");
+	colorVariantTag(element, ".nucleotides", colorForNucleotide, 10 * .65, "#nucleotidesColors", false, false);
 
 }
 

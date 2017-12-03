@@ -181,7 +181,7 @@ function displayInfo(value, kind, isFrequency, isMissing, proteinVariant) {
 
  	if (proteinVariant) {
 		
-		colorVariantTag(element, value, valueInfo, colorForAcidSymbol, specialRectOffset * .65, colorsID, proteinVariant == "alt", proteinVariant == "ref"); 
+		colorVariantTag(element, valueInfo, colorForAcidSymbol, specialRectOffset * .65, colorsID, proteinVariant == "alt", proteinVariant == "ref"); 
 
  	}
 
