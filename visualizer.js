@@ -126,7 +126,7 @@ function displayInfo(value, kind, isFrequency, isMissing, proteinVariant) {
 	var element = "#spiralElement";
 	var colorsID = "valueInfoColors";
 
-	var diameter = 120; 
+	var diameter = 80; 
 
 	if (isFrequency) { //change to isNumeric to round frequencies and numerical model scores
 
@@ -135,6 +135,12 @@ function displayInfo(value, kind, isFrequency, isMissing, proteinVariant) {
 	}
 
 	if (proteinVariant) { //false if not, otherwise "ref" or "alt"
+
+		//just display the first tag
+		var tags = value.split(";");
+		if (tags.length > 1) {
+			value = tags[0] + "...";
+		}
 
 		var parsedPV = parseVariantTag(value, true);
 		var specialRectOffset = 8; 
