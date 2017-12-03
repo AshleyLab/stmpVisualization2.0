@@ -1,11 +1,10 @@
 //always renders chromosomes 1 - 22, X, Y
 var allChromosomes = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y"];
 
-var nPairs = 22; //autosomal only?
+var nChromosomes = 24; //autosomal only?
 var hoverColor = "#ff0000"; 
 var colorForSNPs = "#27A4A8"
 var highlightColor = "#007fff"; 
-
 
 function renderKaryotype(data, element) {
 
@@ -26,12 +25,12 @@ function renderKaryotype(data, element) {
 		.domain([0, maxLength])
 		.range([leftBuffer,  width]);
 
-	drawCytobands(cytobands, element, xScale);
-	drawVariants(variants, element, xScale, data);  
+	drawCytobands(cytobands, element, xScale, leftBuffer);
+	// drawVariants(variants, element, xScale, data);  
 
 }
 
-function drawCytobands(cytobands, element, xScale) {
+function drawCytobands(cytobands, element, xScale, leftBuffer) {
 
 	var height = $(element).height();
 	var width = $(element).width();
@@ -51,24 +50,25 @@ function drawCytobands(cytobands, element, xScale) {
 		.append("g")
 		.attr("id", function(d, i) { return "chr" + (i + 1); })
 		.attr("class", "chromosome")
-		.attr("transform", function(d, i) { return "translate(0, " + i * (height / nPairs) + ")"; }); 
+		.attr("transform", function(d, i) { return "translate(0, " + i * (height / nChromosomes) + ")"; }); 
 
 	canvas.selectAll(".chromosome")
 		.append("line")
 		.attr("stroke-linecap", "round") //round the ends of the lines
 		.attr("x1", xScale(0))
 		.attr("y1", 0)
-		.attr("x2", (d, _) => xScale(d))
+		.attr("x2", (d, _) => { console.log(d + " at " + _); return xScale(d); })
 		.attr("y2", 0)
 		.attr("stroke", "white")
 		.attr("stroke-width", 2);
 
 	canvas.selectAll(".chromosome")
 		.append("text")
-		.text((_, i) => allChromosomes[i])
-		.attr("x", 0)
+		.text((_, i) => (i % 2 == 0 || isNaN(allChromosomes[i])) ? allChromosomes[i] : "")
+		.attr("x", leftBuffer / 2)
 		.attr("y", 0)
 		.attr("fill", "white")
+		.attr("text-anchor", "middle") 
 		.attr("dominant-baseline", "central") //centers text vertically at this y position
 		.attr("font-size", 10);
 
@@ -194,18 +194,21 @@ function getCytobandsForChromosome(cytobands, chromosome) {
 function getLengths(cytobands) {
 
 	var lengths = [];
+	console.log(allChromosomes.length);
 
-	for (var i = 1; i <= nPairs; i++) {
+	for (var i = 0; i <= allChromosomes.length - 1; i++) {
 
-		var chromosomeName = "chr" + i; 
+		var chromosomeName = "chr" + allChromosomes[i]
 
-		lengths[i - 1] = Math.max(...$(cytobands).filter(function(index, element) {
+		lengths[i] = Math.max(...$(cytobands).filter(function(index, element) {
 				return element[0] === chromosomeName;
 			}).map(function(index, element) {
 				return parseInt(element[2]); 
 			})
 		);
 	}
+
+	console.log(lengths);
 
 	return lengths;
 }

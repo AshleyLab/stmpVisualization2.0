@@ -337,6 +337,9 @@ function renderSpiralgram(data, element) {
 
 			}).on("mouseover", function(d, i) {
 
+				var vI = parseInt(d3.select(this.parentNode).attr("variant-index")); 
+				var property = trackColumns[i]; 
+
 				//highlight on mouseover
 				d3.select(this)
 					.attr("fill", highlightForTrack)
@@ -347,7 +350,9 @@ function renderSpiralgram(data, element) {
 					pV = i == 2 ? "ref" : "alt";
 				}
 
-				displayInfo(d, trackColumns[i], false, false, pV);
+				var displayName = getDisplayName(vI, property);
+
+				displayInfo(d, displayName, false, false, pV);
 
 			}).on("mouseout", function(d, i) {
 
