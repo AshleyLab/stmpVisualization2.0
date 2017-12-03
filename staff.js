@@ -320,22 +320,14 @@ function simplifyVariantTag(text, isProtein) {
 		}
 		commonLettersFromEnd = commonLettersFromEnd.split("").reverse().join(""); //invert the string (so the letters in proper order)
 
-		console.log("commonLettersFromStart: " + commonLettersFromStart);
-		console.log("commonLettersFromEnd: " + commonLettersFromEnd);
-
-		console.log(previousTag);
-
 		if (
 				(commonLettersFromStart.length > 2 && isProtein) ||  /*the tags share more than "p."*/
 				(commonLettersFromStart.length >= 2 && !isProtein) && /* transcript variants just need to match "c."s*/
 
 			commonLettersFromEnd.length > 0) { /*the tags share a final amino acid or other thing (like "fs") */
 
-			console.log(tag.join("") + " and " + previousTag.join("") + " match"); 
-
  
 			if (!(commonLettersFromStart.length >= startLettersMerged && commonLettersFromEnd.length >= endLettersMerged)) {
-				console.log("jk");
 				break; //see explanation by declaration of startLetters merged and commonLettersMerged
 			}
 
@@ -349,7 +341,6 @@ function simplifyVariantTag(text, isProtein) {
 			var previousTagInterior = previousTag.slice(j, kPT + 1).join("");
 
 			var mergedTag = (commonLettersFromStart + previousTagInterior + separator + tagInterior + commonLettersFromEnd).split("");
-			console.log(mergedTag);
 
 			//replace the current tag with the merged tag, 
 			tags[i] = mergedTag; 
@@ -363,8 +354,6 @@ function simplifyVariantTag(text, isProtein) {
 
 	}
 
-	console.log(tags);
-
 	var condensedText = $.map(tags, (tag, i) => {
 		return tag.join("");
 	}).join("; ");
@@ -374,15 +363,11 @@ function simplifyVariantTag(text, isProtein) {
 
 function colorVariantTag(element, textElement, colorer, offset, id, greyRef, greyAlt) {
 
-	console.log(arguments);
-
 	var rects = []; 
 
 	d3.select(textElement)
 		.selectAll("tspan")
 		.each(function(d, i) { 
-
-			console.log("each")
 
 			if (d[1] != 2) { 
 				return; 
@@ -401,8 +386,6 @@ function colorVariantTag(element, textElement, colorer, offset, id, greyRef, gre
 			rects.push([rect, d[0]]); 
 
 		}); 
-
-	console.log(rects);
 
 	var roundingRadius = 10; 
 
@@ -546,7 +529,6 @@ function renderBlocks(left, right, element, y, colorer) {
 		.attr("x", (_, i) => labelsXs[i])
 		.attr("text-anchor", (_, i) => anchors[i]);
 
-	console.log("coloring color variant tag");
 	colorVariantTag(element, ".nucleotides", colorForNucleotide, 10 * .65, "#nucleotidesColors", false, false);
 
 }

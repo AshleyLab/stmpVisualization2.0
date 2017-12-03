@@ -131,7 +131,6 @@ function displayInfo(value, kind, isFrequency, isMissing, proteinVariant, isLine
 	if (isFrequency) { //change to isNumeric to round frequencies and numerical model scores
 
 		value = formatFrequency(parseFloat(value));
-
 	}
 
 	d3.select(element).select(valueInfo).selectAll("*").remove(); 
@@ -166,24 +165,47 @@ function displayInfo(value, kind, isFrequency, isMissing, proteinVariant, isLine
 
 	}
 
+	//fix inconsistent font resizing 
 	d3.select(valueInfo)
- 		.style("font-size", function() { 
+		.each(function() {
 
  			var currentFontSize = d3.select(this).attr("font-size");
- 			// console.log("original size: " + currentFontSize);
+ 			console.log("original size: " + currentFontSize);
 
  			var cTL = this.getComputedTextLength(); 
- 			// console.log("original length: " + cTL);
+ 			console.log("original length: " + cTL);
 
  			if (cTL > diameter) {
 
- 				var newSize = (diameter) / (cTL / 20) + "px"; 
- 				// console.log("changing size to " + newSize);
+	 				var newSize = (diameter) / (cTL / 20) + "px"; 
+	 				console.log("changing size to " + newSize);
 
- 				return newSize; 
+	 				d3.select(this).attr("font-size", newSize);
+
+ 			} else { 
+ 				console.log("not changing")
  			}
 
- 		});
+		});
+ 		// .style("font-size", function() { 
+
+ 		// 	var currentFontSize = d3.select(this).attr("font-size");
+ 		// 	console.log("original size: " + currentFontSize);
+
+ 		// 	var cTL = this.getComputedTextLength(); 
+ 		// 	console.log("original length: " + cTL);
+
+ 		// 	if (cTL > diameter) {
+
+ 		// 		var newSize = (diameter) / (cTL / 20) + "px"; 
+ 		// 		console.log("changing size to " + newSize);
+
+ 		// 		return newSize; 
+ 		// 	}
+
+ 		// 	return currentFontSize;
+
+ 		// });
 
  	if (proteinVariant) {
 		

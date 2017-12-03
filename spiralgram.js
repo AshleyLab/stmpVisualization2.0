@@ -576,7 +576,7 @@ function colorForProteinVariantData(proteinVariant, getRef) {
 
 function colorForGenotype(genotype) { 
 
-	var i = d3.interpolate("black","white");
+	var i = d3.interpolate("white","red");
 
 	if (genotype == "0") {
 		return i(0); 

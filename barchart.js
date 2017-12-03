@@ -104,7 +104,7 @@ function renderBarchart(data, element, variantIndex, headDisplayName) {
 		.attr("height", (d, _) => { 
 			return height - yScale(frequencyData[d][0]); 
 		})
-		.attr("fill", (d, _) => colorForPopulation(d))
+		.attr("fill", (d, _) => colorForPopulation(d));
 
 
 	//x axis
