@@ -1,11 +1,8 @@
 function renderBarchart(data, element, variantIndex, headDisplayName) { 
 
-	console.log(arguments);
-
 	//detail view of population level frequencies
 
 	//possible head frequencies
-	//ExAC Frequency, 
 
 	var populationFrequencies = []; 
 

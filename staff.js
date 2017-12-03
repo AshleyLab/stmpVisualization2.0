@@ -177,10 +177,17 @@ function addTopText(element, data) {
 	var transcriptVariant = data.core["Transcript Variant"].value; 
 	var proteinVariant = data.core["Protein Variant"].value; 
 
-	simplified = simplifyProteinVariant(proteinVariant);
-	console.log(simplified);
-	proteinVariant = simplified; 
+	if (data.core["Protein Variant"].isMissing) {
+		proteinVariant = ""; 
+	} else if (data.core["Translation Impact"].isMissing) {
+		transcriptVariant = "";
+	}
 
+	proteinVariant = simplifyVariantTag(proteinVariant, true);
+	transcriptVariant = simplifyVariantTag(transcriptVariant, false);
+
+	console.log(proteinVariant);
+	console.log(transcriptVariant);
 	//[words, id (what kind of string it is)]
 
 	//0: regular (not junk or special--positions in tag) (bolded)
@@ -218,13 +225,19 @@ function addTopText(element, data) {
 
 }
 
-function simplifyProteinVariant(text) { 
+function simplifyVariantTag(text, isProtein) { 
+
+	console.log(text);
 	
 	var separator = ",";
 
 	//p.S981P; p.S997P --> 
 	//p.S981,997P
-	//but don't merge if not same acid change
+	//if same amino acid change
+
+	//c.2989T>C; c.2941T>C --> 
+	//c.2989,2941T>C
+	//if same nucleotide
 
 	String.prototype.replaceAll = function(search, replacement) { //https://stackoverflow.com/questions/1144783/how-to-replace-all-occurrences-of-a-string-in-javascript
 	    var target = this;
@@ -237,18 +250,41 @@ function simplifyProteinVariant(text) {
 
 	console.log(tags);
 
+	//***
+	//without this, "c.1insT; c.2insT; c.3dupT" --> "c.1,2ins,3dupT" happens
+	//which is not the best, since it's unclear what goes with the first tag
+
+	//rule: if something has been gapped from a tag because it was merged with another tag, 
+	//other tags can only merge with the resultant tag if they share the thing that was merged
+
+	//easiest solution: keep track of how many letters from the start and end have been merged so far
+	//and if a tag wants to merge with an earlier tag but shares fewer letters, don't merge
+	//so "c.1insT; c.2insT; c.3dupT" would be "c.1,2insT; c.3dupT"
+
+	//***
+	var startLettersMerged = 0; 
+	var endLettersMerged = 0; 
+
 	for (var i = 1; i < tags.length; i++) { 
 
 		var tag = tags[i];
 		var previousTag = tags[i - 1];
 
 		//starting at the beginning, see what the tags have in common
-		//but don't match numbers (we don't want to condense the positions)
 		var commonLettersFromStart = ""; 
 		for (var j = 0; j < tag.length; j++) {
-			if (!isNaN(tag[j])) { //if the other tag letter is NaN, we'll break anywa
+
+			//don't match numbers (we don't want to condense the positions)
+			if (!isNaN(tag[j]) || tag[j] == "-") { //if the other tag letter is NaN, we'll break anyway
+				//"-" could be start of negative number
 				break; 
 			}
+
+			//for transcript variant, just try to match "c."s
+			if (!isProtein && j >= 2) {
+				break; 
+			}
+
 			if (tag[j] == previousTag[j]) {
 				commonLettersFromStart += tag[j];
 			} else { 
@@ -259,17 +295,21 @@ function simplifyProteinVariant(text) {
 		//starting at the end, see what the tags have in common
 		//but don't match numbers UNLESS we haven't seen a nonnumber yet 
 			//some frame shifts end in numbers, e.g., p.G1309fs*11
-		var haveSeenNonLetter = false; 
+		var haveSeenNonNumber = false; 
 		var commonLettersFromEnd = ""; 
 		for (var k = tag.length - 1; k >= 0; k--) {
 
 			var dk = (tag.length - 1) - k; 
 			var kPT = (previousTag.length - 1) - dk; 
 
-			if (!isNaN(tag[k]) && !haveSeenNonLetter) {
-				break; 
+			if (!isNaN(tag[k])) {
+
+				if (haveSeenNonNumber) {
+					break; 
+				}
+
 			} else if (isNaN(tag[k])) {
-				haveSeenNonLetter = true; 
+				haveSeenNonNumber = true; 
 			}
 
 			if (tag[k] == previousTag[kPT]) {
@@ -285,10 +325,23 @@ function simplifyProteinVariant(text) {
 
 		console.log(previousTag);
 
-		if (commonLettersFromStart.length > 2 && /*the tags share more than "p."*/
-			commonLettersFromEnd.length >= 0) { /*the tags share a final amino acid or other thing (like "fs") */
+		if (
+				(commonLettersFromStart.length > 2 && isProtein) ||  /*the tags share more than "p."*/
+				(commonLettersFromStart.length >= 2 && !isProtein) && /* transcript variants just need to match "c."s*/
+
+			commonLettersFromEnd.length > 0) { /*the tags share a final amino acid or other thing (like "fs") */
 
 			console.log(tag.join("") + " and " + previousTag.join("") + " match"); 
+
+ 
+			if (!(commonLettersFromStart.length >= startLettersMerged && commonLettersFromEnd.length >= endLettersMerged)) {
+				console.log("jk");
+				break; //see explanation by declaration of startLetters merged and commonLettersMerged
+			}
+
+			startLettersMerged = commonLettersFromStart.length; 
+			endLettersMerged = commonLettersFromEnd.length;
+
 			//merge the tags
 
 			//this is where the tags differ
@@ -624,10 +677,6 @@ function addBottomText(element, data) {
 
 	var varsomeVariantA = makeA(varsomeVariant, "Variant");
 	var varsomeGeneA = makeA(varsomeGene, "Gene");
-
-	console.log("appending to " + element); 
-	console.log(varsomeVariantA);
-	console.log(varsomeGeneA)
 
 	$(element).prepend(varsomeVariantA); 
 	$(element).prepend(varsomeGeneA);

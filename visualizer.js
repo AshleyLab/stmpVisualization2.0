@@ -158,15 +158,15 @@ function displayInfo(value, kind, isFrequency, isMissing, proteinVariant) {
  		.style("font-size", function() { 
 
  			var currentFontSize = d3.select(this).attr("font-size");
- 			console.log("original size: " + currentFontSize);
+ 			// console.log("original size: " + currentFontSize);
 
  			var cTL = this.getComputedTextLength(); 
- 			console.log("original length: " + cTL);
+ 			// console.log("original length: " + cTL);
 
  			if (cTL > diameter) {
 
  				var newSize = (diameter) / (cTL / 20) + "px"; 
- 				console.log("changing size to " + newSize);
+ 				// console.log("changing size to " + newSize);
 
  				return newSize; 
  			}
@@ -334,17 +334,12 @@ function showSpinner() {
 
 function hideSpinner() {
 
-
-	console.log("hiding spinner");
-
 	$("#spinnerContainer").hide()
 	$("#inputContainer").show()
 
 }
 
 function scrollToElement(element) {
-
-	console.log("scrolling");
 
 	$("html, body").animate({
         scrollTop: $(element).offset().top
