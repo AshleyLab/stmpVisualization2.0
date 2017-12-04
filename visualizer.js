@@ -192,6 +192,8 @@ function displayInfo(value, kind, isFrequency, isMissing, proteinVariant, isLine
 		// });
  		.style("font-size", function() { 
 
+ 			//maybe don't do this if just clearing?
+
  			var currentFontSize = d3.select(this).attr("font-size");
  			console.log("fs currentFontSize: " + currentFontSize);
 
@@ -204,25 +206,32 @@ function displayInfo(value, kind, isFrequency, isMissing, proteinVariant, isLine
  			var computedTextLength = this.getComputedTextLength(); 
  			console.log("fs computedTextLength: " + computedTextLength);
 
+ 			var newSize = currentFontSize2; 
+
  			if (computedTextLength > diameter) {
 
  				console.log("fs too big"); 
- 				var newSize = (diameter) / (computedTextLength / currentFontSize2) + "px"; 
+ 				newSize = (diameter) / (computedTextLength / currentFontSize2); 
  				console.log("fs newSize: " + newSize);
 
- 				return newSize; 
-
- 			} else if (computedTextLength < diameter) {
+ 			} else if (computedTextLength < diameter) { //currently identical
 
  				console.log("fs too small");
- 				var newSize = (diameter) / (computedTextLength / currentFontSize2) + "px"; 
+ 				newSize = (diameter) / (computedTextLength / currentFontSize2); 
  				console.log("fs newSize: " + newSize);
-
- 				return newSize; 
 
  			}
 
- 			return currentFontSize2;
+ 			var limits = [4, 30]; //max and min size
+
+ 			console.log("fs newSize before clipping: " + newSize);
+ 			console.log(limits[0] + " | " + limits[1]);
+ 			console.log(Math.max(newSize, limits[0])); 
+ 			console.log(Math.min(Math.max(newSize, limits[0]), limits[1]));
+ 			newSize = Math.min(Math.max(newSize, limits[0]), limits[1]); 
+ 			console.log("fs newSize clipped to: " + newSize);
+
+ 			return newSize; //+ "px";
 
  		});
 
