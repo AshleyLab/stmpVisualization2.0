@@ -150,10 +150,6 @@ function renderBarchart(data, element, variantIndex, headDisplayName) {
 		.attr("class", "yAxis")
 		.call(yAxis);
 
-	//add the ns to the top of the bars
-	// g.selectAll("text.denominators")
-	// 	.data()
-}
 
 function axisLabel(d, frequencyData) {
 	var shortName = shortNameForPopulation(d);
