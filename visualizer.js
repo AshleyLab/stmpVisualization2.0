@@ -45,17 +45,22 @@ function renderVisualization(isStreamgraph, element, data) {
 			.append("svg")
 			.attr("id", "staffElement");
 
-		//setup for karyotype and barchart
+		//setup for karyotype and barchart and analysis toosl
 
-		d3.select(element)
-			.append("svg")
+		var bottomRow = d3.select(element)
+			.append("div")
+			.attr("id", "bottomRow");
+
+		bottomRow.append("svg")
 			.attr("id","karyotypeElement"); 
 
-		d3.select(element)
-			.append("svg")
+		bottomRow.append("div")
+			.attr("id","tools"); 
+
+		bottomRow.append("svg")
 			.attr("id", "barchartElement");
 
-		console.log("rendering visualization!");
+		//
 
 		renderKaryotype(data, "#karyotypeElement");
 		// renderBarchart(data, "#barchartElement", 3)		
@@ -77,11 +82,8 @@ function hideDownloadButton() {
 
 function showDownloadButton() {
 
-	// d3.select("#downloadLink")
-	// 	.attr("visibility", "visible");
-
-	$("#downloadLink")
-		.show(); 
+	$("#tools")
+		.append("<a id='downloadLink' class='btn btn-primary btn-xl'>Download</a>"); 
 
 }
 

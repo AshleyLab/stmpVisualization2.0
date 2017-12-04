@@ -30,17 +30,38 @@ input[type="radio"] {
   margin-right: .5rem;
 }
 
-#karyotypeElement { 
-/*  position: absolute;
-*/  left: 20px;
+/* style the bottom row */
+
+#bottomRow div, 
+#bottomRow svg { 
+  display: inline-block;
+}
+
+#bottomRow {
   height: 200px;
 }
 
-#barchartElement { 
-  height: 200px;
-  position: absolute;
-  right: 20px;
+#tools { 
+  height: 100%;
+  width: 40%;
+  overflow: hidden;
 }
+
+#karyotypeElement { 
+/*  float: left;
+*/  height: 100%;
+/*    position: absolute;
+*/    /*left: 0;*/
+    width: 30%
+}
+
+#barchartElement { 
+  height: 100%;
+/*  position: absolute;
+*/  /*right: 0;
+*/  width: 30%
+/*  float: right;
+*/}
 
 #downloadLink { 
   color: white;
