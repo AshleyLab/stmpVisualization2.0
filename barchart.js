@@ -149,7 +149,7 @@ function renderBarchart(data, element, variantIndex, headDisplayName) {
 	g.append("g")
 		.attr("class", "yAxis")
 		.call(yAxis);
-
+}
 
 function axisLabel(d, frequencyData) {
 	var shortName = shortNameForPopulation(d);

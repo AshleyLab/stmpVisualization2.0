@@ -170,45 +170,61 @@ function displayInfo(value, kind, isFrequency, isMissing, proteinVariant, isLine
 
 	//fix inconsistent font resizing 
 	d3.select(valueInfo)
-		.each(function() {
+		// .each(function() {
+
+ 	// 		var currentFontSize = d3.select(this).attr("font-size");
+ 	// 		console.log("original size: " + currentFontSize);
+
+ 	// 		var cTL = this.getComputedTextLength(); 
+ 	// 		console.log("original length: " + cTL);
+
+ 	// 		if (cTL > diameter) {
+
+	 // 				var newSize = (diameter) / (cTL / 20) + "px"; 
+	 // 				console.log("changing size to " + newSize);
+
+	 // 				d3.select(this).attr("font-size", newSize);
+
+ 	// 		} else { 
+ 	// 			console.log("not changing")
+ 	// 		}
+
+		// });
+ 		.style("font-size", function() { 
 
  			var currentFontSize = d3.select(this).attr("font-size");
- 			console.log("original size: " + currentFontSize);
+ 			console.log("fs currentFontSize: " + currentFontSize);
 
- 			var cTL = this.getComputedTextLength(); 
- 			console.log("original length: " + cTL);
+ 			var cFSasFloat = parseFloat(currentFontSize.substring(0, currentFontSize.indexOf("px")));
+ 			console.log("fs cFSasFloat: " + cFSasFloat);
 
- 			if (cTL > diameter) {
+ 			var currentFontSize2 = parseFloat(window.getComputedStyle(this, null).getPropertyValue("font-size")); 
+ 			console.log("fs currentFontSize2: " + currentFontSize2);
 
-	 				var newSize = (diameter) / (cTL / 20) + "px"; 
-	 				console.log("changing size to " + newSize);
+ 			var computedTextLength = this.getComputedTextLength(); 
+ 			console.log("fs computedTextLength: " + computedTextLength);
 
-	 				d3.select(this).attr("font-size", newSize);
+ 			if (computedTextLength > diameter) {
 
- 			} else { 
- 				console.log("not changing")
+ 				console.log("fs too big"); 
+ 				var newSize = (diameter) / (computedTextLength / currentFontSize2) + "px"; 
+ 				console.log("fs newSize: " + newSize);
+
+ 				return newSize; 
+
+ 			} else if (computedTextLength < diameter) {
+
+ 				console.log("fs too small");
+ 				var newSize = (diameter) / (computedTextLength / currentFontSize2) + "px"; 
+ 				console.log("fs newSize: " + newSize);
+
+ 				return newSize; 
+
  			}
 
-		});
- 		// .style("font-size", function() { 
+ 			return currentFontSize2;
 
- 		// 	var currentFontSize = d3.select(this).attr("font-size");
- 		// 	console.log("original size: " + currentFontSize);
-
- 		// 	var cTL = this.getComputedTextLength(); 
- 		// 	console.log("original length: " + cTL);
-
- 		// 	if (cTL > diameter) {
-
- 		// 		var newSize = (diameter) / (cTL / 20) + "px"; 
- 		// 		console.log("changing size to " + newSize);
-
- 		// 		return newSize; 
- 		// 	}
-
- 		// 	return currentFontSize;
-
- 		// });
+ 		});
 
  	if (proteinVariant) {
 		

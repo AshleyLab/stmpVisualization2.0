@@ -40,6 +40,8 @@ function renderSpiralgram(data, element) {
 
 	function addText() {
 
+		console.log("adding text");
+
 		d3.select(element)
 			.append("text")
 			.attr("id", "valueInfo")
