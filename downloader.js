@@ -1,7 +1,41 @@
 function downloadButtonClicked() { 
 
 	console.log("downloadButtonClicked called");
-	downloadDataAsXls(variantData);
+	downloadData(variantData);
+
+}
+
+function downloadData(data) {
+
+	var wb = { 
+		SheetNames : [], 
+		Sheets : {} 
+	};
+	
+	var dataAsWorkbook = convertVariantDataToWorkbook(data);
+
+	//prepare for xls, then write with boilerplate
+	var cells = dataAsWorkbook[0];
+	var columns = dataAsWorkbook[1];
+
+	console.log(cells);
+
+	wb.SheetNames.push("Sheet1");
+
+	var ws = XLSX.utils.json_to_sheet(cells, {header : columns});
+
+	wb["Sheets"]["Sheet1"] = ws; 
+
+	var wopts = { bookType : "xlsx", bookSST : false, type : "binary" };
+	var wbout = XLSX.write(wb, wopts);
+
+	//create new file name
+	var base = fileName.substring(0, fileName.indexOf("."));
+	var extension = fileName.substring(fileName.indexOf("."));
+	var infix = "-edited";
+
+	// the saveAs call downloads a file on the local machine 
+	saveAs(new Blob([s2ab(wbout)], {type : "application/octet-stream"}), base + infix + extension);
 }
 
 function s2ab(s) {
@@ -17,70 +51,38 @@ function s2ab(s) {
 }
 
 //parses our variant data construct and returns a set of headers and cell data
-function convertVariantDataToWorkbook(vData) {
+function convertVariantDataToWorkbook(data) {
 
-	if (typeof vData[0] == "undefined"){ //in case we call this function to early return
-		console.log("issues");
-		return; 
-	}
+	var arr = []; 
 
-	arr = []; 
-	for(var i in vData) {
+	for (var i in data) {
 
-		row = {}; 
+		var row = {}; 
 
-		for (var col in vData[i]["core"]) {
-			row[col] = vData[i]["core"][col]["originalValue"] //should it be the variable original value
+		for (var col in data[i].core) {
+			row[col] = data[i].core[col].originalValue;
 		}
 
-		row['notes']= (vData[i]['metadata']['workflow']['notes']) //write the notes
-		//write the deletion stats: TODO find a way to gray out the entire row
-		if(vData[i]['metadata']['workflow']['deleted'] == true){
-			row['curationStatus'] = 'deleted'
-		}
-		else{
-			row['curationStatus'] = 'no'
+		row.notes = data[i].metadata.workflow.notes; 
+
+		//TODO find a way to gray out deleted rows
+		if (data[i].metadata.workflow.deleted) {
+
+			row.curationStatus = "deleted";
+
+		} else {
+
+			row.curationStatus = "not deleted";
 		}
 		
-		arr.push(row)
+		arr.push(row);
 	}
 
-	var cols = []; //get the columns for the spreadsheet
+	var columns = []; 
+
 	for (i in arr[0]) {
-		cols.push(i); 
+		columns.push(i); 
 	}
 
-	return [arr, cols];
-}
-
-function downloadDataAsXls(vData) {
-
-	var wb = { 
-		SheetNames : [], 
-		Sheets : {} 
-	};
-	
-	var dataForXls = convertVariantDataToWorkbook(vData);
-	if (typeof dataForXls == "undefined") {
-		console.log("unable to download");
-		return;
-	}
-
-	//prepare for xls, then write with boilerplate
-	var cells = dataForXls[0];
-	var cols = dataForXls[1];
-
-	console.log(cells);
-
-	wb.SheetNames.push("Sheet1");
-
-	var ws = XLSX.utils.json_to_sheet(cells, {header : cols});
-
-	wb["Sheets"]["Sheet1"] = ws; 
-
-	var wopts = { bookType : "xlsx", bookSST : false, type : "binary" };
-	var wbout = XLSX.write(wb,wopts);
-	
-	// the saveAs call downloads a file on the local machine 
-	saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), "noahTest.xlsx");
+	return [arr, columns];
 }

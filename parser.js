@@ -1,8 +1,9 @@
-var element, axisSpace, pathClicks, outerElement, data, variantData; 
+var element, axisSpace, pathClicks, outerElement, data, variantData, fileName; 
 
 $(function() {
 
 	var element = "#graphics";
+	fileName = ""; 
 
 	axisSpace = 15;
 
@@ -17,6 +18,7 @@ $(function() {
     $("#uploadInput").change(function() { //code called by $("#uploadInput").trigger("click");
 
 		var file = $("#uploadInput")[0].files[0]; //the file uploaded by the user
+		fileName = file.name; 
 
 		if (validateXLSX(file)) {
 
@@ -33,15 +35,8 @@ $(function() {
 	});
 
 	$("input[type=radio]").change(function() { 
-		console.log('bantamweight');
+
 		data = renderVisualization(this.value == "stream", element, data)
-
-	});
-
-	$("#downloadLink").on("click", function(event) {
-
-		event.preventDefault(); 
-		downloadButtonClicked(); 
 
 	});
 

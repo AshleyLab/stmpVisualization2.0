@@ -14,11 +14,16 @@ function renderTools(data, index) {
 	});
 
 	//delete button
-	renderDeleteButton(false);
+	renderDeleteButton(index, false);
 
 	//download button
 	$("#tools")
 		.append("<a id='downloadLink' class='btn btn-primary'>DOWNLOAD SHEET</a>"); 
+
+	$("#downloadLink").on("click", function() { 
+		console.log("button clicked");
+		downloadButtonClicked();
+	});
 
 }
 
@@ -29,20 +34,24 @@ function deleteVariant(index) {
 
 	variantData[index].metadata.workflow.deleted = !isDeleted;
 
-	renderDeleteButton(!isDeleted);
+	renderDeleteButton(index, !isDeleted);
 }
 
-function renderDeleteButton(isDeleted) {
+function renderDeleteButton(index, isDeleted) {
 
-	var text = isDeleted ? "UNDELTE THIS VARIANT" : "DELETE THIS VARIANT";
+	var text = isDeleted ? "UNDELETE THIS VARIANT" : "DELETE THIS VARIANT";
 
-	$("#deleteLink").remove(); 
+	if ($("#deleteLink").length == 0) {  //doesn't exist
 
-	console.log("appending");
-	$("#tools")
-		.append("<a id='deleteLink' class='btn btn-primary'>" + text + "</button>");
+		$("#tools")
+			.append("<a id='deleteLink' class='btn btn-primary'>" + text + "</button>");
+		$("#deleteLink").on("click", () => { console.log("clicked"); deleteVariant(index)}); 
 
-	$("#deleteLink").on("click", () => deleteVariant(index)); 
+	} else { //exists, just update
+
+		$("#deleteLink").text(text);
+
+	}
 
 }
 
