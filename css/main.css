@@ -47,6 +47,10 @@ input[type="radio"] {
   overflow: hidden;
 }
 
+#tools a.btn { 
+  color: white;
+}
+
 #karyotypeElement { 
 /*  float: left;
 */  height: 100%;

@@ -67,23 +67,33 @@ function renderVisualization(isStreamgraph, element, data) {
 		renderSpiralgram(data, "#spiralElement");
 		renderStaff(data, 0, "#staffElement", "#spiralElement");
 
-		showDownloadButton(); 
+		showTools(); 
 
 	}
 
 }
 
-function hideDownloadButton() { 
+function hideTools() { 
 
 	$("#downloadLink")
 		.hide(); 
 
 }
 
-function showDownloadButton() {
+function renderTools() {
 
+
+	//text book 
 	$("#tools")
-		.append("<a id='downloadLink' class='btn btn-primary btn-xl'>Download</a>"); 
+		.append("<form><input type='text' placeholder='Enter notes...' id='notesTextBox'><br></form>"); 
+
+	//delete button
+	$("#tools")
+		.append("<a id='deleteLink' class='btn btn-primary'>DELETE THIS VARIANT</button>");
+
+	//download button
+	$("#tools")
+		.append("<a id='downloadLink' class='btn btn-primary'>DOWNLOAD SHEET</a>"); 
 
 }
 
@@ -224,12 +234,10 @@ function displayInfo(value, kind, isFrequency, isMissing, proteinVariant, isLine
 
  			}
 
- 			var limits = [4, 30]; //max and min size
+ 			var limits = [4, 25]; //max and min size
 
  			console.log("fs newSize before clipping: " + newSize);
- 			console.log(limits[0] + " | " + limits[1]);
- 			console.log(Math.max(newSize, limits[0])); 
- 			console.log(Math.min(Math.max(newSize, limits[0]), limits[1]));
+
  			newSize = Math.min(Math.max(newSize, limits[0]), limits[1]); 
  			console.log("fs newSize clipped to: " + newSize);
 

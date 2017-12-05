@@ -2,8 +2,6 @@ var element, axisSpace, pathClicks, outerElement, data, variantData;
 
 $(function() {
 
-	hideDownloadButton(); 
-
 	var element = "#graphics";
 
 	axisSpace = 15;
