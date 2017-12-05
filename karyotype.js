@@ -67,7 +67,7 @@ function drawCytobands(cytobands, element, xScale, yScale, leftBuffer, rightBuff
 		.attr("stroke-linecap", "round") //round the ends of the lines
 		.attr("x1", xScale(0))
 		.attr("y1", 0)
-		.attr("x2", (d, _) => { console.log(d + " at " + _); return xScale(d); })
+		.attr("x2", (d, _) => xScale(d))
 		.attr("y2", 0)
 		.attr("stroke", (d, i) => i % 2 == 0 ? "white" : "#d1d1d1")
 		.attr("stroke-width", 2);
@@ -106,7 +106,6 @@ function drawVariants(SNPs, element, xScale, yScale, data) { // SNPs is expected
 		.attr("fill", function() { 
 
 			var i = parseInt(d3.select(this.parentNode).attr("chromosome-index")); 
-			console.log(i);
 			return i % 2 == 0 ? colorForSNPs1 : colorForSNPs2;
 
 		})

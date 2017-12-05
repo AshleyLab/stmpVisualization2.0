@@ -67,33 +67,9 @@ function renderVisualization(isStreamgraph, element, data) {
 		renderSpiralgram(data, "#spiralElement");
 		renderStaff(data, 0, "#staffElement", "#spiralElement");
 
-		showTools(); 
+		renderTools(data, 0); 
 
 	}
-
-}
-
-function hideTools() { 
-
-	$("#downloadLink")
-		.hide(); 
-
-}
-
-function renderTools() {
-
-
-	//text book 
-	$("#tools")
-		.append("<form><input type='text' placeholder='Enter notes...' id='notesTextBox'><br></form>"); 
-
-	//delete button
-	$("#tools")
-		.append("<a id='deleteLink' class='btn btn-primary'>DELETE THIS VARIANT</button>");
-
-	//download button
-	$("#tools")
-		.append("<a id='downloadLink' class='btn btn-primary'>DOWNLOAD SHEET</a>"); 
 
 }
 

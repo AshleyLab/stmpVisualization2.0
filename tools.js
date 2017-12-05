@@ -1,16 +1,17 @@
 //for editing the data while it is being visualized (delete variant, add notes etc)
 function renderTools(data, index) {
 
-	//text box
+	console.log(arguments);
+
+	// //text box
 	renderTextBox(data, index);
-	$("#notesTetBox").on("input", function() { 
+	$("#notesTextBox").on("input", function() { 
 
 		var text = $(this).val();
 		variantData[index].metadata.workfow.notes = text; 
 		renderTextBox(data, index);
 
 	});
-
 
 	//delete button
 	renderDeleteButton(false);
@@ -35,7 +36,9 @@ function renderDeleteButton(isDeleted) {
 
 	var text = isDeleted ? "UNDELTE THIS VARIANT" : "DELETE THIS VARIANT";
 
-	$("#tools").remove(); 
+	$("#deleteLink").remove(); 
+
+	console.log("appending");
 	$("#tools")
 		.append("<a id='deleteLink' class='btn btn-primary'>" + text + "</button>");
 
@@ -55,7 +58,7 @@ function renderTextBox(data, index) {
 		element = "<form><input type='text' id='notesTextBox'>" + text + "</form>"; 
 	}
 
-	$("#tools").remove(); 
+	$("#notesTextBox").remove(); 
 	$("#tools")
 		.append(element); 
 
