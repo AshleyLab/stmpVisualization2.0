@@ -74,7 +74,7 @@ function renderComponents(data, index) {
 	}
 
 	renderKaryotype(data, elements.karyotype);
-	renderBarchart(data, index, elements.barchart, "ExAC Frequency");
+	renderBarchart(data, index, elements.barchart, "gnomAD Max Frequency");
 	renderSpiralgram(data, elements.spiralgram);
 	renderStaff(data, index, elements.staff, elements.spiralgram);
 	renderTools(data, index, elements.tools);
@@ -191,39 +191,39 @@ function displayInfo(value, kind, isFrequency, isMissing, proteinVariant, isLine
  			//maybe don't do this if just clearing?
 
  			var currentFontSize = d3.select(this).attr("font-size");
- 			console.log("fs currentFontSize: " + currentFontSize);
+ 			// console.log("fs currentFontSize: " + currentFontSize);
 
  			var cFSasFloat = parseFloat(currentFontSize.substring(0, currentFontSize.indexOf("px")));
- 			console.log("fs cFSasFloat: " + cFSasFloat);
+ 			// console.log("fs cFSasFloat: " + cFSasFloat);
 
  			var currentFontSize2 = parseFloat(window.getComputedStyle(this, null).getPropertyValue("font-size")); 
- 			console.log("fs currentFontSize2: " + currentFontSize2);
+ 			// console.log("fs currentFontSize2: " + currentFontSize2);
 
  			var computedTextLength = this.getComputedTextLength(); 
- 			console.log("fs computedTextLength: " + computedTextLength);
+ 			// console.log("fs computedTextLength: " + computedTextLength);
 
  			var newSize = currentFontSize2; 
 
  			if (computedTextLength > diameter) {
 
- 				console.log("fs too big"); 
+ 				// console.log("fs too big"); 
  				newSize = (diameter) / (computedTextLength / currentFontSize2); 
- 				console.log("fs newSize: " + newSize);
+ 				// console.log("fs newSize: " + newSize);
 
  			} else if (computedTextLength < diameter) { //currently identical
 
- 				console.log("fs too small");
+ 				// console.log("fs too small");
  				newSize = (diameter) / (computedTextLength / currentFontSize2); 
- 				console.log("fs newSize: " + newSize);
+ 				// console.log("fs newSize: " + newSize);
 
  			}
 
  			var limits = [4, 25]; //max and min size
 
- 			console.log("fs newSize before clipping: " + newSize);
+ 			// console.log("fs newSize before clipping: " + newSize);
 
  			newSize = Math.min(Math.max(newSize, limits[0]), limits[1]); 
- 			console.log("fs newSize clipped to: " + newSize);
+ 			// console.log("fs newSize clipped to: " + newSize);
 
  			return newSize; //+ "px";
 

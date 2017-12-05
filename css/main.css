@@ -30,6 +30,12 @@ input[type="radio"] {
   margin-right: .5rem;
 }
 
+/* style deleted elements */
+g.deleted circle { 
+  fill: grey;
+  opacity: 0.7;
+}
+
 /* style the bottom row */
 
 #bottomRow div, 

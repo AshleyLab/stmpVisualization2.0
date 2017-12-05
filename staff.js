@@ -52,10 +52,14 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 	var minKnownRadius = 3;
 	var maxRadius = 10;  
 
+	var deleted = data[variantIndex].metadata.workflow.deleted; 
+	console.log("deleted? " + deleted);
+
 	//draw the circles on the staff
 	d3.select(element)
 		.append("g")
 		.attr("class", "circles")
+		.classed("deleted", deleted)
 		.selectAll("circle")
 		.data(staffData)
 		.enter()

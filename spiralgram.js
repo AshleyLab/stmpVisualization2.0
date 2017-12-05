@@ -89,7 +89,9 @@ function renderSpiralgram(data, element) {
 	
 		);
 
-		console.log(spindleData);
+		var deleteds = $.map(data, d => d.metadata.workflow.deleted);
+
+		console.log(deleteds);
 
 		//create container elements for the spindles with the right rotation 
 		d3.select(element)
@@ -98,7 +100,17 @@ function renderSpiralgram(data, element) {
 			.enter()
 			.append("g")
 			.attr("transform", (_, i) => "translate(" + center[0] + "," + center[1] + ") rotate(" + (rotationScale(i) + rotationScale(i + 1)) / 2 + ")")
-			.attr("variant-index", (_, i) => i);
+			.attr("variant-index", (_, i) => i)
+			.each(function(d, i) {
+
+				if (deleteds[i]) {
+					console.log("yes adding deleted class for i: " + i);
+					this.classList.add("deleted");
+				} else { 
+					console.log("not adding deleted class for i: " + i);
+				}
+
+			});
 
 		var y1 = radiusMap["spindles"][0]; 
 		var y2 = radiusMap["spindles"][1]; 
@@ -206,10 +218,6 @@ function renderSpiralgram(data, element) {
 
 				var maxRadius = Math.min(distanceAcross, distanceAlong) / 2; 
 				// var minRadiusForKnownData = 2; 
-
-				console.log(d);
-
-				console.log("radius: " + Math.max(maxRadius * d, 2));
 				return Math.max(maxRadius * d, 2); 
 
 			}).attr("fill", (d, i) => colorForAnnotation(i, nSpindleColumns))
