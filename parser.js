@@ -207,13 +207,11 @@ function parseCrudeSheet(sheet) {
 	}
 	
 	variantData = visualizationData; 
-	data = renderVisualization(false, "#graphics", visualizationData); //render the visualization
+	data = renderVisualization("#graphics", visualizationData); //render the visualization
 	hideSpinner(); 
 	scrollToElement("#graphics");
 
 }
-
-
 
 //given the original value and the column returns a drawing value
 function parseValue(originalValue, column) { 

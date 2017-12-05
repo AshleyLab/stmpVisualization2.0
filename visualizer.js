@@ -6,70 +6,78 @@ function removeSVGs(element) { //clean the SVG so previous visualizations aren't
 
 }
 
-function renderVisualization(isStreamgraph, element, data) {
+function renderVisualization(element, data) {
 
-	// var localData = deepClone(lD);
-	// var sD = getSpiralData(10, 10);
+	//setup work to get the right configuration of divs and svg for the spiralgram and staffgram 
+	//the positioning of these elements is set in main.css
+	d3.select(element)
+		.append("div")
+		.attr("id", "spiralLayoutContainer"); 
 
+	d3.select("#spiralLayoutContainer")
+		.append("div")
+		.attr("id", "innerSpiralLayoutContainer");
 
-	if (isStreamgraph) {
+	d3.select("#innerSpiralLayoutContainer")
+		.append("div")
+		.attr("id", "spiralContainer")
+		.append("svg")
+		.attr("id", "spiralElement"); 
 
-		removeSVGs(element);
+	d3.select("#innerSpiralLayoutContainer")
+		.append("div")
+		.attr("id", "staffContainer")
+		.append("svg")
+		.attr("id", "staffElement");
 
-		streamData = prepareDataForStreamgraph(localData);
-		renderStreamgraph("#graphics", streamData); 
-		renderTracks("#masterSVG", data);
-		renderRadar();
+	//setup for karyotype and barchart and analysis toosl
 
-	} else { //spiral
+	var bottomRow = d3.select(element)
+		.append("div")
+		.attr("id", "bottomRow");
 
-		//setup work to get the right configuration of divs and svg for the spiralgram and staffgram 
-		//the positioning of these elements is set in main.css
-		d3.select(element)
-			.append("div")
-			.attr("id", "spiralLayoutContainer"); 
+	bottomRow.append("svg")
+		.attr("id","karyotypeElement"); 
 
-		d3.select("#spiralLayoutContainer")
-			.append("div")
-			.attr("id", "innerSpiralLayoutContainer");
+	bottomRow.append("div")
+		.attr("id","tools"); 
 
-		d3.select("#innerSpiralLayoutContainer")
-			.append("div")
-			.attr("id", "spiralContainer")
-			.append("svg")
-			.attr("id", "spiralElement"); 
+	bottomRow.append("svg")
+		.attr("id", "barchartElement");
 
-		d3.select("#innerSpiralLayoutContainer")
-			.append("div")
-			.attr("id", "staffContainer")
-			.append("svg")
-			.attr("id", "staffElement");
+	//
 
-		//setup for karyotype and barchart and analysis toosl
+	console.log(data);
+	renderComponents(data, 0);
 
-		var bottomRow = d3.select(element)
-			.append("div")
-			.attr("id", "bottomRow");
+}
 
-		bottomRow.append("svg")
-			.attr("id","karyotypeElement"); 
+function renderComponents(data, index) {
 
-		bottomRow.append("div")
-			.attr("id","tools"); 
+	console.log("rendering components");
+	console.log(arguments);
 
-		bottomRow.append("svg")
-			.attr("id", "barchartElement");
+	var elements = {
+		"karyotype" : "#karyotypeElement",
+		"spiralgram" : "#spiralElement",
+		"staff" : "#staffElement", 
+		"tools" : "#tools", 
+		"barchart" : "#barchartElement"
+	}; 
 
-		//
+	for (var type in elements) { //elements from previous round
 
-		renderKaryotype(data, "#karyotypeElement");
-		// renderBarchart(data, "#barchartElement", 3)		
-		renderSpiralgram(data, "#spiralElement");
-		renderStaff(data, 0, "#staffElement", "#spiralElement");
-
-		renderTools(data, 0); 
+		d3.select(elements[type])
+			.selectAll("*")
+			.remove(); 
 
 	}
+
+	renderKaryotype(data, elements.karyotype);
+	renderBarchart(data, index, elements.barchart, "ExAC Frequency");
+	renderSpiralgram(data, elements.spiralgram);
+	renderStaff(data, index, elements.staff, elements.spiralgram);
+	renderTools(data, index, elements.tools);
 
 }
 

@@ -1,4 +1,4 @@
-function renderBarchart(data, element, variantIndex, headDisplayName) { 
+function renderBarchart(data, variantIndex, element, headDisplayName) { 
 
 	//detail view of population level frequencies
 

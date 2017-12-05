@@ -40,8 +40,6 @@ function renderSpiralgram(data, element) {
 
 	function addText() {
 
-		console.log("adding text");
-
 		d3.select(element)
 			.append("text")
 			.attr("id", "valueInfo")
@@ -77,7 +75,8 @@ function renderSpiralgram(data, element) {
 		//the lienar distance between consecutive annotations
 		var radiusStep = (maxRadius - innerBuffer) / (nSpindleColumns - 1);
 
-		//flatten the data into an array (easier to visualize with d3)
+		//prepare data
+		//flatten the data into an array
 		var spindleData = $.map(data, variant => 
 
 			[$.map(spindleColumns, column => {
@@ -89,6 +88,8 @@ function renderSpiralgram(data, element) {
 			})]
 	
 		);
+
+		console.log(spindleData);
 
 		//create container elements for the spindles with the right rotation 
 		d3.select(element)
@@ -121,19 +122,13 @@ function renderSpiralgram(data, element) {
 
 				var vI = parseInt(d3.select(this).attr("variant-index"));
 
-				//assemble words
-				var vD = data[vI];
-				var chromosome = vD.core["Chromosome"].value; 
-				var position = vD.core["Position"].value; 
-				var variationType = vD.core["Variation Type"].value;
-				var translationImpact = vD.core["Translation Impact"].value; 
-				var words = [[variationType, 0], [" at ", 1], [chromosome, 3], [":", 1], [position, 0]];
+				//get data to present
+				var words = getWordsForInfo(data, vI);
+				var translationImpact = data[vI].core["Translation Impact"].value; 
 
 				displayInfo(words, translationImpact, false, false, false, true); 
 
-				renderStaff(data, i, "#staffElement", "#spiralElement"); 
-				renderTextBox(i);
-				renderDeleteButton(i); 
+				renderComponents(data, i);
 
 			}).on("mouseout", function(d, i) {
 
@@ -157,17 +152,13 @@ function renderSpiralgram(data, element) {
 					.attr("data-clicked", 0)
 					.attr("stroke", colorForSpindle);
 
-				d3.select(this).attr("data-clicked", 1 - clicked)
+				d3.select(this).attr("data-clicked", 1 - clicked); 
 
-				renderStaff(data, i, "#staffElement", "#spiralElement");
+				renderComponents(data, i);
 
-			}).attr("stroke", function() { 
+			}).attr("stroke", colorForSpindle); 
 
-				return colorForSpindle(); 
-
-			}); 
-
-		addCircles(spindleData); 
+		addCircles(spindleData);
 
 	}
 
@@ -202,6 +193,7 @@ function renderSpiralgram(data, element) {
 			.attr("r", (d, i) => {
 
 				if (d == "???") {
+					console.log("radius: " + 0); 
 					return 0; 
 				}
 
@@ -213,7 +205,11 @@ function renderSpiralgram(data, element) {
 				var distanceAlong = cyScale(1) - cyScale(0);
 
 				var maxRadius = Math.min(distanceAcross, distanceAlong) / 2; 
+				// var minRadiusForKnownData = 2; 
 
+				console.log(d);
+
+				console.log("radius: " + Math.max(maxRadius * d, 2));
 				return Math.max(maxRadius * d, 2); 
 
 			}).attr("fill", (d, i) => colorForAnnotation(i, nSpindleColumns))
@@ -246,7 +242,7 @@ function renderSpiralgram(data, element) {
 				var isHeadFrequency = $.inArray(displayName, spiralgramHeadFrequenciesDisplayNames) !== -1; 
 
 				if (isHeadFrequency) {
-					renderBarchart(data, "#barchartElement", variantIndex, displayName);
+					renderComponents(data, variantIndex); 
 				}
 
 			}).on("mouseout", function(d, i) {
@@ -265,13 +261,11 @@ function renderSpiralgram(data, element) {
 
 			});
 
-		}
-
+	}
 	
-
 	function addTracks() { 
 
-		var trackColumns = ["Chromosome","GNOMAD_Max_Allele_Freq_POP","Protein Variant","Protein Variant"]; 
+		var trackColumns = ["Chromosome", "GNOMAD_Max_Allele_Freq_POP", "Protein Variant", "Protein Variant"]; 
 		var colorers = [colorForChromosomeBinary, colorForPopulation, colorForProteinVariantData, colorForProteinVariantData];
 		var isThin = [true, true, false, false];
 		var isContiguous = [true, true, false, false]; //true --> no lines between neighboring arcs
@@ -299,8 +293,6 @@ function renderSpiralgram(data, element) {
 			.domain([0, nVariants])
 			.range([0, Math.PI * 2]); 
 
-		var angularWidth = Math.PI * 2 / nVariants; 
-
 		d3.select(element)
 			.selectAll("g.track")
 			.data(trackData)
@@ -319,15 +311,11 @@ function renderSpiralgram(data, element) {
 			.enter()
 			.append("path")
 			.attr("variant-index", function() { return d3.select(this.parentNode).attr("variant-index"); })
-			.classed("contiguous", function(d, i) {
+			.classed("contiguous", (_, i) => {
 
-				if (isContiguous[i]) { 
-					return true; 
-				} 
+				return isContiguous[i];
 
-				return false; 
-			})
-			.attr("data-isChromosome", (_, i) => i == 2 ? "1" : "0")
+			}).attr("data-isChromosome", (_, i) => i == 2 ? "1" : "0")
 			.attr("d", function(d, i) { 
 
 				var vI = parseInt(d3.select(this.parentNode).attr("variant-index")); 
@@ -336,7 +324,7 @@ function renderSpiralgram(data, element) {
 				var oR = radii[i][1]; 
 
 				var sA = rotationScale(vI);
-				var eA = rotationScale(vI) + angularWidth;
+				var eA = rotationScale(vI) + angularStep;
 
 				var arc = d3.arc()
 					.innerRadius(iR)
@@ -459,9 +447,9 @@ function renderSpiralgram(data, element) {
 			.attr("variant-index", function() { return d3.select(this.parentNode).attr("variant-index"); })
 			.attr("d", function(d, i) {
 
-				var sA = 0; 
+				var sA = 0; //so the first varinat starts at 12 o'clock
 
-				sA -= (Math.PI / 2); //WHY? IDK
+				sA -= (Math.PI / 2); //so the first varinat starts at 12 o'clock
 
 				var eA = angularWidth * 3;
 
@@ -482,29 +470,26 @@ function renderSpiralgram(data, element) {
 				var controlPoint = [controlPointRadius * Math.cos(mA), controlPointRadius * Math.sin(mA)]
 
 				var d  = "M " + innerCorner1[0] + " " + innerCorner1[1] + " ";
-
 					d += "L " + outerCorner1[0] + " " + outerCorner1[1] + " ";
-
 				    d += "A " + outerRadius     + " " + outerRadius     + " " + 0 + " " + 0 + " " + 0 + " " + outerCorner2[0] + " " + outerCorner2[1] + " ";
-
 				    d += "L " + innerCorner2[0] + " " + innerCorner2[1] + " ";
-
 				    d += "Q " + controlPoint[0] + " " + controlPoint[1] + " " + innerCorner1[0] + " " + innerCorner1[1] + " "; 
-
 				    d += "Z";
 
 				return d; 
 
-			}).attr("sA", (d, i) => { 
+			});
+			// .attr("sA", (d, i) => { 
 
-				return 0;  
+			// 	return 0;  
 
-			}).attr("eA", angularWidth * 3); 
+			// }).attr("eA", angularWidth * 3); 
 
 	}
 
 	addText(); 
 	addSpindles(); 
+	// addCircles(); 
 	addTracks(); 
 	addCrescents(); 
 	
@@ -561,19 +546,19 @@ function colorForAcidSymbol(symbol) {
 
 function colorForProteinVariantData(proteinVariant, getRef) {
 
-	if (!isNaN(proteinVariant) || proteinVariant.length <= 1) { //sometimes proteinVariant is 0
+	if (!isNaN(proteinVariant) || proteinVariant.length <= 1) { //sometimes proteinVariant is just "0"
 		return "black";
 	}
 
 	var aminoAcids = proteinVariant.replace("p.", "") //remove "p."s
 								   .replace(/\d+/, "") //remove positions
-								   .split(";");
+								   .split(";"); 
 
 	var tuples = $.map(aminoAcids, (aA, index) => { 
 		return aA[getRef ? 0 : 1];
 	}); 
 
-	var chosenAcid = tuples[0];
+	var chosenAcid = tuples[0]; //take the first transcript
 	
 	return colorForAcidSymbol(chosenAcid);
 
@@ -621,5 +606,16 @@ function parseGenotype(genotype) { //e.g., 0/1|./.|1/1
 		}
 
 	}); 
+
+}
+
+function getWordsForInfo(data, vI) {
+
+	var vD = data[vI];
+	var chromosome = vD.core["Chromosome"].value; 
+	var position = vD.core["Position"].value; 
+	var variationType = vD.core["Variation Type"].value;
+
+	return [[variationType, 0], [" at ", 1], [chromosome, 3], [":", 1], [position, 0]];
 
 }
