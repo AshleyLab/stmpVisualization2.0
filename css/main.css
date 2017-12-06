@@ -36,6 +36,16 @@ g.deleted circle {
   opacity: 0.7;
 }
 
+path.deleted { /*track*/ 
+  fill: grey;
+  opacity: 0.7;
+}
+
+g.deleted path:not(.mask):not(.unknown) { /*crescents*/
+  fill: grey;
+  opacity: 0.7;
+}
+
 /* style the bottom row */
 
 #bottomRow div, 

@@ -38,6 +38,9 @@ function renderSpiralgram(data, element) {
 		"crescents" : [265, 285]
 	};
 
+	var deleteds = $.map(data, d => d.metadata.workflow.deleted);
+	console.log(deleteds);
+
 	function addText() {
 
 		d3.select(element)
@@ -89,9 +92,6 @@ function renderSpiralgram(data, element) {
 	
 		);
 
-		var deleteds = $.map(data, d => d.metadata.workflow.deleted);
-
-		console.log(deleteds);
 
 		//create container elements for the spindles with the right rotation 
 		d3.select(element)
@@ -373,6 +373,14 @@ function renderSpiralgram(data, element) {
 
 				displayInfo("", "", false, false, false, false)
 
+			}).each(function(d, i) {
+
+				var vI = d3.select(this.parentNode).attr("variant-index"); 
+
+				if (deleteds[vI]) {
+					this.classList.add("deleted");
+				}
+
 			});
 
 	}
@@ -403,7 +411,14 @@ function renderSpiralgram(data, element) {
 			.append("g")
 			.attr("class", "crescent")
 			.attr("variant-index", (_, i) => i)
-			.attr("transform", (d, i) => "translate(" + center[0] + "," + center[1] + ") rotate(" + gRotationScale(i) + ")"); 
+			.attr("transform", (d, i) => "translate(" + center[0] + "," + center[1] + ") rotate(" + gRotationScale(i) + ")")
+			.each(function(d, i) {
+
+				if (deleteds[i]) {
+					this.classList.add("deleted");
+				}
+
+			});
 
 		var dA = .001; //avoid hairline cracks between components of crescents
 
@@ -443,6 +458,12 @@ function renderSpiralgram(data, element) {
 				d3.select(element)
 					.selectAll(".pedigree")
 					.remove();
+
+			}).each(function(d, i) {
+
+				if (d == -1) {
+					this.classList.add("unknown");
+				}
 
 			});
 
