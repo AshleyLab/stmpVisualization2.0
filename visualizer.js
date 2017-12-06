@@ -48,11 +48,11 @@ function renderVisualization(element, data) {
 	//
 
 	console.log(data);
-	renderComponents(data, 0);
+	renderComponents(data, 0, true);
 
 }
 
-function renderComponents(data, index) {
+function renderComponents(data, index, shouldRenderSpiralgram) {
 
 	console.log("rendering components");
 	console.log(arguments);
@@ -67,15 +67,22 @@ function renderComponents(data, index) {
 
 	for (var type in elements) { //elements from previous round
 
+		if (type == "spiralgram" && !shouldRenderSpiralgram) { //don't clear the spiralgram
+			continue;
+		}
+
 		d3.select(elements[type])
 			.selectAll("*")
 			.remove(); 
 
 	}
 
+	if (shouldRenderSpiralgram) {
+		renderSpiralgram(data, elements.spiralgram);
+	}
+
 	renderKaryotype(data, elements.karyotype);
 	renderBarchart(data, index, elements.barchart, "gnomAD Max Frequency");
-	renderSpiralgram(data, elements.spiralgram);
 	renderStaff(data, index, elements.staff, elements.spiralgram);
 	renderTools(data, index, elements.tools);
 

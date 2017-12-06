@@ -208,8 +208,7 @@ function getCytobandsForChromosome(cytobands, chromosome) {
 function getLengths(cytobands) {
 
 	var lengths = [];
-	console.log(allChromosomes.length);
-
+	
 	for (var i = 0; i <= allChromosomes.length - 1; i++) {
 
 		var chromosomeName = "chr" + allChromosomes[i]
@@ -221,8 +220,6 @@ function getLengths(cytobands) {
 			})
 		);
 	}
-
-	console.log(lengths);
 
 	return lengths;
 }

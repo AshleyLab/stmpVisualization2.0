@@ -5,13 +5,6 @@ function renderTools(data, index) {
 
 	// //text box
 	renderTextBox(data, index);
-	$("#notesTextBox").on("input", function() { 
-
-		var text = $(this).val();
-		variantData[index].metadata.workfow.notes = text; 
-		renderTextBox(data, index);
-
-	});
 
 	//delete button
 	renderDeleteButton(data, index, data[index].metadata.workflow.deleted);
@@ -58,17 +51,59 @@ function renderDeleteButton(data, index, isDeleted) {
 function renderTextBox(data, index) {
 
 	var text = data[index].metadata.workflow.notes; 
+	var includePlaceholder = !text; //"" is falsy—-placedholder appears if no notes
 
-	var element = ""; 
+	console.log("text: " + text);
+	console.log("includePlaceholder: " + includePlaceholder);
 
-	if (!text) { //"" is falsy--no notes
-		element = "<form><input type='text' placeholder='Enter notes...' id='notesTextBox'></form>"; 
+	if ($("#notesTextBox").length == 0) { //elements doesn't exist
+
+		console.log("doesn't exist");
+
+		var placeholder = includePlaceholder ? "placeholder='Enter notes...' " : ""; 
+
+		$("#tools")
+			.append("<form><input type='text' " + placeholder + "id='notesTextBox'></form>");
+
+		$("#notesTextBox").val(text);
+
 	} else { 
-		element = "<form><input type='text' id='notesTextBox'>" + text + "</form>"; 
+
+		console.log("exists");
+
+		//stackoverflow.com/questions/1318076/jquery-hasattr-checking-to-see-if-there-is-an-attribute-on-an-element
+		var placeholderAttribute = $("#notesTextBox").attr("placeholder");
+		var hasPlaceholder = typeof placeholderAttribute !== typeof undefined && placeholderAttribute !== false; 
+
+		console.log("hasPlaceholder: " + hasPlaceholder);
+
+		if (!hasPlaceholder && includePlaceholder) {
+			console.log("adding placeholder");
+			$("#notesTextBox")	
+				.attr("placeholder", "Enter notes...");
+		} else if (hasPlaceholder && !includePlaceholder) {
+			console.log("removing placeholder");
+			$("#notesTextBox")
+				.removeAttr("placeholder"); 
+
+			$("#notesTextBox")
+				.val(text);
+
+			console.log("setting notesTextBox to " + text);
+		}
+
 	}
 
-	$("#notesTextBox").remove(); 
-	$("#tools")
-		.append(element); 
+	$("#notesTextBox").off(); //remove old event bindings
+
+	$("#notesTextBox").on("input", function() { 
+
+		console.log("input");
+
+		var text = $(this).val();
+		variantData[index].metadata.workflow.notes = text; 
+		renderTextBox(data, index);
+
+	});
 
 }

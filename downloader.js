@@ -3,6 +3,8 @@ function downloadButtonClicked() {
 	console.log("downloadButtonClicked called");
 	downloadData(variantData);
 
+	console.log(variantData);
+
 }
 
 function downloadData(data) {

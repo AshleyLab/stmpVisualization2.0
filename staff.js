@@ -53,7 +53,6 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 	var maxRadius = 10;  
 
 	var deleted = data[variantIndex].metadata.workflow.deleted; 
-	console.log("deleted? " + deleted);
 
 	//draw the circles on the staff
 	d3.select(element)
@@ -190,8 +189,6 @@ function addTopText(element, data) {
 	proteinVariant = simplifyVariantTag(proteinVariant, true);
 	transcriptVariant = simplifyVariantTag(transcriptVariant, false);
 
-	console.log(proteinVariant);
-	console.log(transcriptVariant);
 	//[words, id (what kind of string it is)]
 
 	//0: regular (not junk or special--positions in tag) (bolded)
@@ -230,8 +227,6 @@ function addTopText(element, data) {
 }
 
 function simplifyVariantTag(text, isProtein) { 
-
-	console.log(text);
 	
 	var separator = ",";
 
@@ -251,8 +246,6 @@ function simplifyVariantTag(text, isProtein) {
 	var tags = text.replace(/\s/g, "") //remove all whitespace
 				   .split(";") //split on semicolons
 				   .map((d, i) => d.split("")); //split each tag into an array of characters
-
-	console.log(tags);
 
 	//***
 	//without this, "c.1insT; c.2insT; c.3dupT" --> "c.1,2ins,3dupT" happens

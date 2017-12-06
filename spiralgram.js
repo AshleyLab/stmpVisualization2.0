@@ -104,11 +104,8 @@ function renderSpiralgram(data, element) {
 			.each(function(d, i) {
 
 				if (deleteds[i]) {
-					console.log("yes adding deleted class for i: " + i);
 					this.classList.add("deleted");
-				} else { 
-					console.log("not adding deleted class for i: " + i);
-				}
+				} 
 
 			});
 
@@ -128,6 +125,8 @@ function renderSpiralgram(data, element) {
 			.attr("stroke-width", 2)
 			.attr("data-clicked", 0) //0 is falsey
 			.on("mouseover", function(d, i) {
+
+				console.log("mouseover")
 
 				d3.select(this)
 					.attr("stroke", highlightForSpindle);

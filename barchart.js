@@ -88,8 +88,6 @@ function renderBarchart(data, variantIndex, element, headDisplayName) {
 		.domain([0, maxFreq])
 		.range([height, 0]);
 
-	console.log(labels);
-
 	var xScale = d3.scaleBand()
 		.domain(labels)
 		.range([0, width])
