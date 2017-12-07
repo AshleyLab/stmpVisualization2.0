@@ -1,6 +1,7 @@
-var lastStaffData = []; 
+function renderStaff(element, spiralElement) {
 
-function renderStaff(data, variantIndex, element, spiralElement) {
+	var data = window.variantData; 
+	var variantIndex = window.variantIndex;
 
 	var width = $(element).width(); 
 	var height = $(element).height();
@@ -52,7 +53,7 @@ function renderStaff(data, variantIndex, element, spiralElement) {
 	var minKnownRadius = 3;
 	var maxRadius = 10;  
 
-	var deleted = data[variantIndex].metadata.workflow.deleted; 
+	var deleted = data[variantIndex].metadata.deleted; 
 
 	//draw the circles on the staff
 	d3.select(element)

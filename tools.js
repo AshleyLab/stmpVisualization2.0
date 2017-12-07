@@ -1,13 +1,20 @@
-//for editing the data while it is being visualized (delete variant, add notes etc)
 function renderTools(data, index) {
+
+	//for editing the data while it is being visualized (delete variant, add notes etc)
+	var data = window.variantData; 
+	var index = window.variantIndex; 
 
 	console.log(arguments);
 
-	// //text box
+	//checkboxes for flags
+	var flags = ["TagA","TagB","TagC"];
+	// renderCheckboxes(flags, true);
+
+	//text box
 	renderTextBox(data, index);
 
 	//delete button
-	renderDeleteButton(data, index, data[index].metadata.workflow.deleted);
+	renderDeleteButton(data, index, data[index].metadata.deleted);
 
 	//download button
 	$("#tools")
@@ -18,16 +25,48 @@ function renderTools(data, index) {
 		downloadButtonClicked();
 	});
 
+
 }
 
+function renderCheckboxes(flags, includeCustom) {
+
+	var name = "flags";
+
+	var checkboxes = $.each(flags, (i, flag) => {
+
+		var checkbox = "<input type='checkbox' name='" + name + "' value='" + flag + "' /> " + flag + " ";
+		$("#tools").append(checkbox);
+
+	}); 
+
+	if (includeCustom) {
+		var placeholder = "TagD,TagE,TagF";
+		var customInput = "<input type='text' id='customFlag' placeholder='" + placeholder + "' />"; 
+
+		$("#tools").append(customInput);
+	}
+
+	// $("#tools").append()
+}
 
 function deleteVariant(data, index) {
 
-	var isDeleted = variantData[index].metadata.workflow.deleted; 
+	var isDeleted = variantData[index].metadata.deleted; 
 
-	variantData[index].metadata.workflow.deleted = !isDeleted;
+	variantData[index].metadata.deleted = !isDeleted;
 
-	renderComponents(data, index);
+	//if rerender spiralgram, hover events will be traiggered in loop
+
+	if (!isDeleted) {
+		d3.select("g[variant-index='" + index +"']")
+			.classed("deleted", true);
+	} else { 
+		d3.select("g[variant-index='" + index +"']")
+			.classed("deleted", false);
+	}
+
+
+	// renderComponents(variantData, index);
 }
 
 function renderDeleteButton(data, index, isDeleted) {
@@ -50,7 +89,7 @@ function renderDeleteButton(data, index, isDeleted) {
 
 function renderTextBox(data, index) {
 
-	var text = data[index].metadata.workflow.notes; 
+	var text = data[index].metadata.notes; 
 	var includePlaceholder = !text; //"" is falsy—-placedholder appears if no notes
 
 	console.log("text: " + text);
@@ -78,10 +117,13 @@ function renderTextBox(data, index) {
 		console.log("hasPlaceholder: " + hasPlaceholder);
 
 		if (!hasPlaceholder && includePlaceholder) {
+
 			console.log("adding placeholder");
 			$("#notesTextBox")	
 				.attr("placeholder", "Enter notes...");
+
 		} else if (hasPlaceholder && !includePlaceholder) {
+
 			console.log("removing placeholder");
 			$("#notesTextBox")
 				.removeAttr("placeholder"); 
@@ -101,7 +143,7 @@ function renderTextBox(data, index) {
 		console.log("input");
 
 		var text = $(this).val();
-		variantData[index].metadata.workflow.notes = text; 
+		variantData[index].metadata.notes = text; 
 		renderTextBox(data, index);
 
 	});

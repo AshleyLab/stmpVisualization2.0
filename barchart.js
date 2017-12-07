@@ -1,9 +1,10 @@
-function renderBarchart(data, variantIndex, element, headDisplayName) { 
+function renderBarchart(element, headDisplayName) { 
+
+	var data = window.variantData; 
+	var variantIndex = window.variantIndex; 
 
 	//detail view of population level frequencies
-
 	//possible head frequencies
-
 	var populationFrequencies = []; 
 
 	switch(headDisplayName) {
@@ -30,8 +31,7 @@ function renderBarchart(data, variantIndex, element, headDisplayName) {
 			console.log("unknown head frequency " + headDisplayName)
 	}
 
-	//PREPARE THE DATA
-
+	//PREPARE THE DATAs
 	var nFrequencies = populationFrequencies.length;
 	var frequencyData = {}; 
 	var maxFreq = 0; 

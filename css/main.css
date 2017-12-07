@@ -30,6 +30,12 @@ input[type="radio"] {
   margin-right: .5rem;
 }
 
+/* spiralgram */
+
+line.spindle:hover { 
+  stroke: white;
+}
+
 /* style deleted elements */
 g.deleted circle { 
   fill: grey;
@@ -55,6 +61,18 @@ g.deleted path:not(.mask):not(.unknown) { /*crescents*/
 
 #bottomRow {
   height: 200px;
+}
+
+#tools { 
+  color: white;
+}
+
+#tools input[type="checkbox"] {
+  display: inline-block;
+}
+
+#tools #customFlag { 
+  display: inline-block;
 }
 
 #tools { 

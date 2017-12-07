@@ -6,7 +6,9 @@ function removeSVGs(element) { //clean the SVG so previous visualizations aren't
 
 }
 
-function renderVisualization(element, data) {
+function renderVisualization() {
+
+	var element = "#graphics";
 
 	//setup work to get the right configuration of divs and svg for the spiralgram and staffgram 
 	//the positioning of these elements is set in main.css
@@ -47,12 +49,14 @@ function renderVisualization(element, data) {
 
 	//
 
-	console.log(data);
-	renderComponents(data, 0, true);
+	renderComponents(true);
+
+	hideSpinner(); 
+	scrollToElement(element);
 
 }
 
-function renderComponents(data, index, shouldRenderSpiralgram) {
+function renderComponents(shouldRenderSpiralgram) {
 
 	console.log("rendering components");
 	console.log(arguments);
@@ -78,13 +82,37 @@ function renderComponents(data, index, shouldRenderSpiralgram) {
 	}
 
 	if (shouldRenderSpiralgram) {
-		renderSpiralgram(data, elements.spiralgram);
+		renderSpiralgram(elements.spiralgram);
 	}
 
-	renderKaryotype(data, elements.karyotype);
-	renderBarchart(data, index, elements.barchart, "gnomAD Max Frequency");
-	renderStaff(data, index, elements.staff, elements.spiralgram);
-	renderTools(data, index, elements.tools);
+	renderKaryotype(elements.karyotype);
+	renderBarchart(elements.barchart, "gnomAD Max Frequency");
+	renderStaff(elements.staff, elements.spiralgram);
+	renderTools(elements.tools);
+
+}
+
+function updateAncillaryVisualizations() {
+
+	var elements = {
+		"karyotype" : "#karyotypeElement",
+		"staff" : "#staffElement", 
+		"tools" : "#tools", 
+		"barchart" : "#barchartElement"
+	}; 
+
+	for (var type in elements) { //elements from previous round
+
+		d3.select(elements[type])
+			.selectAll("*")
+			.remove(); 
+
+	}
+
+	renderKaryotype(elements.karyotype);
+	renderBarchart(elements.barchart, "gnomAD Max Frequency");
+	renderStaff(elements.staff, elements.spiralgram);
+	renderTools(elements.tools);
 
 }
 
@@ -611,4 +639,74 @@ function fixdata(data) { //copied from?
 	for(; l<data.byteLength/w; ++l) o+=String.fromCharCode.apply(null,new Uint8Array(data.slice(l*w,l*w+w)));
 	o+=String.fromCharCode.apply(null, new Uint8Array(data.slice(l*w)));
 	return o;
+}
+
+function getAcidSymbolFromProteinVariantData(proteinVariant, getRef) {
+
+	var aminoAcids = proteinVariant.replace("p.", "") //remove "p."s
+								   .replace(/\d+/, "") //remove positions
+								   .split(";");
+
+	var tuples = $.map(aminoAcids, (aA, index) => { 
+		return aA[getRef ? 0 : 1];
+	}); 
+
+	return tuples[0]; //still don't know what to do with multiple protein variants
+
+}
+
+function colorForAcidSymbol(symbol) {
+
+	return {
+		//
+		"A":"#00ffd4",
+		"I":"#00ffee",
+		"L":"#00e1ff",
+		"G":"#00c8ff",
+		"P":"#00aaff",
+		"V":"#0077ff",
+
+		"F":"#2aff00",
+		"W":"#00ff55",
+		"Y":"#00ff7b",
+
+		"D":"#aa00ff",
+		"E":"#d500ff",
+
+		"K":"#bbff00",
+		"H":"#99ff00",
+		"R":"#80ff00",
+
+		"S":"#6600ff",
+		"T":"#8000ff",
+
+		"C":"#ff00b3",
+		"M":"#ff0088",
+
+		"N":"#ff8000",
+		"Q":"#ffb300",
+
+		"*":"red"
+	}[symbol];
+
+}
+
+function colorForProteinVariantData(proteinVariant, getRef) {
+
+	if (!isNaN(proteinVariant) || proteinVariant.length <= 1) { //sometimes proteinVariant is just "0"
+		return "black";
+	}
+
+	var aminoAcids = proteinVariant.replace("p.", "") //remove "p."s
+								   .replace(/\d+/, "") //remove positions
+								   .split(";"); 
+
+	var tuples = $.map(aminoAcids, (aA, index) => { 
+		return aA[getRef ? 0 : 1];
+	}); 
+
+	var chosenAcid = tuples[0]; //take the first transcript
+	
+	return colorForAcidSymbol(chosenAcid);
+
 }

@@ -1,34 +1,13 @@
-function renderSpiralgram(data, element) {
-
-	var nVariants = data.length; 
-	var angularStep = Math.PI * 2 / nVariants; 
-
-	var spindleColumns = [
-		"SIFT Function Prediction",
-		"PolyPhen-2 Function Prediction",
-		"CADD Score",
-		"Phylop",
-		"MutationTaster",
-		"fathmm",
-		"1000 Genomes Frequency", 
-		"ExAC Frequency",
-		"GNOMADMaxAlleleFreq"
-	];
-
-	var nSpindleColumns = spindleColumns.length; 
-
-	var width = $(element).width(); 
-	var height = $(element).height();
-
-	var center = [width / 2, height / 2];
-
-	var outerBuffer = 40; 
-	var tracksWidth = 70; 
-	var spindlesToTracksBuffer = 20; 
-	var innerBuffer = 75; 
+function renderSpiralgram(element) {
 
 	var staffElement = "#staffElement";
 
+	var data = window.variantData; 
+	var nVariants = data.length; 
+
+	var width = $(element).width(); 
+	var height = $(element).height();
+	var center = [width / 2, height / 2];
 	var end = Math.min(center[0], center[1]); 
 
 	var radiusMap = { 
@@ -38,8 +17,7 @@ function renderSpiralgram(data, element) {
 		"crescents" : [265, 285]
 	};
 
-	var deleteds = $.map(data, d => d.metadata.workflow.deleted);
-	console.log(deleteds);
+	var deleteds = $.map(data, d => d.metadata.isDeleted);
 
 	function addText() {
 
@@ -69,14 +47,23 @@ function renderSpiralgram(data, element) {
 
 	function addSpindles() {
 
+		var spindleColumns = [
+			"SIFT Function Prediction",
+			"PolyPhen-2 Function Prediction",
+			"CADD Score",
+			"Phylop",
+			"MutationTaster",
+			"fathmm",
+			"1000 Genomes Frequency", 
+			"ExAC Frequency",
+			"GNOMADMaxAlleleFreq"
+		];
+
+		var nSpindleColumns = spindleColumns.length; 
+
 		var rotationScale = d3.scaleLinear()
 			.domain([0, nVariants])
 			.range([180, 540]); //make the first variant starts at 12 o'clock
-
-		var maxRadius = Math.min(width, height) / 2 - outerBuffer - tracksWidth; 
-
-		//the lienar distance between consecutive annotations
-		var radiusStep = (maxRadius - innerBuffer) / (nSpindleColumns - 1);
 
 		//prepare data
 		//flatten the data into an array
@@ -92,7 +79,6 @@ function renderSpiralgram(data, element) {
 	
 		);
 
-
 		//create container elements for the spindles with the right rotation 
 		d3.select(element)
 			.selectAll("g")
@@ -104,8 +90,11 @@ function renderSpiralgram(data, element) {
 			.each(function(d, i) {
 
 				if (deleteds[i]) {
+					console.log("is deleted? " + i + " : " + deleteds[i]);
 					this.classList.add("deleted");
-				} 
+				} else { 
+					console.log("is deleted? " + i + " : " + deleteds[i]);
+				}
 
 			});
 
@@ -126,10 +115,8 @@ function renderSpiralgram(data, element) {
 			.attr("data-clicked", 0) //0 is falsey
 			.on("mouseover", function(d, i) {
 
-				console.log("mouseover")
-
-				d3.select(this)
-					.attr("stroke", highlightForSpindle);
+				// d3.select(this)
+				// 	.classed("stroke", highlightForSpindle);
 
 				var vI = parseInt(d3.select(this).attr("variant-index"));
 
@@ -139,7 +126,9 @@ function renderSpiralgram(data, element) {
 
 				displayInfo(words, translationImpact, false, false, false, true); 
 
-				renderComponents(data, i);
+				//don't loop: don't rerende spiralgram
+				window.variantIndex = vI; 
+				updateAncillaryVisualizations(); 
 
 			}).on("mouseout", function(d, i) {
 
@@ -165,15 +154,17 @@ function renderSpiralgram(data, element) {
 
 				d3.select(this).attr("data-clicked", 1 - clicked); 
 
-				renderComponents(data, i);
+				renderComponents(false);
 
 			}).attr("stroke", colorForSpindle); 
 
-		addCircles(spindleData);
+		addCircles(spindleData, spindleColumns);
 
 	}
 
-	function addCircles(spindleData) { 
+	function addCircles(spindleData, spindleColumns) { 
+
+		var nSpindleColumns = spindleColumns.length; 
 
 		var cyScale = d3.scaleLinear()
 			.domain([0, spindleData[0].length - 1])
@@ -249,7 +240,7 @@ function renderSpiralgram(data, element) {
 				var isHeadFrequency = $.inArray(displayName, spiralgramHeadFrequenciesDisplayNames) !== -1; 
 
 				if (isHeadFrequency) {
-					renderComponents(data, variantIndex); 
+					renderComponents(false); 
 				}
 
 			}).on("mouseout", function(d, i) {
@@ -292,6 +283,8 @@ function renderSpiralgram(data, element) {
 			[mOuterBand + outerBuffer, outerBand[1]]
 		];
 
+		var angularWidth = Math.PI * 2 / nVariants; 
+
 		var trackData = $.map(data, variant => 
 			[$.map(trackColumns, column => variant.core[column].value)]
 		); 
@@ -331,7 +324,7 @@ function renderSpiralgram(data, element) {
 				var oR = radii[i][1]; 
 
 				var sA = rotationScale(vI);
-				var eA = rotationScale(vI) + angularStep;
+				var eA = sA + angularWidth;
 
 				var arc = d3.arc()
 					.innerRadius(iR)
@@ -507,89 +500,14 @@ function renderSpiralgram(data, element) {
 				return d; 
 
 			});
-			// .attr("sA", (d, i) => { 
-
-			// 	return 0;  
-
-			// }).attr("eA", angularWidth * 3); 
 
 	}
 
 	addText(); 
 	addSpindles(); 
-	// addCircles(); 
 	addTracks(); 
 	addCrescents(); 
 	
-}
-
-function getAcidSymbolFromProteinVariantData(proteinVariant, getRef) {
-
-	var aminoAcids = proteinVariant.replace("p.", "") //remove "p."s
-								   .replace(/\d+/, "") //remove positions
-								   .split(";");
-
-	var tuples = $.map(aminoAcids, (aA, index) => { 
-		return aA[getRef ? 0 : 1];
-	}); 
-
-	return tuples[0]; //still don't know what to do with multiple protein variants
-
-}
-
-function colorForAcidSymbol(symbol) {
-
-	return {
-		"A":"#00ffd4",
-		"I":"#00ffee",
-		"L":"#00e1ff",
-		"G":"#00c8ff",
-		"P":"#00aaff",
-		"V":"#0077ff",
-
-		"F":"#2aff00",
-		"W":"#00ff55",
-		"Y":"#00ff7b",
-
-		"D":"#aa00ff",
-		"E":"#d500ff",
-
-		"K":"#bbff00",
-		"H":"#99ff00",
-		"R":"#80ff00",
-
-		"S":"#6600ff",
-		"T":"#8000ff",
-
-		"C":"#ff00b3",
-		"M":"#ff0088",
-
-		"N":"#ff8000",
-		"Q":"#ffb300",
-
-		"*":"red"
-	}[symbol];
-
-}
-
-function colorForProteinVariantData(proteinVariant, getRef) {
-
-	if (!isNaN(proteinVariant) || proteinVariant.length <= 1) { //sometimes proteinVariant is just "0"
-		return "black";
-	}
-
-	var aminoAcids = proteinVariant.replace("p.", "") //remove "p."s
-								   .replace(/\d+/, "") //remove positions
-								   .split(";"); 
-
-	var tuples = $.map(aminoAcids, (aA, index) => { 
-		return aA[getRef ? 0 : 1];
-	}); 
-
-	var chosenAcid = tuples[0]; //take the first transcript
-	
-	return colorForAcidSymbol(chosenAcid);
-
 }
 
 function colorForGenotype(genotype) { 

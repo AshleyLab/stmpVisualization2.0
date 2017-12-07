@@ -1,15 +1,11 @@
-var element, axisSpace, pathClicks, outerElement, data, variantData, fileName; 
-
 $(function() {
 
 	var element = "#graphics";
 	fileName = ""; 
 
-	axisSpace = 15;
+	$("#uploadLink").on("click", function(event) {
 
-	$("#uploadLink").on("click", function(event) { // code run whenever #uploadLink is clicked
-
-		//#uploadLink is basically just a dummy element that we use to activate the hidden #uploadInput element
+		//#uploadLink is a dummy element used to activate the hidden #uploadInput element
     	event.preventDefault();
         $("#uploadInput").trigger("click");
 
@@ -18,7 +14,7 @@ $(function() {
     $("#uploadInput").change(function() { //code called by $("#uploadInput").trigger("click");
 
 		var file = $("#uploadInput")[0].files[0]; //the file uploaded by the user
-		fileName = file.name; 
+		window.variantFilename = file.name; 
 
 		if (validateXLSX(file)) {
 
@@ -34,12 +30,6 @@ $(function() {
 
 	});
 
-	$("input[type=radio]").change(function() { 
-
-		data = renderVisualization(this.value == "stream", element, data)
-
-	});
-
 });
 
 function validateXLSX(file) {
@@ -50,56 +40,36 @@ function validateXLSX(file) {
 
 }
 
-function parseXLS(XLS) {
+function parseXLS(xls) {
 
 	var reader = new FileReader();
 
 	reader.onload = function(e) { 
 
 		var data = e.target.result;
-		var rABS = false; //actually determine this instead of just setting it statically
-		var workbook;
-
-		if (rABS) {
-
-		    // if binary string, read with type "binary"
-		    workbook = XLSX.read(data, {type: "binary"});
-
-		} else {
-
-		    // if array buffer, convert to base64 
-		    var arr = fixdata(data);
-		    workbook = XLSX.read(btoa(arr), {type: "base64"});
-
-		}
-
+		var arr = fixdata(data);
+		var workbook = XLSX.read(btoa(arr), {type: "base64"});
+		
 		readWorkbook(workbook);
 
 	};
 
-	reader.readAsArrayBuffer(XLS);
+	reader.readAsArrayBuffer(xls);
 }
 
 function readWorkbook(workbook){
 
 	var sheetNames = workbook.SheetNames;
 
-	if (sheetNames.length > 1) {
-		console.log("Not sure which sheet to parse.");
-		return;
-	} 
+	//just parses first sheet
+	var sheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]); 
 
-	crudeSheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]); 
-	parseCrudeSheet(crudeSheet);
+	parseSheet(sheet);
 
 }
 
-//parses the "crude json" which is sheetJS's export of an xls row to a json
-function parseCrudeSheet(sheet) {
-
-	//we're going to be rendering each different field specifically
-	//i.e., we'll define a way to render the chromosome, and we'll be defining a way to render the clinvar data
-	//so is it really necessary to separate the different kinds of fields?
+//parses sheetJS's export of an xls row to a JS object
+function parseSheet(sheet) {
 
 	var visualizationData = []; 
 
@@ -155,32 +125,22 @@ function parseCrudeSheet(sheet) {
 		"GNOMADMaxAlleleFreq",
 		"GNOMAD_Max_Allele_Freq_POP"
 		
-		// "TIER" Tier
 	];
 
 	for (i in sheet) {
-
-		// if (i > 12) {
-		// 	break;
-		// }
 
 		var row = sheet[i];
 
 		var variant = {
 			"core" : {}, 
 			"metadata" : {
-				"metrics": {
-					"nClicks" : 0
-				}, "workflow": { 
-					"curationMode" : "sheetname", 
-					"notes" : "",
-					"deleted": false,
-					"deletionReason": ""
-				}
+				"notes" : "",
+				"isDeleted" : false,
+				"tags" : []
 			}
 		}; 
 
-		function fillTemplate(originalValue, column) {
+		function fillCore(originalValue, column) {
 
 			var pVData = parseValue(originalValue, column);
 			var value = pVData[0]; 
@@ -199,17 +159,17 @@ function parseCrudeSheet(sheet) {
 		$.each(columns, (_, column) => {
 
 			//make variant.core a dictionary where the keys are the column names and the values are the template returned by filledTemplate
-			variant.core[column] = fillTemplate(row[column], column);
+			variant.core[column] = fillCore(row[column], column);
 
 		}); 
 
 		visualizationData.push(variant);
 	}
 	
-	variantData = visualizationData; 
-	data = renderVisualization("#graphics", visualizationData); //render the visualization
-	hideSpinner(); 
-	scrollToElement("#graphics");
+	window.variantData = visualizationData; 
+	window.variantIndex = 0; 
+
+	renderVisualization(); 
 
 }
 
@@ -219,8 +179,7 @@ function parseValue(originalValue, column) {
 	//returns [(final) value, displayName (for annotation), isMissing]; 
 
 	//model scores
-	//all normalized to [0, 1], where 0 is least pathogenic and 1 is most pathogenic (that can be given on that scale)
-	//scaled later
+	//all normalized to [0, 1], where 0 is least pathogenic and 1 is most pathogenic 
 	
 	var modelScores = ["SIFT Function Prediction","PolyPhen-2 Function Prediction","CADD Score","Phylop","MutationTaster","fathmm","Sift"];
 
@@ -254,7 +213,11 @@ function parseValue(originalValue, column) {
 
 		var displayName = "CADD Score";
 
-		//info: The last column of the provided files is the PHRED-like (-10*log10(rank/total)) scaled C-score ranking a variant relative to all possible substitutions of the human genome (8.6x10^9). Like explained above, a scaled C-score of greater of equal 10 indicates that these are predicted to be the 10% most deleterious substitutions that you can do to the human genome, a score of greater or equal 20 indicates the 1% most deleterious and so on.  http://cadd.gs.washington.edu/info
+		//PHRED-like (-10*log10(rank/total)) scaled C-score ranking a variant relative to all possible substitutions of the human genome (8.6x10^9) 
+		//A scaled C-score of greater or equal 10 indicates that these are predicted to be the 10% most deleterious substitutions that you can do to the human genome, 
+		//a score of greater or equal 20 indicates the 1% most deleterious and so on.  
+		//http://cadd.gs.washington.edu/info
+
 		var originalDomain = [1, 99]; 
 
 		if (isNaN(originalValue)) { 
@@ -342,26 +305,6 @@ function parseValue(originalValue, column) {
 		return [scaleValue(normalizedValue, column), displayName, false];
 
 	}
-	// } else if (column == "Sift") {
-
-	// 	var displayName = "Sift";
-	// 	var originalDomain = [0, 1];
-
-	// 	if (isNaN(originalValue)) { 
-	// 		return [0, displayName, true]; 
-	// 	} 
-
-	// 	var parsedValue = parseFloat(originalValue);
-
-	// 	if (parsedValue < originalDomain[0] || parsedValue > originalDomain[1]) { 
-	// 		return [0, displayName, true];
-	// 	}
-
-	// 	//Range 0 to 1 with values less than 0.05 usually considered intolerant. 40% of the values in this database are below 0.01.
-	// 	var normalizedValue = zeroOneNormalizeValue(parsedValue, originalDomain, column, true);
-
-	// 	return [scaleValue(normalizedValue), displayName, false];
-	// }
 
 	//frequencies
 	//should all be in [0, 1]
@@ -497,7 +440,7 @@ function stringToNumber(value, lookup, column) {
 function scaleValue(value, column) {
 
 	if (value < 0 || value > 1) {
-		console.log("error normalizing: " + value);
+		console.log("error normalizing: " + value + " from " + column);
 	}
 
 	var exponent = 1; 
@@ -531,8 +474,4 @@ function getDisplayName(variantIndex, property) {
 
 function getIsMissing(variantIndex, property) {
 	return variantData[variantIndex].core[property].isMissing;
-}
-
-function isChromosome(t) {
-	return parseInt(d3.select(t).attr("data-isChromosome")); 
 }

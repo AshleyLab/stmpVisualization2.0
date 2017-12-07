@@ -1,20 +1,16 @@
-//always renders chromosomes 1 - 22, X, Y
-var allChromosomes = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y"];
+function renderKaryotype(element) {
 
-var nChromosomes = 24; //autosomal only?
-var hoverColor = "#ff0000"; 
-var colorForSNPs = "#27A4A8"
-var highlightColor = "#007fff"; 
+	var data = window.variantData; 
 
-function renderKaryotype(data, element) {
+	//renders chromosomes 1 - 22, X, Y
+	var allChromosomes = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y"];
+	var nChromosomes = allChromosomes.length; 
 
-	console.log(data);
 	var variants = $.map(data, v => [[v.core.Chromosome.value, v.core.Position.value]]);
 	var chromosomes = $.map(data, v => v.core.Chromosome.value);
-
 	var cytobands = getCytobandData();
 
-	var lengths = getLengths(cytobands);
+	var lengths = getLengths(cytobands, allChromosomes);
 	var maxLength = Math.max(...lengths); 
 
 	var width = $(element).width();
@@ -35,19 +31,19 @@ function renderKaryotype(data, element) {
 		.domain([0, nChromosomes - 1])
 		.range([margin.top, height - margin.bottom])
 
-	drawCytobands(cytobands, element, xScale, yScale, margin.left, margin.right);
-	drawVariants(variants, element, xScale, yScale, data);  
+	drawCytobands(cytobands, element, xScale, yScale, margin.left, margin.right, allChromosomes);
+	drawVariants(variants, element, xScale, yScale, data, allChromosomes);  
 
 }
 
-function drawCytobands(cytobands, element, xScale, yScale, leftBuffer, rightBuffer) {
+function drawCytobands(cytobands, element, xScale, yScale, leftBuffer, rightBuffer, allChromosomes) {
 
 	var height = $(element).height();
 	var width = $(element).width(); 
 
 	var canvas = d3.select(element);
 
-	var lengths = getLengths(cytobands);
+	var lengths = getLengths(cytobands, allChromosomes);
 
 	window.cytobands = cytobands; 
 
@@ -84,7 +80,11 @@ function drawCytobands(cytobands, element, xScale, yScale, leftBuffer, rightBuff
 
 }
 
-function drawVariants(SNPs, element, xScale, yScale, data) { // SNPs is expected to be of the foramt [[chr, pos], [chr, pos]]
+function drawVariants(SNPs, element, xScale, yScale, data, allChromosomes) { // SNPs is expected to be of the foramt [[chr, pos], [chr, pos]]
+
+	var hoverColor = "#ff0000"; 
+	var colorForSNPs = "#27A4A8"
+	var highlightColor = "#007fff"; 
 
 	var height = $(element).height();
 	var canvas = d3.select(element);
@@ -100,7 +100,7 @@ function drawVariants(SNPs, element, xScale, yScale, data) { // SNPs is expected
 		.attr("id", function(element, index) { return "SNPs" + d3.select(this.parentNode).attr("id"); })
 		.attr("chromosome-index", function() { return d3.select(this.parentNode).attr("chromosome-index"); })
 		.selectAll("rect")
-		.data((d, i) => getSNPsForChromosome(SNPs, i))
+		.data((d, i) => getSNPsForChromosome(SNPs, i, allChromosomes))
 		.enter()
 		.append("rect")
 		.attr("fill", function() { 
@@ -108,8 +108,7 @@ function drawVariants(SNPs, element, xScale, yScale, data) { // SNPs is expected
 			var i = parseInt(d3.select(this.parentNode).attr("chromosome-index")); 
 			return i % 2 == 0 ? colorForSNPs1 : colorForSNPs2;
 
-		})
-		.attr("variant-index", function(element, index) { return getVariantIndex(SNPs, element); })
+		}).attr("variant-index", function(element, index) { return getVariantIndex(SNPs, element); })
 		.attr("id", function(element, index) { return "SNP" + element[0] + "_" + element[1]; })
 		.attr("x", (d, i) => xScale(d[1]))
 		.attr("y", (d, i) => 0 - SNPHeight / 2)
@@ -168,7 +167,7 @@ function setSNPColor(identifier, highlight) {
 	
 }
 
-function getSNPsForChromosome(SNPs, index) { 
+function getSNPsForChromosome(SNPs, index, allChromosomes) { 
 
 	var chromosome = allChromosomes[index];
 
@@ -205,7 +204,7 @@ function getCytobandsForChromosome(cytobands, chromosome) {
 	});
 }
 
-function getLengths(cytobands) {
+function getLengths(cytobands, allChromosomes) {
 
 	var lengths = [];
 	
