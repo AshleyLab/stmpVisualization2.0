@@ -7,29 +7,38 @@ function renderBarchart(element, headDisplayName) {
 	//possible head frequencies
 	var populationFrequencies = []; 
 
-	switch(headDisplayName) {
-		case "ExAC Frequency": 
-			populationFrequencies = [
-				["ExAC East Asian Frequency", ""],
-				["ExAC South Asian Frequency", ""],
-				["ExAC African Frequency", ""],
-				["ExAC European Frequency", ""],
-				["ExAC Latino Frequency", ""]
-				]; 
-			break; 
-		case "gnomAD Max Frequency": 
-			populationFrequencies = [
-				//[population frequency, population frequency n (denominator)]
-				["AF_EAS", "AN_EAS"],
-				["AF_NFE", "AN_NFE"], 
-				["AF_SAS", "AN_SAS"], 
-				["AF_AMR", "AN_AMR"], 
-				["AF_AFR", "AN_AFR"]
-			]; 
-			break; 
-		default: 
-			console.log("unknown head frequency " + headDisplayName)
-	}
+	// switch(headDisplayName) {
+	// 	case "ExAC Frequency": 
+	// 		populationFrequencies = [
+	// 			["ExAC East Asian Frequency", ""],
+	// 			["ExAC South Asian Frequency", ""],
+	// 			["ExAC African Frequency", ""],
+	// 			["ExAC European Frequency", ""],
+	// 			["ExAC Latino Frequency", ""]
+	// 			]; 
+	// 		break; 
+	// 	case "gnomAD Max Frequency": 
+	// 		populationFrequencies = [
+	// 			//[population frequency, population frequency n (denominator)]
+	// 			["AF_EAS", "AN_EAS"],
+	// 			["AF_NFE", "AN_NFE"], 
+	// 			["AF_SAS", "AN_SAS"], 
+	// 			["AF_AMR", "AN_AMR"], 
+	// 			["AF_AFR", "AN_AFR"]
+	// 		]; 
+	// 		break; 
+	// 	default: 
+	// 		console.log("unknown head frequency " + headDisplayName)
+	// }
+
+	//right now just gnomAD frequencies //wait but we have ExAC pop freqs, we just don't have their denominators
+	populationFrequencies = [
+		["AF_EAS", "AN_EAS"],
+		["AF_NFE", "AN_NFE"], 
+		["AF_SAS", "AN_SAS"], 
+		["AF_AMR", "AN_AMR"], 
+		["AF_AFR", "AN_AFR"]
+	]; 
 
 	//PREPARE THE DATAs
 	var nFrequencies = populationFrequencies.length;
@@ -41,13 +50,7 @@ function renderBarchart(element, headDisplayName) {
 	$.each(populationFrequencies, (i, pair) => { 
 
 		var freq = parseFloat(data[variantIndex].core[pair[0]].originalValue); 
-		var denominator = 0; 
-
-		if (pair[1] == "") { 
-			console.log("waiting for exac ns");
-		} else { 
-			denominator = parseInt(data[variantIndex].core[pair[1]].originalValue);
-		}
+		var denominator = parseInt(data[variantIndex].core[pair[1]].originalValue); 
 
 		if (freq > maxFreq) { 
 			maxFreq = freq; 
@@ -61,7 +64,6 @@ function renderBarchart(element, headDisplayName) {
 	var labels = $.map(populationFrequencies, (d, i) => d[0]); 
 
 	//LAYOUT
-
 	var margin = {
 		top: 20, bottom: 40, 
 		left: 40, right: 20
@@ -74,7 +76,6 @@ function renderBarchart(element, headDisplayName) {
 	var width = outerWidth - margin.left - margin.right; 
 
 	//CLEAR ANY PREEXISTING BAR CHART SVG ELEMENTS
-
 	d3.select("g.barchart")
 		.remove(); 
 
@@ -83,7 +84,7 @@ function renderBarchart(element, headDisplayName) {
 		.attr("class", "barchart")
 		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-	//scales
+	//MAKE SCALES
 	var yScale = d3.scaleLinear()
 		.domain([0, maxFreq])
 		.range([height, 0]);
@@ -93,25 +94,25 @@ function renderBarchart(element, headDisplayName) {
 		.range([0, width])
 		.paddingInner(.1);
 
-	//create the bars
+	//CREATE BARS
 	g.selectAll("rect")
 		.data(labels)
 		.enter()
 		.append("rect")
 		.attr("x", (d, i) => xScale(d))
 		.attr("y", (d, _) => { 
+
 			return yScale(frequencyData[d][0]); 
-		})
-		.attr("width", xScale.bandwidth())
+
+		}).attr("width", xScale.bandwidth())
 		.attr("height", (d, _) => { 
+
 			return height - yScale(frequencyData[d][0]); 
-		})
-		.attr("fill", (d, _) => colorForPopulation(d));
+
+		}).attr("fill", (d, _) => colorForPopulation(d));
 
 
-	//x axis
-
-
+	//X AXIS FOR LABELS
 	var xAxis = d3.axisBottom()
 		.scale(xScale)
 		.tickFormat((d, i) => axisLabel(d, frequencyData));
@@ -121,9 +122,7 @@ function renderBarchart(element, headDisplayName) {
 		.attr("transform", "translate(0," + (height - 0) + ")")
 		.call(xAxis);
 
-
-	///
-
+	//X AXIS FOR NS
 	var xAxis2 = d3.axisBottom()
 		.scale(xScale)
 		.tickFormat((d, i) => denominators[i]);
@@ -133,13 +132,12 @@ function renderBarchart(element, headDisplayName) {
 		.attr("transform", "translate(0," + (height + 10) + ")")
 		.call(xAxis2)
 
-	//remove the actual lines, so just the denominator ns remain
-
+	//remove the actual lines, so just the labels remain
 	d3.select(".xAxis2")
 		.selectAll("line")
 		.remove(); 
 
-	//y axis
+	//Y AXIS
 	var yAxis = d3.axisLeft()
 		.scale(yScale)
 		.ticks(6);

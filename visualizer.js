@@ -53,7 +53,30 @@ function renderVisualization() {
 
 	hideSpinner(); 
 	scrollToElement(element);
+	setVisualizationTitle(); 
 
+}
+
+function setVisualizationTitle() { 
+
+	var titleElement = "#visualizationTitle";
+
+	var filename = window.variantFilename; 
+
+	var meat = filename.substring(0, filename.indexOf("."));
+
+	var parsed = meat.split(/[^a-zA-Z\d]/);
+	console.log(parsed);
+
+	var capitalized = $.map(parsed, (p, i) => {
+
+		return p.charAt(0).toUpperCase() + p.slice(1);
+
+	}); 
+
+	var titleText = capitalized.join(" ");
+
+	$(titleElement).html(titleText);
 }
 
 function renderComponents(shouldRenderSpiralgram) {

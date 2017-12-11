@@ -90,11 +90,8 @@ function renderSpiralgram(element) {
 			.each(function(d, i) {
 
 				if (deleteds[i]) {
-					console.log("is deleted? " + i + " : " + deleteds[i]);
 					this.classList.add("deleted");
-				} else { 
-					console.log("is deleted? " + i + " : " + deleteds[i]);
-				}
+				} 
 
 			});
 
@@ -226,15 +223,21 @@ function renderSpiralgram(element) {
 
 				displayInfo(originalValue, displayName, isFrequency, isMissing, false, false);
 
-				d3.select(element)
-					.selectAll("g")
-					.selectAll("circle")
-					.filter((_, index) => i == index)
-					.attr("fill", highlightForCircle); 
+				d3.select(this)
+					.attr("fill", highlightForCircle);
 
-				d3.select(staffElement)
-					.select("circle[data-index=\"" + i + "\"")
-					.attr("fill", highlightForSpindle);
+				window.variantIndex = variantIndex; 
+				updateAncillaryVisualizations(); 
+
+				// d3.select(element)
+				// 	.selectAll("g")
+				// 	.selectAll("circle")
+				// 	.filter((_, index) => i == index)
+				// 	.attr("fill", highlightForCircle); 
+
+				// d3.select(staffElement)
+				// 	.select("circle[data-index=\"" + i + "\"")
+				// 	.attr("fill", highlightForSpindle);
 
 				//if it's a "head frequency" (one that has population-level subfrequencies), render it in the barchart
 				var isHeadFrequency = $.inArray(displayName, spiralgramHeadFrequenciesDisplayNames) !== -1; 
