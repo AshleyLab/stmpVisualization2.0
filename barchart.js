@@ -128,30 +128,6 @@ function deprecated_renderBarchart(element, headDisplayName) {
 	//possible head frequencies
 	var populationFrequencies = []; 
 
-	// switch(headDisplayName) {
-	// 	case "ExAC Frequency": 
-	// 		populationFrequencies = [
-	// 			["ExAC East Asian Frequency", ""],
-	// 			["ExAC South Asian Frequency", ""],
-	// 			["ExAC African Frequency", ""],
-	// 			["ExAC European Frequency", ""],
-	// 			["ExAC Latino Frequency", ""]
-	// 			]; 
-	// 		break; 
-	// 	case "gnomAD Max Frequency": 
-	// 		populationFrequencies = [
-	// 			//[population frequency, population frequency n (denominator)]
-	// 			["AF_EAS", "AN_EAS"],
-	// 			["AF_NFE", "AN_NFE"], 
-	// 			["AF_SAS", "AN_SAS"], 
-	// 			["AF_AMR", "AN_AMR"], 
-	// 			["AF_AFR", "AN_AFR"]
-	// 		]; 
-	// 		break; 
-	// 	default: 
-	// 		console.log("unknown head frequency " + headDisplayName)
-	// }
-
 	//right now just gnomAD frequencies //wait but we have ExAC pop freqs, we just don't have their denominators
 	populationFrequencies = [
 		["AF_EAS", "AN_EAS"],

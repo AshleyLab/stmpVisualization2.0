@@ -109,7 +109,6 @@ function renderSpiralgram(element) {
 			.attr("x2", 0)
 			.attr("class", "spindle")
 			.attr("stroke-width", 2)
-			.attr("data-clicked", 0) //0 is falsey
 			.on("mouseover", function(d, i) {
 
 				// d3.select(this)
@@ -123,35 +122,14 @@ function renderSpiralgram(element) {
 
 				displayInfo(words, translationImpact, false, false, false, true); 
 
-				//don't loop: don't rerende spiralgram
+				//don't loop: don't rerender spiralgram
 				window.variantIndex = vI; 
 				updateAncillaryVisualizations(); 
 
 			}).on("mouseout", function(d, i) {
 
-				if (parseInt(d3.select(this).attr("data-clicked"))) {
-					return; 
-				}
-
 				d3.select(this)
 					.attr("stroke", colorForSpindle);
-
-			}).on("click", function(d, i) {
-
-				var clicked = parseInt(d3.select(this).attr("data-clicked"));
-
-				d3.select(this)
-					.attr("stroke", clicked ? colorForSpindle : highlightForSpindle); 
-
-				d3.select(element)
-					.selectAll("line")
-					.filter((_, index) => index != i)
-					.attr("data-clicked", 0)
-					.attr("stroke", colorForSpindle);
-
-				d3.select(this).attr("data-clicked", 1 - clicked); 
-
-				renderComponents(false);
 
 			}).attr("stroke", colorForSpindle); 
 
@@ -229,23 +207,6 @@ function renderSpiralgram(element) {
 				window.variantIndex = variantIndex; 
 				updateAncillaryVisualizations(); 
 
-				// d3.select(element)
-				// 	.selectAll("g")
-				// 	.selectAll("circle")
-				// 	.filter((_, index) => i == index)
-				// 	.attr("fill", highlightForCircle); 
-
-				// d3.select(staffElement)
-				// 	.select("circle[data-index=\"" + i + "\"")
-				// 	.attr("fill", highlightForSpindle);
-
-				//if it's a "head frequency" (one that has population-level subfrequencies), render it in the barchart
-				var isHeadFrequency = $.inArray(displayName, spiralgramHeadFrequenciesDisplayNames) !== -1; 
-
-				if (isHeadFrequency) {
-					renderComponents(false); 
-				}
-
 			}).on("mouseout", function(d, i) {
 
 				d3.select(element)
@@ -256,9 +217,8 @@ function renderSpiralgram(element) {
 
 				displayInfo("","", false, false, false, false);
 
-				d3.select(staffElement)
-					.select("circle[data-index=\"" + i + "\"")
-					.attr("fill", colorForAnnotation(i, nSpindleColumns));
+				d3.select(this)
+					.attr("fill", colorForSpindle);
 
 			});
 
@@ -361,6 +321,9 @@ function renderSpiralgram(element) {
 
 				displayInfo(iM ? "n/a" : d, displayName, false, false, pV, false);
 
+				window.variantIndex = vI; 
+				updateAncillaryVisualizations(); 
+
 			}).on("mouseout", function(d, i) {
 
 				d3.select(this)
@@ -446,6 +409,8 @@ function renderSpiralgram(element) {
 				var gt = getOriginalValue(vI, "GT");
 
 				drawPedigree(gt, element, true);
+				window.variantIndex = vI; 
+				updateAncillaryVisualizations(); 
 
 			}).on("mouseout", () => {
 

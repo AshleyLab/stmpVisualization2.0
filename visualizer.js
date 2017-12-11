@@ -79,10 +79,9 @@ function setVisualizationTitle() {
 	$(titleElement).html(titleText);
 }
 
-function renderComponents(shouldRenderSpiralgram) {
+function renderComponents() {
 
 	console.log("rendering components");
-	console.log(arguments);
 
 	var elements = {
 		"karyotype" : "#karyotypeElement",
@@ -94,20 +93,13 @@ function renderComponents(shouldRenderSpiralgram) {
 
 	for (var type in elements) { //elements from previous round
 
-		if (type == "spiralgram" && !shouldRenderSpiralgram) { //don't clear the spiralgram
-			continue;
-		}
-
 		d3.select(elements[type])
 			.selectAll("*")
 			.remove(); 
 
 	}
 
-	if (shouldRenderSpiralgram) {
-		renderSpiralgram(elements.spiralgram);
-	}
-
+	renderSpiralgram(elements.spiralgram);
 	renderKaryotype(elements.karyotype);
 	renderBarchart(elements.barchart, "gnomAD Max Frequency");
 	renderStaff(elements.staff, elements.spiralgram);
