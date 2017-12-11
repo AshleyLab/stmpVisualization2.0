@@ -102,7 +102,7 @@ function renderTextBox(data, index) {
 		var placeholder = includePlaceholder ? "placeholder='Enter notes...' " : ""; 
 
 		$("#tools")
-			.append("<form><input type='text' " + placeholder + "id='notesTextBox'></form>");
+			.append("<form><textarea " + placeholder + "id='notesTextBox'></textarea></form>");
 
 		$("#notesTextBox").val(text);
 

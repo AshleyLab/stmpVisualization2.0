@@ -65,8 +65,15 @@ function drawCytobands(cytobands, element, xScale, yScale, leftBuffer, rightBuff
 		.attr("y1", 0)
 		.attr("x2", (d, _) => xScale(d))
 		.attr("y2", 0)
-		.attr("stroke", (d, i) => i % 2 == 0 ? "white" : "#d1d1d1")
-		.attr("stroke-width", 2);
+		.attr("stroke", (d, i) => {
+
+			if (isNaN(allChromosomes[i])) {
+				return "#F05F40";
+			}
+
+			return i % 2 == 0 ? "white" : "#d1d1d1";
+
+		}).attr("stroke-width", 2);
 
 	canvas.selectAll(".chromosome")
 		.append("text")
@@ -80,7 +87,7 @@ function drawCytobands(cytobands, element, xScale, yScale, leftBuffer, rightBuff
 
 }
 
-function drawVariants(SNPs, element, xScale, yScale, data, allChromosomes) { // SNPs is expected to be of the foramt [[chr, pos], [chr, pos]]
+function drawVariants(SNPs, element, xScale, yScale, data, allChromosomes) { // SNPs is expected to be of the format [[chr, pos], [chr, pos]]
 
 	var hoverColor = "#ff0000"; 
 	var colorForSNPs = "#27A4A8"
@@ -122,7 +129,7 @@ function drawVariants(SNPs, element, xScale, yScale, data, allChromosomes) { // 
 
 			var vI = d3.select(this).attr("variant-index");
 
-			renderStaff(data, vI, "#staffElement", "#spiralElement");
+			renderStaff("#staffElement", "#spiralElement");
 
 		}).on("mouseout", function(element, index) {
 
@@ -130,17 +137,7 @@ function drawVariants(SNPs, element, xScale, yScale, data, allChromosomes) { // 
 				d3.select(this).attr("fill", colorForSNPs);
 			}
 			
-		}).on("click", function(element, index) {
-
-			d3.selectAll(".chromosome g path").attr("fill", colorForSNPs);
-			d3.selectAll(".chromosome g path").classed("presentedSNP", false);
-
-			d3.select(this).attr("fill", highlightColor);
-			d3.select(this).attr("class", "presentedSNP");
-
-			var id = d3.select(this).attr("id");
-
-		}); 
+		});
 
 }
 

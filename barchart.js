@@ -21,7 +21,18 @@ function renderBarchart(element) {
 		var headersToGetDataFrom = $.map(columnHeaders, (cH, _) => cH[i]);
 		console.log(headersToGetDataFrom);
 
-		var frequencyData = $.map(headersToGetDataFrom, (h, _) => parseFloat(data.core[h].originalValue));
+		var frequencyData = $.map(headersToGetDataFrom, (h, _) => {
+
+			var f = parseFloat(data.core[h].originalValue); 
+
+			if (isNaN(f)) {
+				f = 0; 
+			}; 
+
+			return f; 
+
+		});
+
 		console.log(frequencyData);
 
 		return [[p].concat(frequencyData)];
@@ -46,14 +57,11 @@ function renderBarchart(element) {
 	    .paddingInner(0.1);
 
 	var x1 = d3.scaleBand()
-	    .padding(0.05);
+	    .padding(0.2);
 
 	var y = d3.scalePow()
 		.exponent(.25)
 	    .rangeRound([height, 0]);
-
-	var z = d3.scaleOrdinal()
-	    .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
 
 	//set scales
 	var keys = ["ExAC", "gnomAD"];
@@ -62,7 +70,7 @@ function renderBarchart(element) {
 	x1.domain(keys).rangeRound([0, x0.bandwidth()]);
 
 	var maxFreq = d3.max(freqData, (d, _) => d3.max(d, (e, i) => i == 0 ? 0 : e));
-	console.log(maxFreq);
+	console.log(freqData);
 
 	y.domain([0, maxFreq]); 
 
@@ -70,7 +78,6 @@ function renderBarchart(element) {
 		.append("g")
 		.attr("class", "barchart")
 		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
 
 	g.selectAll("g")
 		.data(freqData)
@@ -80,15 +87,9 @@ function renderBarchart(element) {
 		.selectAll("rect")
 		.data((d, _) => { 
 
-			var innerData = $.map(keys, (p, i) => {
-
-				return {key: p, value: d[i + 1]};
-				// return {key: p, value: maxFreq}
-
+			return $.map(keys, (p, i) => {
+				return {key: p, value: d[i + 1], population: d[0]};
 			}); 
-
-			console.log(innerData);
-			return innerData; 
 
 		}).enter()
 		.append("rect")
@@ -96,7 +97,13 @@ function renderBarchart(element) {
 		.attr("y", (d, _) => y(d.value))
 		.attr("width", x1.bandwidth())
 		.attr("height", (d, _) => height - y(d.value))
-		.attr("fill", (d, _) => z(d.key));
+		.attr("fill", (d, _) => { 
+
+			return colorForPopulation(d.population); 
+
+		}).attr("stroke", (d, _) => colorForPopulation(d.population))
+		.attr("fill-opacity", (d, _) => d.key == "ExAC" ? 1 : 0)
+		.attr("stroke-width", 2)
 
 	g.append("g")
 	    .attr("class", "axis")
@@ -106,7 +113,8 @@ function renderBarchart(element) {
 	g.append("g")
     	.attr("class", "axis")
       	.call(
-      		d3.axisLeft(y)//.ticks(null, "s")
+      		d3.axisLeft(y).ticks(4)
+      		//.ticks(null, "s")
       		)
     	.append("text")
      	.attr("x", 2)
@@ -117,116 +125,36 @@ function renderBarchart(element) {
       	.attr("text-anchor", "start")
       	// .text("Population");
 
+    //add legend
+    var legend = g.append("g")
+    	.attr("font-family", "sans-serif")
+    	.attr("font-size", 10)
+      	.attr("text-anchor", "end")
+    	.selectAll("g")
+    	.data(keys.slice())
+    	.enter()
+    	.append("g")
+      	.attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+  	legend.append("rect")
+      	.attr("x", width - 19)
+      	.attr("width", 19)
+      	.attr("height", 19)
+      	.attr("fill", "white")
+      	.attr("stroke", "white")
+      	.attr("stroke-width", 2)
+      	.attr("fill-opacity", (d, _) => d == "ExAC" ? 1 : 0);
+
+  	legend.append("text")
+      	.attr("x", width - 24)
+      	.attr("y", 9.5)
+      	.attr("dy", "0.32em")
+      	.attr("fill", "white")
+      	.text((d, _) => d);
+
 }
 
 function deprecated_renderBarchart(element, headDisplayName) { 
-
-	var data = window.variantData; 
-	var variantIndex = window.variantIndex; 
-
-	//detail view of population level frequencies
-	//possible head frequencies
-	var populationFrequencies = []; 
-
-	//right now just gnomAD frequencies //wait but we have ExAC pop freqs, we just don't have their denominators
-	populationFrequencies = [
-		["AF_EAS", "AN_EAS"],
-		["AF_NFE", "AN_NFE"], 
-		["AF_SAS", "AN_SAS"], 
-		["AF_AMR", "AN_AMR"], 
-		["AF_AFR", "AN_AFR"]
-	]; 
-
-	//PREPARE THE DATAs
-	var frequencyData = {}; 
-	var maxFreq = 0; 
-
-	var denominators = []; 
-
-	$.each(populationFrequencies, (i, pair) => { 
-
-		var freq = parseFloat(data[variantIndex].core[pair[0]].originalValue); 
-		var denominator = parseInt(data[variantIndex].core[pair[1]].originalValue); 
-
-		if (freq > maxFreq) { 
-			maxFreq = freq; 
-		}
-
-		denominators.push(denominator);
-
-		frequencyData[pair[0]] = [freq, denominator]; 
-	});
-
-	var labels = $.map(populationFrequencies, (d, i) => d[0]); 
-
-	//LAYOUT
-	var margin = {
-		top: 20, bottom: 40, 
-		left: 40, right: 20
-	};
-
-	var outerHeight = $(element).height();
-	var outerWidth = $(element).width();
-
-	var height = outerHeight - margin.top - margin.bottom; 
-	var width = outerWidth - margin.left - margin.right; 
-
-	//CLEAR ANY PREEXISTING BAR CHART SVG ELEMENTS
-	d3.select("g.barchart")
-		.remove(); 
-
-	var g = d3.select(element)
-		.append("g")
-		.attr("class", "barchart")
-		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-	//MAKE SCALES
-	var yScale = d3.scaleLinear()
-		.domain([0, maxFreq])
-		.range([height, 0]);
-
-	var xScale = d3.scaleBand()
-		.domain(labels)
-		.range([0, width])
-		.paddingInner(.1);
-
-	//CREATE BARS
-	g.selectAll("rect")
-		.data(labels)
-		.enter()
-		.append("rect")
-		.attr("x", (d, i) => xScale(d))
-		.attr("y", (d, _) => { 
-
-			return yScale(frequencyData[d][0]); 
-
-		}).attr("width", xScale.bandwidth())
-		.attr("height", (d, _) => { 
-
-			return height - yScale(frequencyData[d][0]); 
-
-		}).attr("fill", (d, _) => colorForPopulation(d));
-
-
-	//X AXIS FOR LABELS
-	var xAxis = d3.axisBottom()
-		.scale(xScale)
-		.tickFormat((d, i) => axisLabel(d, frequencyData));
-
-	g.append("g")
-		.attr("class", "xAxis")
-		.attr("transform", "translate(0," + (height - 0) + ")")
-		.call(xAxis);
-
-	//X AXIS FOR NS
-	var xAxis2 = d3.axisBottom()
-		.scale(xScale)
-		.tickFormat((d, i) => denominators[i]);
-
-	g.append("g")
-		.attr("class", "xAxis2")
-		.attr("transform", "translate(0," + (height + 10) + ")")
-		.call(xAxis2)
 
 	//remove the actual lines, so just the labels remain
 	d3.select(".xAxis2")

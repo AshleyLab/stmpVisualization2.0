@@ -209,16 +209,10 @@ function renderSpiralgram(element) {
 
 			}).on("mouseout", function(d, i) {
 
-				d3.select(element)
-					.selectAll("g")
-					.selectAll("circle")
-					.filter((_, index) => i == index)
+				d3.select(this)
 					.attr("fill", colorForAnnotation(i, nSpindleColumns)); 
 
 				displayInfo("","", false, false, false, false);
-
-				d3.select(this)
-					.attr("fill", colorForSpindle);
 
 			});
 
