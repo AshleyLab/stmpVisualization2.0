@@ -48,7 +48,8 @@ function renderBarchart(element) {
 	var x1 = d3.scaleBand()
 	    .padding(0.05);
 
-	var y = d3.scaleLinear()
+	var y = d3.scalePow()
+		.exponent(.25)
 	    .rangeRound([height, 0]);
 
 	var z = d3.scaleOrdinal()
@@ -81,8 +82,8 @@ function renderBarchart(element) {
 
 			var innerData = $.map(keys, (p, i) => {
 
-				// return {key: p, value: d[i + 1]}
-				return {key: p, value: maxFreq}
+				return {key: p, value: d[i + 1]};
+				// return {key: p, value: maxFreq}
 
 			}); 
 
@@ -104,7 +105,9 @@ function renderBarchart(element) {
 
 	g.append("g")
     	.attr("class", "axis")
-      	.call(d3.axisLeft(y).ticks(null, "s"))
+      	.call(
+      		d3.axisLeft(y)//.ticks(null, "s")
+      		)
     	.append("text")
      	.attr("x", 2)
       	.attr("y", y(y.ticks().pop()) + 0.5)
@@ -112,7 +115,7 @@ function renderBarchart(element) {
       	.attr("fill", "#000")
       	.attr("font-weight", "bold")
       	.attr("text-anchor", "start")
-      	.text("Population");
+      	// .text("Population");
 
 }
 
