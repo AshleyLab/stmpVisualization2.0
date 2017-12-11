@@ -1,4 +1,4 @@
-function renderTools(data, index) {
+function renderTools(element) {
 
 	//for editing the data while it is being visualized (delete variant, add notes etc)
 	var data = window.variantData; 
@@ -6,9 +6,12 @@ function renderTools(data, index) {
 
 	console.log(arguments);
 
+	//delete all old stuff
+	$("#tools").empty();
+
 	//checkboxes for flags
-	var flags = ["TagA","TagB","TagC"];
-	// renderCheckboxes(flags, true);
+	var flags = ["GUS","Check RNAseq","MOSC"];
+	renderCheckboxes(flags, true);
 
 	//text box
 	renderTextBox(data, index);
@@ -30,23 +33,56 @@ function renderTools(data, index) {
 
 function renderCheckboxes(flags, includeCustom) {
 
+	var hasFlags = window.variantData[window.variantIndex].metadata.flags;
+	console.log(hasFlags); 
 	var name = "flags";
 
 	var checkboxes = $.each(flags, (i, flag) => {
 
-		var checkbox = "<input type='checkbox' name='" + name + "' value='" + flag + "' /> " + flag + " ";
+		var checked = $.inArray(flag, hasFlags) !== -1 ? "checked " : ""
+
+		var checkbox = "<input class='flag' type='checkbox' name='" + name + "' value='" + flag + "' " + checked + "/> " + flag + " ";
 		$("#tools").append(checkbox);
 
 	}); 
 
+	$("input.flag").on("click", function() { 
+
+		var flag = $(this).val(); 
+		toggleFlag(flag);
+
+	});
+
 	if (includeCustom) {
-		var placeholder = "TagD,TagE,TagF";
+
+		var placeholder = "FlagD,FlagE,FlagF";
 		var customInput = "<input type='text' id='customFlag' placeholder='" + placeholder + "' />"; 
 
 		$("#tools").append(customInput);
 	}
 
 	// $("#tools").append()
+}
+
+function toggleFlag(flag) {
+
+	var flags = window.variantData[window.variantIndex].metadata.flags;
+
+	var hasFlag = $.inArray(flag, flags) !== -1; 
+
+	if (hasFlag) { //remove flag
+
+		var index = flags.indexOf(flag);
+		window.variantData[window.variantIndex].metadata.flags.splice(index, 1);
+
+	} else { //add it
+
+		window.variantData[window.variantIndex].metadata.flags.push(flag);
+
+	}
+
+	console.log(window.variantData);
+
 }
 
 function deleteVariant(data, index) {

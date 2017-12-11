@@ -136,7 +136,7 @@ function parseSheet(sheet) {
 			"metadata" : {
 				"notes" : "",
 				"isDeleted" : false,
-				"tags" : []
+				"flags" : []
 			}
 		}; 
 

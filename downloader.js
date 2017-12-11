@@ -1,13 +1,14 @@
 function downloadButtonClicked() { 
 
 	console.log("downloadButtonClicked called");
-	downloadData(variantData);
-
-	console.log(variantData);
+	console.log(window.variantData);
+	downloadData();
 
 }
 
-function downloadData(data) {
+function downloadData() {
+
+	var data = window.variantData;
 
 	var wb = { 
 		SheetNames : [], 
@@ -20,6 +21,7 @@ function downloadData(data) {
 	var cells = dataAsWorkbook[0];
 	var columns = dataAsWorkbook[1];
 
+	console.log(columns);
 	console.log(cells);
 
 	wb.SheetNames.push("Sheet1");
@@ -32,8 +34,9 @@ function downloadData(data) {
 	var wbout = XLSX.write(wb, wopts);
 
 	//create new file name
-	var base = fileName.substring(0, fileName.indexOf("."));
-	var extension = fileName.substring(fileName.indexOf("."));
+	var filename = window.variantFilename; 
+	var base = filename.substring(0, filename.indexOf("."));
+	var extension = filename.substring(filename.indexOf("."));
 	var infix = "-edited";
 
 	// the saveAs call downloads a file on the local machine 
@@ -55,6 +58,9 @@ function s2ab(s) {
 //parses our variant data construct and returns a set of headers and cell data
 function convertVariantDataToWorkbook(data) {
 
+	var flags = getFlagset(data);
+	console.log(flags);
+
 	var arr = []; 
 
 	for (var i in data) {
@@ -65,10 +71,19 @@ function convertVariantDataToWorkbook(data) {
 			row[col] = data[i].core[col].originalValue;
 		}
 
-		row.notes = data[i].metadata.workflow.notes; 
+		//notes
+		row.notes = data[i].metadata.notes; 
+
+		//flags
+		$.each(flags, (_, flag) => {
+
+			row[flag] = data[i].metadata.flags.indexOf(flag) > -1 ? "Y" : "N";
+			console.log(row);
+
+		});
 
 		//TODO find a way to gray out deleted rows
-		if (data[i].metadata.workflow.deleted) {
+		if (data[i].metadata.deleted) {
 
 			row.curationStatus = "deleted";
 
@@ -87,4 +102,18 @@ function convertVariantDataToWorkbook(data) {
 	}
 
 	return [arr, columns];
+}
+
+function getFlagset(data) {
+
+	return $.map(data, (d, _) => { //get tags all variants have
+
+		return d.metadata.flags;
+
+	}).filter((f, i, list) => { //remove duplicates
+
+		return list.indexOf(f) == i; 
+
+	}); 
+
 }
