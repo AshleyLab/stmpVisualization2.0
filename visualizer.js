@@ -49,6 +49,7 @@ function renderVisualization() {
 
 	//
 
+	console.log(window.variantData);
 	renderComponents(true);
 
 	hideSpinner(); 

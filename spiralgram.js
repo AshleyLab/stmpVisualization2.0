@@ -50,9 +50,9 @@ function renderSpiralgram(element) {
 		var spindleColumns = [
 			"SIFT Function Prediction",
 			"PolyPhen-2 Function Prediction",
-			"CADD Score",
-			"Phylop",
 			"MutationTaster",
+			"CADD Score",
+			"phyloP",
 			"fathmm",
 			"1000 Genomes Frequency", 
 			"ExAC Frequency",

@@ -96,9 +96,9 @@ function parseSheet(sheet) {
 		//models
 		"SIFT Function Prediction",
 		"PolyPhen-2 Function Prediction",
-		"CADD Score",
-		"Phylop",
 		"MutationTaster",
+		"CADD Score",
+		"phyloP",
 		"fathmm",
 		// "Sift",
 
@@ -181,7 +181,7 @@ function parseValue(originalValue, column) {
 	//model scores
 	//all normalized to [0, 1], where 0 is least pathogenic and 1 is most pathogenic 
 	
-	var modelScores = ["SIFT Function Prediction","PolyPhen-2 Function Prediction","CADD Score","Phylop","MutationTaster","fathmm","Sift"];
+	var modelScores = ["SIFT Function Prediction","PolyPhen-2 Function Prediction","CADD Score","phyloP","MutationTaster","fathmm","Sift"];
 
 	if (column == "SIFT Function Prediction") { 
 
@@ -241,7 +241,7 @@ function parseValue(originalValue, column) {
 
 		return [scaleValue(normalizedValue, column), displayName, false];
 
-	} else if (column == "Phylop") {
+	} else if (column == "phyloP") {
 
 		//we use the mammalian phylop rankscore
 		//a rank score is always between 0 and 1 and a score of 0.9 means it is more likely to be damaging than 90% of all potential nsSNVs predicted by that method   https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4752381/
@@ -268,21 +268,16 @@ function parseValue(originalValue, column) {
 		//we use mutation taster converted rankscore: 1 is more damaging, 0 is less damaging—see phyloP above for more details
 		
 		var displayName = "MutationTaster"; 
-		var originalDomain = [0, 1];
 
-		if (isNaN(originalValue)) { 
-			return [0, displayName, true]; 
-		} 
+		var lookup = {"N" : 0, "P" : 0, "D" : 1, "A" : 1};
 
-		var parsedValue = parseFloat(originalValue);
-
-		if (parsedValue < originalDomain[0] || parsedValue > originalDomain[1]) { 
+		if (!(originalValue in lookup)) {
 			return [0, displayName, true];
 		}
 
-		var normalizedValue = zeroOneNormalizeValue(parsedValue, originalDomain, column, false);
-
-		return [scaleValue(normalizedValue, column), displayName, false];
+		var value = stringToNumber(originalValue, lookup, column);
+		
+		return [scaleValue(value, column), displayName, false];
 
 	} else if (column == "fathmm") {
 
