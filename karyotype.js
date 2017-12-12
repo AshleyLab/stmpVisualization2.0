@@ -89,7 +89,8 @@ function drawCytobands(cytobands, element, xScale, yScale, leftBuffer, rightBuff
 
 function drawVariants(SNPs, element, xScale, yScale, data, allChromosomes) { // SNPs is expected to be of the format [[chr, pos], [chr, pos]]
 
-	var hoverColor = "#ff0000"; 
+	// var hoverColor = "#ff0000"; 
+	var hoverColor = "red";
 	var colorForSNPs = "#27A4A8"
 	var highlightColor = "#007fff"; 
 
@@ -110,32 +111,34 @@ function drawVariants(SNPs, element, xScale, yScale, data, allChromosomes) { // 
 		.data((d, i) => getSNPsForChromosome(SNPs, i, allChromosomes))
 		.enter()
 		.append("rect")
+		.attr("variant-index", function(element, index) { return getVariantIndex(SNPs, element); })
 		.attr("fill", function() { 
+
+			if (d3.select(this).attr("variant-index") == window.variantIndex) {
+				return hoverColor;
+			}
 
 			var i = parseInt(d3.select(this.parentNode).attr("chromosome-index")); 
 			return i % 2 == 0 ? colorForSNPs1 : colorForSNPs2;
 
-		}).attr("variant-index", function(element, index) { return getVariantIndex(SNPs, element); })
-		.attr("id", function(element, index) { return "SNP" + element[0] + "_" + element[1]; })
+		}).attr("id", function(element, index) { return "SNP" + element[0] + "_" + element[1]; })
 		.attr("x", (d, i) => xScale(d[1]))
 		.attr("y", (d, i) => 0 - SNPHeight / 2)
 		.attr("width", SNPWidth)
 		.attr("height", SNPHeight)
 		.on("mouseover", function(element, index) {
 
-			if (!d3.select(this).classed("presentedSNP")) {
-				d3.select(this).attr("fill", hoverColor);
-			}
+			d3.select(this).attr("fill", "red");
 
 			var vI = d3.select(this).attr("variant-index");
 
 			renderStaff("#staffElement", "#spiralElement");
+			window.variantIndex = d3.select(this).attr("variant-index");
+			updateAncillaryVisualizations(); 
 
 		}).on("mouseout", function(element, index) {
 
-			if (!d3.select(this).classed("presentedSNP")) {
-				d3.select(this).attr("fill", colorForSNPs);
-			}
+			d3.select(this).attr("fill", colorForSNPs);	
 			
 		});
 
@@ -153,15 +156,6 @@ function getVariantIndex(SNPs, element) {
 
 	return index[0];
 
-}
-
-function setSNPColor(identifier, highlight) { 
-
-	var thisIdentifier = "SNP" + identifier; 
-
-	d3.select("#" + thisIdentifier).attr("fill", highlight);
-	d3.select("#" + thisIdentifier).attr("class", highlight === colorForSNPs ? "" : "presentedSNP");
-	
 }
 
 function getSNPsForChromosome(SNPs, index, allChromosomes) { 
