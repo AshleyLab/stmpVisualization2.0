@@ -1,0 +1,6 @@
+#HEADER: this file is a csv of values to be used in the STMP drawing application.  Line #2 contains "info columns," line #3 contains "numeric value columns, line #4 contains string value columns, and line #5 contains color mapping columns"  #they are all csv values.  UPDATE: the color mapping columns may be obselete now
+CHROM,POS,REF,ALT,Gene_Summary
+QUAL,Max_Allele_Freq_Summary,hg19_phastConsElements46way_r_MSA_MCE_lod,hg19_ljb26_all_CADD_raw,AD,hg19_ljb26_all_Polyphen2_HDIV_score,exac_tolerance_r_lof_z,DP
+clinvar_clinical_significance,Gene_Summary,Function_Summary,ExonicFunction_Summary
+10;10;100,150;100;100,150;10;10,200;30;30,250;40;40,230;230;5
+ 

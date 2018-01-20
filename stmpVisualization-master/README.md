@@ -1,0 +1,3 @@
+# stmpVisualization
+This project has two distinct code components.  The first is a .py script that reads stmp annotation data in from the annotation tsv file and processes it into input data for the visualization.  The second is a Processing (a java extension language) script that renders the drawing and provides interactive curation workflow.  
+The Processing component can be run either with the processing file (a '.pde' environment file) or with an exported java app version of the script.  Processing must run locally--as such the design of the project involves remotely mounting the data stored on sherlock.

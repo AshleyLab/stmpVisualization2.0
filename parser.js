@@ -5,6 +5,9 @@ $(function() {
 
 	$("#uploadLink").on("click", function(event) {
 
+				toggleFullScreen();
+
+
 		//#uploadLink is a dummy element used to activate the hidden #uploadInput element
     	event.preventDefault();
         $("#uploadInput").trigger("click");
@@ -15,6 +18,8 @@ $(function() {
 
 		var file = $("#uploadInput")[0].files[0]; //the file uploaded by the user
 		window.variantFilename = file.name; 
+
+		// toggleFullScreen();
 
 		if (validateXLSX(file)) {
 

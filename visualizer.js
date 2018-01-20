@@ -10,6 +10,8 @@ function renderVisualization() {
 
 	var element = "#graphics";
 
+	requestFullScreen($(element));
+
 	//setup work to get the right configuration of divs and svg for the spiralgram and staffgram 
 	//the positioning of these elements is set in main.css
 	d3.select(element)
@@ -56,6 +58,51 @@ function renderVisualization() {
 	scrollToElement(element);
 	setVisualizationTitle(); 
 
+}
+
+function requestFullScreen(element) {
+
+	// toggleFullScreen();
+
+	// console.log("requesting full screen for " + element);
+
+	// var e = element.get(); //get the underlying DOM element
+
+	// var request = e.requestFullScreen || e.webkitRequestFullScreen || e.mozRequestFullScreen;
+	// console.log(request);
+
+	// console.log("calling")
+ //    request.call(e);
+
+}
+
+function toggleFullScreen() {
+	console.log("toggling");
+
+  if (!document.fullscreenElement &&    // alternative standard method
+      !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement ) {  // current working methods
+  	console.log("entering")
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen();
+    } else if (document.documentElement.msRequestFullscreen) {
+      document.documentElement.msRequestFullscreen();
+    } else if (document.documentElement.mozRequestFullScreen) {
+      document.documentElement.mozRequestFullScreen();
+    } else if (document.documentElement.webkitRequestFullscreen) {
+    	console.log("webkit")
+      document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+    }
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    } else if (document.mozCancelFullScreen) {
+      document.mozCancelFullScreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    }
+  }
 }
 
 function setVisualizationTitle() { 
