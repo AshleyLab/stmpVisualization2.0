@@ -3,10 +3,14 @@ $(function() {
 	var element = "#graphics";
 	fileName = ""; 
 
+	var isNotFullScreen = true; 
+
 	$("#uploadLink").on("click", function(event) {
 
-				toggleFullScreen();
-
+		if (isNotFullScreen) {
+			toggleFullScreen();
+			isNotFullScreen = false; 
+		}
 
 		//#uploadLink is a dummy element used to activate the hidden #uploadInput element
     	event.preventDefault();
@@ -54,23 +58,17 @@ function parseXLS(xls) {
 		var data = e.target.result;
 		var arr = fixdata(data);
 		var workbook = XLSX.read(btoa(arr), {type: "base64"});
-		
-		readWorkbook(workbook);
+
+		var sheetNames = workbook.SheetNames; 
+
+		//just parses first sheet
+		var sheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]); 	
+
+		parseSheet(sheet);
 
 	};
 
 	reader.readAsArrayBuffer(xls);
-}
-
-function readWorkbook(workbook){
-
-	var sheetNames = workbook.SheetNames;
-
-	//just parses first sheet
-	var sheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]); 
-
-	parseSheet(sheet);
-
 }
 
 //parses sheetJS's export of an xls row to a JS object
@@ -98,7 +96,7 @@ function parseSheet(sheet) {
 		"Protein Variant",
 		"Translation Impact", // < missense, frameshift, stop loss, stop gain, ...
 
-		//models
+		//model scores
 		"SIFT Function Prediction",
 		"PolyPhen-2 Function Prediction",
 		"MutationTaster",
@@ -161,7 +159,11 @@ function parseSheet(sheet) {
 
 		}
 
+		console.log(row);
+
 		$.each(columns, (_, column) => {
+
+			console.log(row[column] + " for " + column);
 
 			//make variant.core a dictionary where the keys are the column names and the values are the template returned by filledTemplate
 			variant.core[column] = fillCore(row[column], column);
@@ -174,6 +176,7 @@ function parseSheet(sheet) {
 	window.variantData = visualizationData; 
 	window.variantIndex = 0; 
 
+	console.log(visualizationData);
 	renderVisualization(); 
 
 }

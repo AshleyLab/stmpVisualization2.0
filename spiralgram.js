@@ -246,6 +246,8 @@ function renderSpiralgram(element) {
 			[$.map(trackColumns, column => variant.core[column].value)]
 		); 
 
+		console.log(trackData);
+
 		var rotationScale = d3.scaleLinear()
 			.domain([0, nVariants])
 			.range([0, Math.PI * 2]); 

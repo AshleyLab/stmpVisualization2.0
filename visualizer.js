@@ -10,8 +10,6 @@ function renderVisualization() {
 
 	var element = "#graphics";
 
-	requestFullScreen($(element));
-
 	//setup work to get the right configuration of divs and svg for the spiralgram and staffgram 
 	//the positioning of these elements is set in main.css
 	d3.select(element)
@@ -51,7 +49,6 @@ function renderVisualization() {
 
 	//
 
-	console.log(window.variantData);
 	renderComponents(true);
 
 	hideSpinner(); 
@@ -60,24 +57,8 @@ function renderVisualization() {
 
 }
 
-function requestFullScreen(element) {
-
-	// toggleFullScreen();
-
-	// console.log("requesting full screen for " + element);
-
-	// var e = element.get(); //get the underlying DOM element
-
-	// var request = e.requestFullScreen || e.webkitRequestFullScreen || e.mozRequestFullScreen;
-	// console.log(request);
-
-	// console.log("calling")
- //    request.call(e);
-
-}
 
 function toggleFullScreen() {
-	console.log("toggling");
 
   if (!document.fullscreenElement &&    // alternative standard method
       !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement ) {  // current working methods
@@ -187,7 +168,9 @@ function colorForChromosomeStaff(chromosome) {
 
 function colorForChromosomeBinary(chromosome) {
 
-	return isNaN(chromosome) ? "#ff8026" : "#22262e"; 
+	console.log(chromosome);
+	return isNaN(chromosome) ? "red" : "white";
+	// return isNaN(chromosome) ? "#ff8026" : "#22262e"; 
 
 }
 
@@ -721,7 +704,6 @@ function getAcidSymbolFromProteinVariantData(proteinVariant, getRef) {
 function colorForAcidSymbol(symbol) {
 
 	return {
-		//
 		"A":"#00ffd4",
 		"I":"#00ffee",
 		"L":"#00e1ff",

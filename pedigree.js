@@ -1,6 +1,7 @@
 function drawPedigree(gt, element, isSpiral) { 
 
 	var parsed = parseGenotype(gt); 
+	console.log(parsed);
 
 	var probandColor = colorForGenotype(parsed[0]); 
 	var fatherColor = colorForGenotype(parsed[1]);
@@ -32,7 +33,7 @@ function drawPedigree(gt, element, isSpiral) {
 		.attr("height", radius * 2)
 		.attr("fill", fatherColor)
 		.attr("stroke", "white")
-		.attr("stroke-width", parsed[1] == -1 ? strokeWidthForUnknownGenotype : 0);
+		.attr("stroke-width", parsed[1] == -1 || parsed[1] == null ? strokeWidthForUnknownGenotype : 0);
 
 	//draw a circle for the mother
 	var circleCenterX = centerX + radius * 2; 
@@ -46,7 +47,7 @@ function drawPedigree(gt, element, isSpiral) {
 		.attr("r", radius)
 		.attr("fill", motherColor)
 		.attr("stroke", "white")
-		.attr("stroke-width", parsed[2] == -1 ? strokeWidthForUnknownGenotype : 0);
+		.attr("stroke-width", parsed[2] == -1 || parsed[2] == null ? strokeWidthForUnknownGenotype : 0);
 
 	//draw a diamond for the proband 
 	var diamondCenterX = centerX; 
