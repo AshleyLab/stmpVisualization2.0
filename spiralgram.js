@@ -485,7 +485,11 @@ function renderSpiralgram(element) {
 
 			}).attr("fill", function(d, i) {
 
-				return colorers[i](d, i == 2);
+				var vI = parseInt(d3.select(this.parentNode).attr("variant-index")); 
+				var property = trackColumns[i]; 
+				var iM = getIsMissing(vI, property); 
+
+				return colorers[i](d, i == 2, iM);
 
 			}).on("mouseover", function(d, i) {
 
@@ -503,7 +507,7 @@ function renderSpiralgram(element) {
 				}
 
 				var displayName = getDisplayName(vI, property);
-				var iM = getIsMissing(vI, property)
+				var iM = getIsMissing(vI, property); 
 
 				displayInfo(iM ? "n/a" : d, displayName, false, false, pV, false);
 
@@ -532,65 +536,7 @@ function renderSpiralgram(element) {
 					this.classList.add("isMissing");
 				}
 
-			}).attr("stroke", "white")
-			.attr("stroke-width", function(d, i) {
-
-				// var vI = parseInt(d3.select(this.parentNode).attr("variant-index")); 
-				// var property = trackColumns[i]; 
-				// var iM = getIsMissing(vI, property)
-
-				// //give protein variant tracks with missing data a track
-				// if (i == 2 || i == 3) {
-				// 	if (iM) {
-				// 		return 2; 
-				// 	}
-				// }
-
-				// return 0; 
-
-			});
-
-		//need to simulate appearance of hollow arc for tracks where data is missing
-		//can't do with stroke since stroke is what draws space BETWEEN arcs
-		//do make the original arc white 
-		//and inset a smaller arc that's the color of the background
-
-		//--> could just make original arc smaller?
-
-		// insetArcsForUnknownPVData(trackData);
-		function insetArcsForUnknownPVData(trackData) { 
-
-			//take just PV data
-			var pvData = $.map(trackData, (d, _) => { 
-				return [[d[2], d[3]]]
-			});
-
-			//replace empty data
-			var insetData = $.map(pvData, (d, vI) => {
-
-				return [
-					$.map(d, (e, i) => {
-
-						var property = trackColumns[i + 2]; //since removed chromosome, gnomAD data 
-						return getIsMissing(vI, property);
-
-					})
-				]
-
-			}); //now indicates which arcs should have inset
-
-			console.log(insetData);
-
-			d3.select(element)
-				.selectAll("g.trackInset")
-				.data(insetData)
-				.enter()
-				.append("g")
-				.attr("class", "track")
-				.attr("variant-index", (_, i) => i)
-				.attr("transform", "translate(" + center[0] + "," + center[1] + ")"); 
-
-		}
+			}).attr("stroke", "white"); 
 
 	}
 

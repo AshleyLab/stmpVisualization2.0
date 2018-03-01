@@ -131,12 +131,12 @@ function renderTextBox(data, index) {
 	var text = data[index].metadata.notes; 
 	var includePlaceholder = !text; //"" is falsy—-placedholder appears if no notes
 
-	console.log("text: " + text);
-	console.log("includePlaceholder: " + includePlaceholder);
+	// console.log("text: " + text);
+	// console.log("includePlaceholder: " + includePlaceholder);
 
 	if ($("#notesTextBox").length == 0) { //elements doesn't exist
 
-		console.log("doesn't exist");
+		// console.log("doesn't exist");
 
 		var placeholder = includePlaceholder ? "placeholder='Enter notes...' " : ""; 
 
@@ -147,17 +147,17 @@ function renderTextBox(data, index) {
 
 	} else { 
 
-		console.log("exists");
+		// console.log("exists");
 
 		//stackoverflow.com/questions/1318076/jquery-hasattr-checking-to-see-if-there-is-an-attribute-on-an-element
 		var placeholderAttribute = $("#notesTextBox").attr("placeholder");
 		var hasPlaceholder = typeof placeholderAttribute !== typeof undefined && placeholderAttribute !== false; 
 
-		console.log("hasPlaceholder: " + hasPlaceholder);
+		// console.log("hasPlaceholder: " + hasPlaceholder);
 
 		if (!hasPlaceholder && includePlaceholder) {
 
-			console.log("adding placeholder");
+			// console.log("adding placeholder");
 			$("#notesTextBox")	
 				.attr("placeholder", "Enter notes...");
 
@@ -170,7 +170,7 @@ function renderTextBox(data, index) {
 			$("#notesTextBox")
 				.val(text);
 
-			console.log("setting notesTextBox to " + text);
+			// console.log("setting notesTextBox to " + text);
 		}
 
 	}

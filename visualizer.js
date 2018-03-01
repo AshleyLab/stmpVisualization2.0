@@ -735,10 +735,12 @@ function colorForAcidSymbol(symbol) {
 
 }
 
-function colorForProteinVariantData(proteinVariant, getRef) {
+function colorForProteinVariantData(proteinVariant, getRef, isMissing) {
 
-	if (!isNaN(proteinVariant) || proteinVariant.length <= 1) { //sometimes proteinVariant is just "0"
+	if (isMissing) {
+	// if (!isNaN(proteinVariant) || proteinVariant.length <= 1) { //sometimes proteinVariant is just "0" or other weird symbol (e.g., ó)
 		// return "white"; //inset in these arcs another smaller arc that's same color as background
+		console.log(proteinVariant + " is null");
 		return "#22262d"; //color of background
 		//return "black";
 	}
