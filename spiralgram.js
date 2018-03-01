@@ -440,6 +440,8 @@ function renderSpiralgram(element) {
 
 		var lastText = ""; 
 
+		var strokeWidth = 1.5; //currently set in CSS
+
 		d3.select(element)
 			.selectAll("g.track")
 			.selectAll("path") 
@@ -455,12 +457,23 @@ function renderSpiralgram(element) {
 			.attr("d", function(d, i) { 
 
 				var vI = parseInt(d3.select(this.parentNode).attr("variant-index")); 
+				var property = trackColumns[i]; 
+				var iM = getIsMissing(vI, property)
 
 				var iR = radii[i][0];
 				var oR = radii[i][1]; 
 
 				var sA = rotationScale(vI);
 				var eA = sA + angularWidth;
+
+				var contractIM = true; 
+				if (contractIM && iM) { //make arcs for which data is missing slightly smaller so that can use stroke as outline and still have space between neighboring arcs
+					angleContract = 0.01
+					iR += strokeWidth; 
+					oR -= strokeWidth; 
+					sA += angleContract; 
+					eA -= angleContract;  
+				}
 
 				var arc = d3.arc()
 					.innerRadius(iR)
@@ -507,35 +520,77 @@ function renderSpiralgram(element) {
 			}).each(function(d, i) {
 
 				var vI = d3.select(this.parentNode).attr("variant-index"); 
+
 				if (deleteds[vI]) {
 					this.classList.add("deleted");
 				}
 
 				var property = trackColumns[i]; 
 				var iM = getIsMissing(vI, property)
+
 				if (iM) {
-					console.log("is missing");
 					this.classList.add("isMissing");
-					console.log(this.classList);
 				}
 
-			}).attr("stroke", "white") //overrided except for .isMissing
+			}).attr("stroke", "white")
 			.attr("stroke-width", function(d, i) {
 
-				var vI = parseInt(d3.select(this.parentNode).attr("variant-index")); 
-				var property = trackColumns[i]; 
-				var iM = getIsMissing(vI, property)
+				// var vI = parseInt(d3.select(this.parentNode).attr("variant-index")); 
+				// var property = trackColumns[i]; 
+				// var iM = getIsMissing(vI, property)
 
-				//give protein variant tracks with missing data a track
-				if (i == 2 || i == 3) {
-					if (iM) {
-						return 2; 
-					}
-				}
+				// //give protein variant tracks with missing data a track
+				// if (i == 2 || i == 3) {
+				// 	if (iM) {
+				// 		return 2; 
+				// 	}
+				// }
 
-				return 0; 
+				// return 0; 
 
 			});
+
+		//need to simulate appearance of hollow arc for tracks where data is missing
+		//can't do with stroke since stroke is what draws space BETWEEN arcs
+		//do make the original arc white 
+		//and inset a smaller arc that's the color of the background
+
+		//--> could just make original arc smaller?
+
+		// insetArcsForUnknownPVData(trackData);
+		function insetArcsForUnknownPVData(trackData) { 
+
+			//take just PV data
+			var pvData = $.map(trackData, (d, _) => { 
+				return [[d[2], d[3]]]
+			});
+
+			//replace empty data
+			var insetData = $.map(pvData, (d, vI) => {
+
+				return [
+					$.map(d, (e, i) => {
+
+						var property = trackColumns[i + 2]; //since removed chromosome, gnomAD data 
+						return getIsMissing(vI, property);
+
+					})
+				]
+
+			}); //now indicates which arcs should have inset
+
+			console.log(insetData);
+
+			d3.select(element)
+				.selectAll("g.trackInset")
+				.data(insetData)
+				.enter()
+				.append("g")
+				.attr("class", "track")
+				.attr("variant-index", (_, i) => i)
+				.attr("transform", "translate(" + center[0] + "," + center[1] + ")"); 
+
+		}
 
 	}
 
@@ -641,7 +696,6 @@ function renderSpiralgram(element) {
 				eA -= (Math.PI / 2); 
 
 				var mA = (sA + eA) / 2; 
-
 
 				var innerCorner1 = [innerRadius * Math.cos(sA), innerRadius * Math.sin(sA)];
 				var innerCorner2 = [innerRadius * Math.cos(eA), innerRadius * Math.sin(eA)];

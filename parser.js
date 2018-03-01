@@ -159,11 +159,7 @@ function parseSheet(sheet) {
 
 		}
 
-		console.log(row);
-
 		$.each(columns, (_, column) => {
-
-			console.log(row[column] + " for " + column);
 
 			//make variant.core a dictionary where the keys are the column names and the values are the template returned by filledTemplate
 			variant.core[column] = fillCore(row[column], column);

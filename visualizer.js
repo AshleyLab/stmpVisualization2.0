@@ -168,7 +168,6 @@ function colorForChromosomeStaff(chromosome) {
 
 function colorForChromosomeBinary(chromosome) {
 
-	console.log(chromosome);
 	return isNaN(chromosome) ? "red" : "white";
 	// return isNaN(chromosome) ? "#ff8026" : "#22262e"; 
 
@@ -739,6 +738,7 @@ function colorForAcidSymbol(symbol) {
 function colorForProteinVariantData(proteinVariant, getRef) {
 
 	if (!isNaN(proteinVariant) || proteinVariant.length <= 1) { //sometimes proteinVariant is just "0"
+		// return "white"; //inset in these arcs another smaller arc that's same color as background
 		return "#22262d"; //color of background
 		//return "black";
 	}
