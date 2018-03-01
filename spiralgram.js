@@ -217,15 +217,6 @@ function renderSpiralgram(element) {
 			}).on("contextmenu", function(d, i) { //when right clicked: open menu for manipulating
 
 				addContextMenu(this);
-
-				// d3.select(element)
-				// 	.append("rect")
-				// 	.attr("fill", "purple")
-				// 	.attr("x", x)
-				// 	.attr("y", y)
-				// 	.attr("width", 50)
-				// 	.attr("height", 50); 
-
 				d3.event.preventDefault(); //don't show the browser's context menu
 
 			}); 
@@ -234,33 +225,28 @@ function renderSpiralgram(element) {
 
 	function addContextMenu(circle) {
 
+		var items = ["delete", "b", "c"];
+		var dy = 20; 
+		var dx = 40; 
+		var heightBleed = 1; //overlap contextMenuItems by this much vertically so there's no crack between them
+		var cornerRadius = 4;
+		var strokeWidth = 2; 
+
+		//where should we put the top-left corner of the contextMenu?
 		var coords = getCircleCoordinates(circle);
 		var x = coords.x;
 		var y = coords.y; 
 
-		var dy = 20; 
-		var dx = 40; 
-
-		var items = ["delete", "b", "c"];
-
-		console.log(arguments);
-
 		//remove the previous contextmenu (probably this should be done somewhere else)
 		d3.select("#contextMenu").remove(); 
 
-		var cornerRadius = 4;
-
+		//draw contextMenu
 		d3.select(element)
 			.append("g")
 			.attr("id", "contextMenu")
 			.selectAll("rect")
 			.data(items)
 			.enter()
-			// .append("rect")
-			// .attr("x", x)
-			// .attr("y", (d, i) => y + i * dy)
-			// .attr("width", dx)
-			// .attr("height", dy)
 			.append("path")
 			.attr("d", function(d, i) {
 
@@ -273,12 +259,58 @@ function renderSpiralgram(element) {
 				var roundBL = i == items.length - 1; //round bottom-right and -left corners only of last item in context menu
 				var roundBR = i == items.length - 1; 
 
-				return roundedRect(finalX, finalY, dx, dy, cornerRadius, roundTL, roundTR, roundBL, roundBR);
+				return roundedRect(finalX, finalY, dx, dy + heightBleed, cornerRadius, roundTL, roundTR, roundBL, roundBR);
 
-			}).attr("class", "contextMenuItem")
+			}).attr("class", "contextMenuPath")
+			.attr("data-index", (_, i) => i) //for handling contextMenuText and contextMenuRect mouse events below
 			.attr("fill", "orange")
-			.attr("stroke", "green")
-			.attr("stroke-width", 4);
+			.attr("stroke-width", strokeWidth); 
+
+		//add text to contextMenu
+		d3.select("#contextMenu")
+			.append("g")
+			.attr("id", "contextMenuTextG")
+			.selectAll("text")
+			.data(items)
+			.enter()
+			.append("text")
+			.attr("class", "contextMenuText")
+			.attr("x", x + dx / 2)
+			.attr("y", (d, i) => y + i * dy + dy / 2)
+			.text(d => d)
+			.style("fill", "white")
+			.attr("data-index", (_, i) => i) //for handling contextMenuText and contextMenuRect mouse events below
+			.attr("dominant-baseline","central") //center text vertically at y
+			.attr("text-anchor", "middle") //center text horizontally at xting
+			.attr("font-size", "10px"); 
+
+		//since text is sometimes in front of rectangle 
+			//and thus prevents mouseover and mousexit from being triggered
+		//handle events together
+		d3.selectAll(".contextMenuText,.contextMenuPath")
+			.on("mouseover", function(d, i) {
+
+				console.log("mouseover");
+				var dataIndex = d3.select(this).attr("data-index");
+
+				//find the path with this data-index
+				var path = d3.select("path[data-index = \"" + dataIndex + "\"]");
+
+				path
+					.attr("fill", "red");
+
+			}).on("mouseout", function(d, i) {
+
+				console.log("mouseout");
+				var dataIndex = d3.select(this).attr("data-index");
+
+				//find the path with this data-index
+				var path = d3.select("path[data-index = \"" + dataIndex + "\"]");
+
+				path
+					.attr("fill", "orange");
+
+			});
 
 	}
 

@@ -135,7 +135,7 @@ a.staffBottom {
 
 /* STYLE THE SPIRALGRAM */
 
-path {
+path:not(.contextMenuPath) {
   stroke-width: 0;
 }
 
