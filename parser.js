@@ -8,7 +8,7 @@ $(function() {
 	$("#uploadLink").on("click", function(event) {
 
 		if (isNotFullScreen) {
-			toggleFullScreen();
+			// toggleFullScreen(); //disable for testing
 			isNotFullScreen = false; 
 		}
 

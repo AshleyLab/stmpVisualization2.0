@@ -178,7 +178,7 @@ function renderSpiralgram(element) {
 				var theta = (Math.PI * 2) / (nVariants) / 2; 
 				var distanceAcross = 2 * cyScale(i) * Math.sin(theta);
 
-				//distnace between two neighboring points on the same spindle
+				//distance between two neighboring points on the same spindle
 				var distanceAlong = cyScale(1) - cyScale(0);
 
 				var maxRadius = Math.min(distanceAcross, distanceAlong) / 2; 
@@ -214,7 +214,94 @@ function renderSpiralgram(element) {
 
 				displayInfo("","", false, false, false, false);
 
-			});
+			}).on("contextmenu", function(d, i) { //when right clicked: open menu for manipulating
+
+				console.log("displaying contextmenu");
+
+				console.log(this);
+				console.log(d3.select(this));
+				console.log(d3.select(this).attr("cx"));
+
+				// var x = d3.event.clientX; 
+				// var y = d3.event.clientY; 
+
+				// var x = parseInt(d3.select(this).attr("cx"));
+				// var y = parseInt(d3.select(this).attr("cy"));
+
+				// var x = parseInt(d3.select(this).attr("x")); 
+				// var y = parseInt(d3.select(this).attr("y"));
+
+				var xy = getCircleCoordinates(this);
+				var x = xy.x; 
+				var y = xy.y; 
+
+				function getCircleCoordinates(circle) { //https://stackoverflow.com/a/18561829/2809263
+
+					console.log(circle);
+
+					var cx = d3.select(circle).attr("cx");
+					var cy = d3.select(circle).attr("cy");
+
+					var ctm = circle.getCTM(); 
+					var x = ctm.e + cx * ctm.a + cy * ctm.c; 
+					var y = ctm.f + cx * ctm.b + cy * ctm.d;
+
+					return {"x" : x, "y" : y};
+
+				}
+
+				console.log("x: " + x + "; y: " + y); 
+
+				d3.select(element)
+					.append("rect")
+					.attr("fill", "purple")
+					.attr("x", x)
+					.attr("y", y)
+					.attr("width", 50)
+					.attr("height", 50); 
+
+				// var x = parseInt(d3.select(this).attr("cx"));
+				// var y = parseInt(d3.select(this).attr("cy"));
+
+				// var x = parseInt(d3.select(this).attr("x")); 
+				// var y = parseInt(d3.select(this).attr("y"));
+
+				// console.log(x + " | " + y);
+
+				// addContextMenu(this, d, i, x, y);
+				d3.event.preventDefault(); //don't show the browser's context menu
+
+			}); 
+
+	}
+
+	function addContextMenu(t, d, i, x, y) {
+
+		console.log("addContextMenue")
+		console.log("x: " + x);
+		console.log("y: " + y);
+
+		var dy = 10; 
+		var dx = 40; 
+
+		var items = ["a", "b", "c"];
+
+		console.log(arguments);
+
+		d3.select(element)
+			.append("g")
+			.attr("id", "contextMenu")
+			.selectAll("rect")
+			.data(items)
+			.enter()
+			.append("rect")
+			.attr("x", x)
+			.attr("y", (d, i) => y + i * dy)
+			.attr("width", dx)
+			.attr("height", dy)
+			.attr("fill", "orange")
+			.attr("stroke", "green")
+			.attr("stroke-width", 4);
 
 	}
 	

@@ -19,7 +19,6 @@ function renderBarchart(element) {
 	var freqData = $.map(populations, (p, i) => {
 
 		var headersToGetDataFrom = $.map(columnHeaders, (cH, _) => cH[i]);
-		console.log(headersToGetDataFrom);
 
 		var frequencyData = $.map(headersToGetDataFrom, (h, _) => {
 
@@ -33,13 +32,9 @@ function renderBarchart(element) {
 
 		});
 
-		console.log(frequencyData);
-
 		return [[p].concat(frequencyData)];
 
 	});
-
-	console.log(freqData);
 
 	var margin = {
 		top: 20, bottom: 40, 
@@ -70,7 +65,6 @@ function renderBarchart(element) {
 	x1.domain(keys).rangeRound([0, x0.bandwidth()]);
 
 	var maxFreq = d3.max(freqData, (d, _) => d3.max(d, (e, i) => i == 0 ? 0 : e));
-	console.log(freqData);
 
 	y.domain([0, maxFreq]); 
 
