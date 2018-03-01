@@ -216,77 +216,39 @@ function renderSpiralgram(element) {
 
 			}).on("contextmenu", function(d, i) { //when right clicked: open menu for manipulating
 
-				console.log("displaying contextmenu");
+				addContextMenu(this);
 
-				console.log(this);
-				console.log(d3.select(this));
-				console.log(d3.select(this).attr("cx"));
+				// d3.select(element)
+				// 	.append("rect")
+				// 	.attr("fill", "purple")
+				// 	.attr("x", x)
+				// 	.attr("y", y)
+				// 	.attr("width", 50)
+				// 	.attr("height", 50); 
 
-				// var x = d3.event.clientX; 
-				// var y = d3.event.clientY; 
-
-				// var x = parseInt(d3.select(this).attr("cx"));
-				// var y = parseInt(d3.select(this).attr("cy"));
-
-				// var x = parseInt(d3.select(this).attr("x")); 
-				// var y = parseInt(d3.select(this).attr("y"));
-
-				var xy = getCircleCoordinates(this);
-				var x = xy.x; 
-				var y = xy.y; 
-
-				function getCircleCoordinates(circle) { //https://stackoverflow.com/a/18561829/2809263
-
-					console.log(circle);
-
-					var cx = d3.select(circle).attr("cx");
-					var cy = d3.select(circle).attr("cy");
-
-					var ctm = circle.getCTM(); 
-					var x = ctm.e + cx * ctm.a + cy * ctm.c; 
-					var y = ctm.f + cx * ctm.b + cy * ctm.d;
-
-					return {"x" : x, "y" : y};
-
-				}
-
-				console.log("x: " + x + "; y: " + y); 
-
-				d3.select(element)
-					.append("rect")
-					.attr("fill", "purple")
-					.attr("x", x)
-					.attr("y", y)
-					.attr("width", 50)
-					.attr("height", 50); 
-
-				// var x = parseInt(d3.select(this).attr("cx"));
-				// var y = parseInt(d3.select(this).attr("cy"));
-
-				// var x = parseInt(d3.select(this).attr("x")); 
-				// var y = parseInt(d3.select(this).attr("y"));
-
-				// console.log(x + " | " + y);
-
-				// addContextMenu(this, d, i, x, y);
 				d3.event.preventDefault(); //don't show the browser's context menu
 
 			}); 
 
 	}
 
-	function addContextMenu(t, d, i, x, y) {
+	function addContextMenu(circle) {
 
-		console.log("addContextMenue")
-		console.log("x: " + x);
-		console.log("y: " + y);
+		var coords = getCircleCoordinates(circle);
+		var x = coords.x;
+		var y = coords.y; 
 
-		var dy = 10; 
+		var dy = 20; 
 		var dx = 40; 
 
-		var items = ["a", "b", "c"];
+		var items = ["delete", "b", "c"];
 
 		console.log(arguments);
+
+		//remove the previous contextmenu (probably this should be done somewhere else)
+		d3.select("#contextMenu").remove(); 
+
+		var cornerRadius = 4;
 
 		d3.select(element)
 			.append("g")
@@ -294,14 +256,89 @@ function renderSpiralgram(element) {
 			.selectAll("rect")
 			.data(items)
 			.enter()
-			.append("rect")
-			.attr("x", x)
-			.attr("y", (d, i) => y + i * dy)
-			.attr("width", dx)
-			.attr("height", dy)
+			// .append("rect")
+			// .attr("x", x)
+			// .attr("y", (d, i) => y + i * dy)
+			// .attr("width", dx)
+			// .attr("height", dy)
+			.append("path")
+			.attr("d", function(d, i) {
+
+				console.log("i: " + i); 
+				var finalX = x; 
+				var finalY = y + i * dy; 
+
+				var roundTL = false; 
+				var roundTR = i == 0; //round top-right corner only of first item in context menu
+				var roundBL = i == items.length - 1; //round bottom-right and -left corners only of last item in context menu
+				var roundBR = i == items.length - 1; 
+
+				return roundedRect(finalX, finalY, dx, dy, cornerRadius, roundTL, roundTR, roundBL, roundBR);
+
+			}).attr("class", "contextMenuItem")
 			.attr("fill", "orange")
 			.attr("stroke", "green")
 			.attr("stroke-width", 4);
+
+	}
+
+	function roundedRect(x, y, width, height, radius, roundTL, roundTR, roundBL, roundBR) { //https://stackoverflow.com/a/13505624/2809263
+
+	    console.log(arguments);
+
+	    var path = "M" + (x + radius) + "," + y;
+	    path += "h" + (width - 2 * radius);
+
+	    if (roundTR) { 
+	    	path += "a" + radius + "," + radius + " 0 0 1 " + radius + "," + radius; 
+	    } else { 
+	    	path += "h" + radius; 
+	    	path += "v" + radius; 
+	    }
+
+	    path += "v" + (height - 2 * radius);
+
+	    if (roundBR) { 
+	    	path += "a" + radius + "," + radius + " 0 0 1 " + -radius + "," + radius; 
+	    } else { 
+	    	path += "v" + radius; 
+	    	path += "h" + -radius; 
+	    }
+
+	    path += "h" + (2 * radius - width);
+
+	    if (roundBL) { 
+	    	path += "a" + radius + "," + radius + " 0 0 1 " + -radius + "," + -radius; 
+	    } else { 
+	    	path += "h" + -radius; 
+	    	path += "v" + -radius; 
+	    }
+
+	    path += "v" + (2 * radius - height);
+
+	    if (roundTL) { 
+	    	path += "a" + radius + "," + radius + " 0 0 1 " + radius + "," + -radius; 
+	    } else { 
+	    	path += "v" + -radius; 
+	    	path += "h" + radius; 
+	    }
+
+	    path += "z";
+	    return path;
+	}
+
+	function getCircleCoordinates(circle) { //https://stackoverflow.com/a/18561829/2809263
+
+		console.log(circle);
+
+		var cx = d3.select(circle).attr("cx");
+		var cy = d3.select(circle).attr("cy");
+
+		var ctm = circle.getCTM(); 
+		var x = ctm.e + cx * ctm.a + cy * ctm.c; 
+		var y = ctm.f + cx * ctm.b + cy * ctm.d;
+
+		return {"x" : x, "y" : y};
 
 	}
 	
