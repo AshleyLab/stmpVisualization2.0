@@ -507,10 +507,33 @@ function renderSpiralgram(element) {
 			}).each(function(d, i) {
 
 				var vI = d3.select(this.parentNode).attr("variant-index"); 
-
 				if (deleteds[vI]) {
 					this.classList.add("deleted");
 				}
+
+				var property = trackColumns[i]; 
+				var iM = getIsMissing(vI, property)
+				if (iM) {
+					console.log("is missing");
+					this.classList.add("isMissing");
+					console.log(this.classList);
+				}
+
+			}).attr("stroke", "white") //overrided except for .isMissing
+			.attr("stroke-width", function(d, i) {
+
+				var vI = parseInt(d3.select(this.parentNode).attr("variant-index")); 
+				var property = trackColumns[i]; 
+				var iM = getIsMissing(vI, property)
+
+				//give protein variant tracks with missing data a track
+				if (i == 2 || i == 3) {
+					if (iM) {
+						return 2; 
+					}
+				}
+
+				return 0; 
 
 			});
 

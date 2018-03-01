@@ -144,6 +144,11 @@ g.track path:not(.contiguous) {
   stroke-width: 1.5;
 }
 
+g.track path.isMissing { 
+  stroke: white; 
+}
+
+
 g.crescent path {
   stroke: #22262e;
   stroke-width: 0;

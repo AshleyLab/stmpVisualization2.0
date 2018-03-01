@@ -739,7 +739,8 @@ function colorForAcidSymbol(symbol) {
 function colorForProteinVariantData(proteinVariant, getRef) {
 
 	if (!isNaN(proteinVariant) || proteinVariant.length <= 1) { //sometimes proteinVariant is just "0"
-		return "black";
+		return "#22262d"; //color of background
+		//return "black";
 	}
 
 	var aminoAcids = proteinVariant.replace("p.", "") //remove "p."s
@@ -750,7 +751,7 @@ function colorForProteinVariantData(proteinVariant, getRef) {
 		return aA[getRef ? 0 : 1];
 	}); 
 
-	var chosenAcid = tuples[0]; //take the first transcript
+	var chosenAcid = tuples[0]; //take the first transcript?
 	
 	return colorForAcidSymbol(chosenAcid);
 
