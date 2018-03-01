@@ -223,9 +223,24 @@ function renderSpiralgram(element) {
 
 	}
 
+	function idk() { }
+
+	function deleteVariantFromContextMenuWrapper(data, index) { // --> tools.js?
+
+		return function() { 
+			deleteVariant(data, index); //deleteVariant() is from tools.js
+		}
+
+	}
+
 	function addContextMenu(circle) {
 
-		var items = ["delete", "b", "c"];
+		var items = ["a", "b", "delete"];
+
+		var vI = parseInt(d3.select(circle).attr("variant-index"));
+		var deleter = deleteVariantFromContextMenuWrapper(data, vI)
+		var actions = [idk, idk, deleter];
+
 		var dy = 20; 
 		var dx = 40; 
 		var heightBleed = 1; //overlap contextMenuItems by this much vertically so there's no crack between them
@@ -290,25 +305,31 @@ function renderSpiralgram(element) {
 		d3.selectAll(".contextMenuText,.contextMenuPath")
 			.on("mouseover", function(d, i) {
 
-				console.log("mouseover");
 				var dataIndex = d3.select(this).attr("data-index");
 
 				//find the path with this data-index
 				var path = d3.select("path[data-index = \"" + dataIndex + "\"]");
 
-				path
-					.attr("fill", "red");
+				path.attr("fill", "red");
 
 			}).on("mouseout", function(d, i) {
 
-				console.log("mouseout");
 				var dataIndex = d3.select(this).attr("data-index");
 
 				//find the path with this data-index
 				var path = d3.select("path[data-index = \"" + dataIndex + "\"]");
 
-				path
-					.attr("fill", "orange");
+				path.attr("fill", "orange");
+
+			}).on("click", function() {
+
+				console.log("clicked");
+				var dataIndex = parseInt(d3.select(this).attr("data-index"));
+
+				var action = actions[dataIndex];
+				console.log(action);
+
+				action();
 
 			});
 

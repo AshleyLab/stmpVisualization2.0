@@ -87,11 +87,14 @@ function toggleFlag(flag) {
 
 function deleteVariant(data, index) {
 
+	console.log("deleting variant at " + index); 
+	console.log(data); 
+
 	var isDeleted = variantData[index].metadata.deleted; 
 
 	variantData[index].metadata.deleted = !isDeleted;
 
-	//if rerender spiralgram, hover events will be traiggered in loop
+	//if rerender spiralgram, hover events will be trigger in loop
 
 	if (!isDeleted) {
 		d3.select("g[variant-index='" + index +"']")
