@@ -20,6 +20,7 @@ input[type="radio"] {
     width: 50%;
     float: right;
     padding-right: 5px;
+    text-align: right;
 }
 
 .rightSplit label {
@@ -28,6 +29,10 @@ input[type="radio"] {
 
 .rightSplit label input { 
   margin-right: .5rem;
+}
+
+.rightSplit #gear { 
+  height: 30px;
 }
 
 /* spiralgram */
