@@ -516,8 +516,12 @@ function renderSpiralgram(element) {
 
 			}).on("mouseout", function(d, i) {
 
+				var vI = parseInt(d3.select(this.parentNode).attr("variant-index")); 
+				var property = trackColumns[i]; 
+				var iM = getIsMissing(vI, property); 
+
 				d3.select(this)
-					.attr("fill", colorers[i](d, i == 2)); 
+					.attr("fill", colorers[i](d, i == 2, iM)); 
 
 				displayInfo("", "", false, false, false, false)
 

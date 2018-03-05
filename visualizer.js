@@ -89,18 +89,12 @@ function toggleFullScreen() {
 function setVisualizationTitle() { 
 
 	var titleElement = "#visualizationTitle";
-
 	var filename = window.variantFilename; 
-
 	var meat = filename.substring(0, filename.indexOf("."));
-
 	var parsed = meat.split(/[^a-zA-Z\d]/);
-	console.log(parsed);
 
 	var capitalized = $.map(parsed, (p, i) => {
-
 		return p.charAt(0).toUpperCase() + p.slice(1);
-
 	}); 
 
 	var titleText = capitalized.join(" ");
@@ -110,7 +104,7 @@ function setVisualizationTitle() {
 
 function renderComponents() {
 
-	console.log("rendering components");
+	sortData(); 
 
 	var elements = {
 		"karyotype" : "#karyotypeElement",
@@ -133,6 +127,74 @@ function renderComponents() {
 	renderBarchart(elements.barchart, "gnomAD Max Frequency");
 	renderStaff(elements.staff, elements.spiralgram);
 	renderTools(elements.tools);
+
+}
+
+function sortData() { 
+
+	console.log("sorting");
+	var original = window.variantData; 
+
+	// var spindleColumns = [
+	// 	"SIFT Function Prediction",
+	// 	"PolyPhen-2 Function Prediction",
+	// 	"MutationTaster",
+	// 	"CADD Score",
+	// 	"phyloP",
+	// 	"fathmm",
+	// 	"1000 Genomes Frequency", 
+	// 	"ExAC Frequency",
+	// 	"GNOMADMaxAlleleFreq"
+	// ];
+
+	function comparator(a, b) {
+
+		function getSortValue(d) {
+
+			var ignoreMissingData = true;
+			var missingDataValue = .5; //what to substitute for missing data if ignoreMissingData is false
+			var sortPreferences = [ //keys and corresponding weights for sort
+				{"SIFT Function Prediction" : .4},
+				{"PolyPhen-2 Function Prediction" : .5},
+				{"MutationTaster" : .5},
+				{"CADD Score" : .5},
+				{"phyloP" : .6},
+				{"fathmm" : .7},
+				{"1000 Genomes Frequency" : .8}, 
+				{"ExAC Frequency" : .8},
+				{"GNOMADMaxAlleleFreq" : 1}
+			];
+
+			var sortValue = 0; 
+			$.each(sortPreferences, function(_, sortPreference) {
+
+				var key = Object.keys(sortPreference)[0]; 
+				var weight = sortPreference[key];
+				//a silly way to go from sortPreference = {"phyloP" : .6} to key = "phyloP", weight = ".6"
+
+				//implement ignoreMissingData
+				var weightedValue = weight * d.core[key].value;
+				sortValue += weightedValue; 
+
+			}); 
+
+			return sortValue; 
+
+		}
+
+		var aSV = getSortValue(a); 
+		var bSV = getSortValue(b);
+		console.log(aSV);
+		console.log(bSV);
+		return bSV - aSV; 
+	}
+
+
+	var sorted = window.variantData.sort(comparator); 
+	console.log(original);
+	console.log(sorted);
+
+	window.variantData = sorted; 
 
 }
 

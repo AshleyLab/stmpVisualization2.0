@@ -102,6 +102,9 @@ function renderStaff(element, spiralElement) {
 
 	var textBuffer = 20; 
 
+	var lowlightMissingData = true; 
+	var lowlightTextColor = "#a0a0a0";
+
 	// add labels to the staff gram
 	d3.select(element)
 		.append("g")
@@ -118,8 +121,12 @@ function renderStaff(element, spiralElement) {
 		.attr("y", (_, i) => verticalScale(i))
 		.attr("text-anchor", "end")
 		.attr("dominant-baseline", "central") //centers text vertically at this y position
-		.attr("fill", "white")
-		.attr("font-size", "16px"); 
+		.attr("fill", (_, i) => { 
+
+			var iM = getIsMissing(variantIndex, columns[i]); 
+			return lowlightMissingData && iM ? lowlightTextColor : "white";
+
+		}).attr("font-size", "16px"); 
 
 	d3.select(element)
 		.append("g")
@@ -131,7 +138,7 @@ function renderStaff(element, spiralElement) {
 		.text((d, i) => {
 
 			var oV = getOriginalValue(variantIndex, columns[i]);
-			var iM = getIsMissing(variantIndex, columns[i])
+			var iM = getIsMissing(variantIndex, columns[i]); 
 
 			return iM ? "n/a" : oV; 
 
@@ -139,8 +146,12 @@ function renderStaff(element, spiralElement) {
 		.attr("y", (_, i) => verticalScale(i))
 		.attr("text-anchor", "start")
 		.attr("dominant-baseline", "central") //centers text vertically at this y position
-		.attr("fill", "white")
-		.attr("font-size", "16px"); 
+		.attr("fill", (_, i) => {
+
+			var iM = getIsMissing(variantIndex, columns[i]); 
+			return lowlightMissingData && iM ? lowlightTextColor : "white";
+
+		}).attr("font-size", "16px"); 
 
 	//show to the right of actual value (maybe in grey) rank of value in this set of variants? 
 	//e.g., phyloP |STAFF| .786 1 <-- indicating its the most pathogenic score in the xlsx uploaded

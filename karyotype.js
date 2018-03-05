@@ -140,7 +140,17 @@ function drawVariants(SNPs, element, xScale, yScale, data, allChromosomes) { // 
 
 			d3.select(this).attr("fill", colorForSNPs);	
 			
-		});
+		}).on("contextmenu", function(element, index) {
+
+			addContextMenuKaryotype(this);
+
+		}); 
+
+	function addContextMenuKaryotype(rect) {
+
+		var items = ["delete"];
+
+	}
 
 }
 
