@@ -52,7 +52,7 @@ function renderVisualization() {
 	renderComponents(true);
 
 	hideSpinner(); 
-	scrollToElement(element);
+	// scrollToElement(element);
 	setVisualizationTitle(); 
 
 }
@@ -130,20 +130,27 @@ function renderComponents() {
 
 }
 
+//all columns used to make circles on spindles in spiralgram
+var sortPreferences = [ //keys and corresponding weights for sort
+	{"SIFT Function Prediction" : 10},
+	{"PolyPhen-2 Function Prediction" : 10},
+	{"MutationTaster" : 10},
+	{"CADD Score" : 10},
+	{"phyloP" : 10},
+	{"fathmm" : 10},
+	{"1000 Genomes Frequency" : 10}, 
+	{"ExAC Frequency" : 20},
+	{"GNOMADMaxAlleleFreq" : 10} 
+]; //should always all add up to 100
+
+function getKey(d) { 
+	return Object.keys(d)[0];
+}
+
 function sortData() { 
 
-	//all columns used to make circles on spindles in spiralgram
-	var sortPreferences = [ //keys and corresponding weights for sort
-		{"SIFT Function Prediction" : 10},
-		{"PolyPhen-2 Function Prediction" : 10},
-		{"MutationTaster" : 10},
-		{"CADD Score" : 10},
-		{"phyloP" : 10},
-		{"fathmm" : 10},
-		{"1000 Genomes Frequency" : 10}, 
-		{"ExAC Frequency" : 20},
-		{"GNOMADMaxAlleleFreq" : 10} 
-	]; //should always all add up to 100
+	console.log("sorting");
+	console.log(sortPreferences);
 
 	//weights are supposed to be accumulated (e.g., if one is 10 and next has weight 10, slider wants 20)
 	var total = 0; 
@@ -160,19 +167,11 @@ function sortData() {
 	//trim off the last one (sliders go BETWEEN ranges)
 	sliderStops.pop(); 
 
-	console.log(sliderStops);
-
-	function getKey(d) { 
-		return Object.keys(d)[0];
-	}
-
 	//attach event handler to gear icon
 	$("#gear").on("click", function() { 
 
 		//remove old preferences pane
 		d3.select("#preferences").remove(); 
-
-		// var items = [25, 50, 75]; //test
 
 		//append container element and slider divs
 		var element = "#graphics"; 
@@ -191,24 +190,35 @@ function sortData() {
 				.attr("height", "100%");
 
 		var weights = $.map(sliderStops, (d, i) => d[getKey(d)]);
-		console.log(weights);
-
-		// var scale = 100; 
 
 		$("#slider").slider({
 			"min" : 0, 
 			"max" : 100, 
 			"values" : weights,
 			"slide" : function(event, ui) {
-				setColors(ui.values);
+
+				console.log("slide");
+				var weights = ui.values; 
+				setColors(weights);
+
+				var newPreferences = $.map(weights, (d, i) => { 
+
+					var sPi = sortPreferences[i]; 
+					var toReturn = {}; 
+					toReturn[getKey(sPi)] = d; 
+					return toReturn; 
+
+				});
+
+				sortPreferences = newPreferences;
+				renderVisualization(); 
+
 			} 
 		});
 
 		setColors(weights);
 
    		function setColors(values) { //https://stackoverflow.com/a/12355923/2809263
-
-			// var colors = ["red", "orange", "yellow", "green", "blue", "purple", "pink", "black", "pink"];
 
 			var colorer = function(i) {
 				return colorForAnnotation(i, 9); //9 is nSpindleColumns (same as nSortColumns)
@@ -227,18 +237,12 @@ function sortData() {
             colorstops += colorer(values.length);
 
             /* Safari 5.1, Chrome 10+ */
-            console.log(colorstops);
-
             var css = "-webkit-linear-gradient(left," + colorstops + ")";
-            console.log(css);
             $("#slider").css("background-image", css);
     	}
 
-		//sort();
-
 	});
 
-	console.log("sorting");
 	var original = window.variantData; 
 
 	function comparator(a, b) {
@@ -253,7 +257,7 @@ function sortData() {
 
 				var key = getKey(sortPreference)
 				var weight = sortPreference[key];
-				//a silly way to go from sortPreference = {"phyloP" : .6} to key = "phyloP", weight = ".6"
+				//go from sortPreference = {"phyloP" : .6} to key = "phyloP", weight = ".6"
 
 				//implement ignoreMissingData
 				var weightedValue = weight * d.core[key].value;
@@ -267,8 +271,6 @@ function sortData() {
 
 		var aSV = getSortValue(a); 
 		var bSV = getSortValue(b);
-		console.log(aSV);
-		console.log(bSV);
 		return bSV - aSV; 
 	}
 
@@ -391,55 +393,27 @@ function displayInfo(value, kind, isFrequency, isMissing, proteinVariant, isLine
 
 	//fix inconsistent font resizing 
 	d3.select(valueInfo)
-		// .each(function() {
-
- 	// 		var currentFontSize = d3.select(this).attr("font-size");
- 	// 		console.log("original size: " + currentFontSize);
-
- 	// 		var cTL = this.getComputedTextLength(); 
- 	// 		console.log("original length: " + cTL);
-
- 	// 		if (cTL > diameter) {
-
-	 // 				var newSize = (diameter) / (cTL / 20) + "px"; 
-	 // 				console.log("changing size to " + newSize);
-
-	 // 				d3.select(this).attr("font-size", newSize);
-
- 	// 		} else { 
- 	// 			console.log("not changing")
- 	// 		}
-
-		// });
  		.style("font-size", function() { 
 
  			//maybe don't do this if just clearing?
 
  			var currentFontSize = d3.select(this).attr("font-size");
- 			// console.log("fs currentFontSize: " + currentFontSize);
 
  			var cFSasFloat = parseFloat(currentFontSize.substring(0, currentFontSize.indexOf("px")));
- 			// console.log("fs cFSasFloat: " + cFSasFloat);
 
  			var currentFontSize2 = parseFloat(window.getComputedStyle(this, null).getPropertyValue("font-size")); 
- 			// console.log("fs currentFontSize2: " + currentFontSize2);
 
  			var computedTextLength = this.getComputedTextLength(); 
- 			// console.log("fs computedTextLength: " + computedTextLength);
 
  			var newSize = currentFontSize2; 
 
  			if (computedTextLength > diameter) {
 
- 				// console.log("fs too big"); 
  				newSize = (diameter) / (computedTextLength / currentFontSize2); 
- 				// console.log("fs newSize: " + newSize);
 
  			} else if (computedTextLength < diameter) { //currently identical
 
- 				// console.log("fs too small");
  				newSize = (diameter) / (computedTextLength / currentFontSize2); 
- 				// console.log("fs newSize: " + newSize);
 
  			}
 
