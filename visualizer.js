@@ -132,20 +132,122 @@ function renderComponents() {
 
 function sortData() { 
 
+	//all columns used to make circles on spindles in spiralgram
+	var sortPreferences = [ //keys and corresponding weights for sort
+		{"SIFT Function Prediction" : .4},
+		{"PolyPhen-2 Function Prediction" : .5},
+		{"MutationTaster" : .5},
+		{"CADD Score" : .5},
+		{"phyloP" : .6},
+		{"fathmm" : .7},
+		{"1000 Genomes Frequency" : .8}, 
+		{"ExAC Frequency" : .8},
+		{"GNOMADMaxAlleleFreq" : 1}
+	];
+
+	function getKey(d) { 
+		return Object.keys(d)[0];
+	}
+
+	//attach event handler to gear icon
+	$("#gear").on("click", function() { 
+
+		//remove old preferences pane
+		d3.select("#preferences").remove(); 
+
+		var items = [25, 50, 75]; //test
+
+		//apped container element and slider divs
+		var element = "#graphics"; 
+		d3.select(element)
+			.append("div")
+			.attr("id", "preferences")
+			// .selectAll("div")
+			// .data(sortPreferences)
+			// .enter()
+			.append("div")
+			.attr("id", "slider")
+			// .attr("id", (d, _) => "sortPreferencesSlider" + getKey(d))
+			// .attr("class", "sortPreferencesSlider")
+			// .style({ "height" : "200px" });
+			.selectAll("div")
+			.data(items)
+			.enter()
+			.append("div")
+			.attr("class", "sliderColorBackground")
+			.attr("id", (d, i) => "sliderColorBackground" + i)
+			.style("background-color", getRandomColor)
+			.attr("height", "100%");
+
+
+
+		$("#slider").slider({
+			"min" : 0, 
+			"max" : 100, 
+			"values" : items,
+			"slide" : function(event, ui) {
+
+				//now make each section of slider the appropriate color
+				// //solution from https://stackoverflow.com/questions/19142251/jquery-slider-with-range-and-three-different-background-color
+				// //loop over each handle
+
+				// var totalWidth = $("#slider").width(); //can use this keyword?
+				// var max = ui.max; 
+
+				// console.log("totalWidth: " + totalWidth);
+				// console.log("max: " + max);
+
+				// for (var i = 0; i < ui.values.length; i++) {
+
+				// 	var value = ui.values[i];
+				// 	var width = value / max * totalWidth; 
+				// 	console.log("width: " + width); 
+
+				// 	d3.select("#sliderColorBackground" + i)
+				// 		.attr("width", width);
+				//}
+
+				//solution from https://stackoverflow.com/a/12355923/2809263
+				//create gradient and update color stops
+				updateColors(ui.values);
+
+			} 
+
+		});
+
+		updateColors(items);
+
+   		function updateColors(values) {
+   			console.log("updating colors")
+   			console.log(values);
+
+   			var colors = ["red", "orange", "green", "purple"];
+        	var colorstops = colors[0] + ", "; // start left with the first color
+
+        	for (var i = 0; i < values.length; i++) {
+
+            	colorstops += colors[i] + " " + values[i] + "%,";
+            	colorstops += colors[i + 1] + " " + values[i] + "%,";
+
+        	}
+
+            // end with the last color to the right
+            colorstops += colors[colors.length - 1];
+
+            /* Safari 5.1, Chrome 10+ */
+            console.log(colorstops);
+
+            var css = '-webkit-linear-gradient(left,' + colorstops + ')';
+            console.log(css);
+            $('#slider').css('background-image', css);
+    	}
+
+		//sort();
+
+	});
+
 	console.log("sorting");
 	var original = window.variantData; 
-
-	// var spindleColumns = [
-	// 	"SIFT Function Prediction",
-	// 	"PolyPhen-2 Function Prediction",
-	// 	"MutationTaster",
-	// 	"CADD Score",
-	// 	"phyloP",
-	// 	"fathmm",
-	// 	"1000 Genomes Frequency", 
-	// 	"ExAC Frequency",
-	// 	"GNOMADMaxAlleleFreq"
-	// ];
 
 	function comparator(a, b) {
 
@@ -153,22 +255,11 @@ function sortData() {
 
 			var ignoreMissingData = true;
 			var missingDataValue = .5; //what to substitute for missing data if ignoreMissingData is false
-			var sortPreferences = [ //keys and corresponding weights for sort
-				{"SIFT Function Prediction" : .4},
-				{"PolyPhen-2 Function Prediction" : .5},
-				{"MutationTaster" : .5},
-				{"CADD Score" : .5},
-				{"phyloP" : .6},
-				{"fathmm" : .7},
-				{"1000 Genomes Frequency" : .8}, 
-				{"ExAC Frequency" : .8},
-				{"GNOMADMaxAlleleFreq" : 1}
-			];
 
 			var sortValue = 0; 
 			$.each(sortPreferences, function(_, sortPreference) {
 
-				var key = Object.keys(sortPreference)[0]; 
+				var key = getKey(sortPreference)
 				var weight = sortPreference[key];
 				//a silly way to go from sortPreference = {"phyloP" : .6} to key = "phyloP", weight = ".6"
 

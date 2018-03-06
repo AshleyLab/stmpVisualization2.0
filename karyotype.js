@@ -149,6 +149,7 @@ function drawVariants(SNPs, element, xScale, yScale, data, allChromosomes) { // 
 	function addContextMenuKaryotype(rect) {
 
 		var items = ["delete"];
+		var vI = d3.select(rect).attr("variant-index");s
 
 	}
 

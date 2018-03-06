@@ -35,6 +35,12 @@ input[type="radio"] {
   height: 30px;
 }
 
+#preferences { 
+  width: 400px;
+  height: 150px;
+  background-color: white;
+}
+
 /* spiralgram */
 
 line.spindle:hover { 
