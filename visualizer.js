@@ -10,6 +10,11 @@ function renderVisualization() {
 
 	var element = "#graphics";
 
+	//remove old drawing
+	d3.select("#spiralLayoutContainer").remove(); 
+	d3.select("#bottomRow").remove();
+	//d3.select("#preferences").remove();
+
 	//setup work to get the right configuration of divs and svg for the spiralgram and staffgram 
 	//the positioning of these elements is set in main.css
 	d3.select(element)
@@ -49,7 +54,9 @@ function renderVisualization() {
 
 	//
 
+	console.log("pre-render: " + performance.now());
 	renderComponents(true);
+	console.log("post-render: " + performance.now());
 
 	hideSpinner(); 
 	// scrollToElement(element);
@@ -197,7 +204,7 @@ function sortData() {
 			"values" : weights,
 			"slide" : function(event, ui) {
 
-				console.log("slide");
+				console.log("slide: " + performance.now());
 				var weights = ui.values; 
 				setColors(weights);
 
@@ -208,10 +215,10 @@ function sortData() {
 					toReturn[getKey(sPi)] = d; 
 					return toReturn; 
 
-				});
+				}); //NEED TO DO SUBTRACTION (INVERT ADDITION DID FROM SORTPREFERNECES TO SLIDER STOPS)
 
 				sortPreferences = newPreferences;
-				renderVisualization(); 
+				renderVisualization(); //REMEMBER TO REMOVE OLD DOM ELEMENTS FROM LAST CALL TO RENDERVISUALIZATION()
 
 			} 
 		});
