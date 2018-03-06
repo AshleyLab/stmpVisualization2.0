@@ -134,16 +134,33 @@ function sortData() {
 
 	//all columns used to make circles on spindles in spiralgram
 	var sortPreferences = [ //keys and corresponding weights for sort
-		{"SIFT Function Prediction" : .4},
-		{"PolyPhen-2 Function Prediction" : .5},
-		{"MutationTaster" : .5},
-		{"CADD Score" : .5},
-		{"phyloP" : .6},
-		{"fathmm" : .7},
-		{"1000 Genomes Frequency" : .8}, 
-		{"ExAC Frequency" : .8},
-		{"GNOMADMaxAlleleFreq" : 1}
-	];
+		{"SIFT Function Prediction" : 10},
+		{"PolyPhen-2 Function Prediction" : 10},
+		{"MutationTaster" : 10},
+		{"CADD Score" : 10},
+		{"phyloP" : 10},
+		{"fathmm" : 10},
+		{"1000 Genomes Frequency" : 10}, 
+		{"ExAC Frequency" : 20},
+		{"GNOMADMaxAlleleFreq" : 10} 
+	]; //should always all add up to 100
+
+	//weights are supposed to be accumulated (e.g., if one is 10 and next has weight 10, slider wants 20)
+	var total = 0; 
+	var sliderStops = $.map(sortPreferences, (d, i) => { 
+
+		var key = getKey(d); 
+		var value = d[key];
+		total += value; 
+
+		return {key : total}
+
+	});
+
+	//trim off the last one (sliders go BETWEEN ranges)
+	sliderStops.pop(); 
+
+	console.log(sliderStops);
 
 	function getKey(d) { 
 		return Object.keys(d)[0];
@@ -155,91 +172,66 @@ function sortData() {
 		//remove old preferences pane
 		d3.select("#preferences").remove(); 
 
-		var items = [25, 50, 75]; //test
+		// var items = [25, 50, 75]; //test
 
-		//apped container element and slider divs
+		//append container element and slider divs
 		var element = "#graphics"; 
 		d3.select(element)
 			.append("div")
-			.attr("id", "preferences")
-			// .selectAll("div")
-			// .data(sortPreferences)
-			// .enter()
+				.attr("id", "preferences")
 			.append("div")
-			.attr("id", "slider")
-			// .attr("id", (d, _) => "sortPreferencesSlider" + getKey(d))
-			// .attr("class", "sortPreferencesSlider")
-			// .style({ "height" : "200px" });
+				.attr("id", "slider")
 			.selectAll("div")
-			.data(items)
+			.data(sliderStops)
 			.enter()
 			.append("div")
-			.attr("class", "sliderColorBackground")
-			.attr("id", (d, i) => "sliderColorBackground" + i)
-			.style("background-color", getRandomColor)
-			.attr("height", "100%");
+				.attr("class", "sliderColorBackground")
+				.attr("id", (d, i) => "sliderColorBackground" + i)
+				.style("background-color", getRandomColor)
+				.attr("height", "100%");
 
+		var weights = $.map(sliderStops, (d, i) => d[getKey(d)]);
+		console.log(weights);
 
+		// var scale = 100; 
 
 		$("#slider").slider({
 			"min" : 0, 
 			"max" : 100, 
-			"values" : items,
+			"values" : weights,
 			"slide" : function(event, ui) {
-
-				//now make each section of slider the appropriate color
-				// //solution from https://stackoverflow.com/questions/19142251/jquery-slider-with-range-and-three-different-background-color
-				// //loop over each handle
-
-				// var totalWidth = $("#slider").width(); //can use this keyword?
-				// var max = ui.max; 
-
-				// console.log("totalWidth: " + totalWidth);
-				// console.log("max: " + max);
-
-				// for (var i = 0; i < ui.values.length; i++) {
-
-				// 	var value = ui.values[i];
-				// 	var width = value / max * totalWidth; 
-				// 	console.log("width: " + width); 
-
-				// 	d3.select("#sliderColorBackground" + i)
-				// 		.attr("width", width);
-				//}
-
-				//solution from https://stackoverflow.com/a/12355923/2809263
-				//create gradient and update color stops
-				updateColors(ui.values);
-
+				setColors(ui.values);
 			} 
-
 		});
 
-		updateColors(items);
+		setColors(weights);
 
-   		function updateColors(values) {
-   			console.log("updating colors")
-   			console.log(values);
+   		function setColors(values) { //https://stackoverflow.com/a/12355923/2809263
 
-   			var colors = ["red", "orange", "green", "purple"];
-        	var colorstops = colors[0] + ", "; // start left with the first color
+			// var colors = ["red", "orange", "yellow", "green", "blue", "purple", "pink", "black", "pink"];
+
+			var colorer = function(i) {
+				return colorForAnnotation(i, 9); //9 is nSpindleColumns (same as nSortColumns)
+			}
+
+        	var colorstops = colorer(0) + ", "; // start left with the first color
 
         	for (var i = 0; i < values.length; i++) {
 
-            	colorstops += colors[i] + " " + values[i] + "%,";
-            	colorstops += colors[i + 1] + " " + values[i] + "%,";
+            	colorstops += colorer(i) + " " + values[i] + "%,";
+            	colorstops += colorer(i + 1) + " " + values[i] + "%,";
 
         	}
 
             // end with the last color to the right
-            colorstops += colors[colors.length - 1];
+            colorstops += colorer(values.length);
 
             /* Safari 5.1, Chrome 10+ */
             console.log(colorstops);
 
-            var css = '-webkit-linear-gradient(left,' + colorstops + ')';
+            var css = "-webkit-linear-gradient(left," + colorstops + ")";
             console.log(css);
-            $('#slider').css('background-image', css);
+            $("#slider").css("background-image", css);
     	}
 
 		//sort();
