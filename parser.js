@@ -7,13 +7,21 @@ $(function() {
 
 	$("#uploadLink").on("click", function(event) {
 
-		toggleFullScreen(); //disable for testing
+		// toggleFullScreen(); //disable for testing
 
 		//#uploadLink is a dummy element used to activate the hidden #uploadInput element
     	event.preventDefault();
         $("#uploadInput").trigger("click");
+        // toggleFullScreen(); //disable for testing
+
 
     });
+
+    $("#fullscreenLink").on("click", function() { 
+
+    	toggleFullScreen(); 
+
+    }); 
 
     $("#uploadInput").change(function() { //code called by $("#uploadInput").trigger("click");
 
@@ -25,7 +33,7 @@ $(function() {
 		if (validateXLSX(file)) {
 
 			showSpinner(); 
-			parseXLS(file); 
+			parseXLS(file);
 
 		} else { 
 
