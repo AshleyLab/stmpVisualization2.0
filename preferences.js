@@ -26,6 +26,9 @@ computeSortPreferences();
 
 function sortData() { 
 
+	console.log("sorting");
+	console.log(sortPreferences);
+
 	var original = window.variantData; 
 
 	function comparator(a, b) {
@@ -139,6 +142,8 @@ function showSort(slidersElement, gradientElement) {
 					"slide" : function() {
 						setSortPreferences(); 
 						showGradient(gradientElement);
+						renderVisualization(); //renderVisualiation() --> renderComponents() --> sortData(); 
+						// sortData(); 
 					}
 				});
 

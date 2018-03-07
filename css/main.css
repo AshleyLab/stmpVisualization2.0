@@ -72,6 +72,10 @@ input[type="radio"] {
 
 }
 
+#sliders { 
+  margin-top: 15px;
+}
+
 .sliderDiv { 
   float: left;
   text-align: center;
