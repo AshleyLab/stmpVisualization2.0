@@ -7,7 +7,7 @@ $(function() {
 
 	$("#uploadLink").on("click", function(event) {
 
-		// toggleFullScreen(); //disable for testing
+		toggleFullScreen(); //disable for testing
 
 		//#uploadLink is a dummy element used to activate the hidden #uploadInput element
     	event.preventDefault();

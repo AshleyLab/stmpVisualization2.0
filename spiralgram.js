@@ -28,11 +28,20 @@ function renderSpiralgram(element) {
 
 	}
 
+	// var radiusMap = { 
+	// 	"innerTracks" : [60, 75],
+	// 	"spindles" : [85, 210],
+	// 	"outerTracks" : [220, 260],
+	// 	"crescents" : [265, apothem] //285] //why do crescents use so little of space allocated? (because arc command doesn't draw to control point)
+	// };
+
+	var a = apothem; 
+
 	var radiusMap = { 
-		"innerTracks" : [60, 75],
-		"spindles" : [85, 210],
-		"outerTracks" : [220, 260],
-		"crescents" : [265, apothem] //285] //why do crescents use so little of space allocated? (because arc command doesn't draw to control point)
+		"innerTracks" : [a * .25, a * .33],
+		"spindles" : [a * .38, a * .80],
+		"outerTracks" : [a * .85, a * .92],
+		"crescents" : [a * .95, a * .98] //285] //why do crescents use so little of space allocated? (because arc command doesn't draw to control point)
 	};
 
 	var deleteds = $.map(data, d => d.metadata.isDeleted);
@@ -664,6 +673,10 @@ function renderSpiralgram(element) {
 				eA -= (Math.PI / 2); 
 
 				var mA = (sA + eA) / 2; 
+				console.log("sA: " + sA + "; mA: " + mA + "; eA" + eA);
+
+				var mR = (innerRadius + outerRadius) / 2;
+				console.log("iR: " + innerRadius + "; mR" + mR + "; " + outerRadius);
 
 				var innerCorner1 = [innerRadius * Math.cos(sA), innerRadius * Math.sin(sA)];
 				var innerCorner2 = [innerRadius * Math.cos(eA), innerRadius * Math.sin(eA)];
@@ -679,33 +692,61 @@ function renderSpiralgram(element) {
 				var d  = "M " + innerCorner1[0] + " " + innerCorner1[1] + " ";
 					d += "L " + outerCorner1[0] + " " + outerCorner1[1] + " ";
 				    d += "A " + outerRadius     + " " + outerRadius     + " " + 0 + " " + 0 + " " + 0 + " " + outerCorner2[0] + " " + outerCorner2[1] + " ";
-				    d += "L " + innerCorner2[0] + " " + innerCorner2[1] + " ";
-				 
+				    // d += "L " + innerCorner2[0] + " " + innerCorner2[1] + " ";
 
-				   	//ARC
-				    //Option 1: Q
-				    var Q = "Q " + controlPoint[0] + " " + controlPoint[1] + " " + innerCorner1[0] + " " + innerCorner1[1] + " "; 
-				    console.log(Q);
-				    // d += Q; 
+				    // var Lx = (innerCorner2[0] + outerCorner2[0]) / 2; 
+				    // var Ly = (innerCorner2[1] + outerCorner2[1]) / 2; 
+				    // var Mx = mR * Math.cos(eA); 
+				    // var My = mR * Math.sin(eA); 
 
-				    //Option 2: A
-				    // var rx = Math.abs(innerCorner1[0] - innerCorner2[0]) / 2; 
-				    // var ry = Math.abs(innerCorner1[1] - innerCorner2[1]) / 2; 
-				    var rx = 2; 
-				    var ry = 10;
-				    var rotation = 0; 
+				    // console.log([Lx, Ly, Mx, My]);
+
+				    d += "L" + innerCorner2[0] + " " + innerCorner2[1] + " "; 
+				    // d += "L " + oR * Math.cos(mA) + " " + oR * Math.sin(mA) + " ";
+				    // d += "A "
+				 	// d += "M " + mR * Math.cos(mA) + " " + mR * Math.sin(mA) + " " ; 
+
+				    var rx = Math.sqrt(Math.pow(innerCorner1[0] - innerCorner2[0], 2) + Math.pow(innerCorner1[1] - innerCorner2[1], 2)) / 2; 
+				    var ry = outerRadius - innerRadius;
+				    var rotation = 4.75; //otherwise arc is tilted 
 				    var largeArcSweepFlag = 0; 
 				    var sweepFlag = 0; 
 				    A = "A " + rx + " " + ry + " " + rotation + " " + largeArcSweepFlag + " " + sweepFlag + " " + innerCorner1[0] + " " + innerCorner1[1] + " "; 
-				    console.log(A);
-				    d += A; 
-				    //END ARC
+				   	d += A;
+
+				 	d += "Z"; 
+				 	console.log(d);
+				 	return d; 
+
+				//    	//ARC
+				//     //Option 1: Q
+				//     var Q = "Q " + controlPoint[0] + " " + controlPoint[1] + " " + innerCorner1[0] + " " + innerCorner1[1] + " "; 
+				//     console.log(Q);
+				//     // d += Q; 
+
+				//     //Option 2: A
+				//     // var rx = Math.abs(innerCorner1[0] - innerCorner2[0]) / 2; 
+				//     // var ry = Math.abs(innerCorner1[1] - innerCorner2[1]) / 2; 
+				//     var rx = Math.sqrt(Math.pow(innerCorner1[0] - innerCorner2[0], 2) + Math.pow(innerCorner1[1] - innerCorner2[1], 2)); 
+				//     var ry = outerRadius - innerRadius;
+				//     var rotation = 0; 
+				//     var largeArcSweepFlag = 0; 
+				//     var sweepFlag = 1; 
+				//     A = "A " + rx + " " + ry + " " + rotation + " " + largeArcSweepFlag + " " + sweepFlag + " " + innerCorner1[0] + " " + innerCorner1[1] + " "; 
+				//     console.log(A);
+				//     // d += A; 
+
+				//     //Option 3: M
+				//     var mR =  0; //(innerRadius + outerRadius) / 2; 
+				//     var M = "M " + mR * Math.cos(mA) + " " + mR * Math.sin(mA) + " ";
+				//     // d += M; 
+				//     //END ARC
 
 
-				    d += "Z";
+				//     // d += "Z";
 
-
-				return d; 
+				//     // alert(d);
+				// return d; 
 
 			});
 
