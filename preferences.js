@@ -136,23 +136,51 @@ function showSort(slidersElement, gradientElement) {
 					"min" : 0, 
 					"max" : 100, 
 					"value" : weight, 
-					"slide" : function(event, ui) {
-
-						var criteria = d3.select(this.parentNode).datum(); 
-						var newWeight = ui.value; 
-						console.log("criteria: " + criteria);
-
-						sortPreferences[criteria] = newWeight; 
+					"slide" : function() {
+						setSortPreferences(); 
 						showGradient(gradientElement);
 					}
 				});
 
 				//set the color of the slider handle
 				$("#" + id + " span").css({
-					"background-color" : colorer(i)
+					"background-color" : colorer(i) //this is unreliable since indices may not always be consistent
 				});
 
 			});
+
+		function setSortPreferences() {
+
+			var newPreferences = {}; 
+
+			$(".sliderSpan").each(function(_, element) {
+
+				var weight = $(this).slider("value"); 
+				var criterion = d3.select(this.parentNode).datum(); 
+
+				newPreferences[criterion] = weight; 
+
+			});
+
+			//normalize so sum of all weights add up to 100
+			var scale = 100; 
+			var total = 0; 
+			for (var c in newPreferences) {
+				total += newPreferences[c];
+			}
+
+			var normalizedPreferences = {}; 
+			$.map(newPreferences, (value, key) => {
+				normalizedPreferences[key] = value / total * scale; 
+			});
+
+			console.log(newPreferences);
+			console.log(total);
+			console.log(normalizedPreferences);
+
+			sortPreferences = normalizedPreferences; 
+
+		}
 
 	}
 
