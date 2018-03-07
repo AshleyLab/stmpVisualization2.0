@@ -10,11 +10,29 @@ function renderSpiralgram(element) {
 	var center = [width / 2, height / 2];
 	var end = Math.min(center[0], center[1]); 
 
+	var apothem = Math.min(width, height) / 2; 
+	console.log("apothem: " + apothem);
+
+	testBounds(center, width, height);
+
+	function testBounds(c, w, h) {
+
+		d3.select(element)
+			.append("line")
+				.attr("stroke", "blue")
+				.attr("stroke-width", 6)
+			.attr("x1", center[0])
+			.attr("y1", center[1])
+			.attr("x2", width / 2)
+			.attr("y2", 0);
+
+	}
+
 	var radiusMap = { 
 		"innerTracks" : [60, 75],
 		"spindles" : [85, 210],
 		"outerTracks" : [220, 260],
-		"crescents" : [265, 285]
+		"crescents" : [265, apothem] //285] //why do crescents use so little of space allocated? (because arc command doesn't draw to control point)
 	};
 
 	var deleteds = $.map(data, d => d.metadata.isDeleted);
@@ -561,7 +579,7 @@ function renderSpiralgram(element) {
 
 		//genotypes are currently [[proband, dad, mom], [proband, dad, mom], ...]
 		//switch them to be [[dad, proband, mom], [dad, proband, mom], ...]
-		var genotypes = $.map(rawGenotypes, (g, i) => [[g[1], g[0], g[2]]])
+		var genotypes = $.map(rawGenotypes, (g, _) => [[g[1], g[0], g[2]]])
 
 		d3.select(element)
 			.selectAll("g.crescent")
@@ -570,8 +588,8 @@ function renderSpiralgram(element) {
 			.append("g")
 			.attr("class", "crescent")
 			.attr("variant-index", (_, i) => i)
-			.attr("transform", (d, i) => "translate(" + center[0] + "," + center[1] + ") rotate(" + gRotationScale(i) + ")")
-			.each(function(d, i) {
+			.attr("transform", (_, i) => "translate(" + center[0] + "," + center[1] + ") rotate(" + gRotationScale(i) + ")")
+			.each(function(_, i) {
 
 				if (deleteds[i]) {
 					this.classList.add("deleted");
@@ -589,7 +607,7 @@ function renderSpiralgram(element) {
 			.append("path")
 			.attr("fill", (d, _) => colorForGenotype(d))
 			.attr("variant-index", function() { return d3.select(this.parentNode).attr("variant-index"); })
-			.attr("d", function(d, i) {
+			.attr("d", function(_, i) {
 
 				var sA = i * angularWidth; 
 				var eA = sA + angularWidth; 
@@ -602,8 +620,8 @@ function renderSpiralgram(element) {
 
 				return arc(); 
 
-			}).attr("sA", (d, i) => i * angularWidth)
-			.attr("eA", (d, i) => i * angularWidth + angularWidth)
+			}).attr("sA", (_, i) => i * angularWidth)
+			.attr("eA", (_, i) => i * angularWidth + angularWidth)
 			.on("mouseover", function(datum, index) {
 
 				var vI = d3.select(this).attr("variant-index");
@@ -637,9 +655,9 @@ function renderSpiralgram(element) {
 			.attr("variant-index", function() { return d3.select(this.parentNode).attr("variant-index"); })
 			.attr("d", function(d, i) {
 
-				var sA = 0; //so the first varinat starts at 12 o'clock
+				var sA = 0; //so the first variant starts at 12 o'clock
 
-				sA -= (Math.PI / 2); //so the first varinat starts at 12 o'clock
+				sA -= (Math.PI / 2); //so the first variant starts at 12 o'clock
 
 				var eA = angularWidth * 3;
 
@@ -665,7 +683,7 @@ function renderSpiralgram(element) {
 				    d += "Q " + controlPoint[0] + " " + controlPoint[1] + " " + innerCorner1[0] + " " + innerCorner1[1] + " "; 
 				    d += "Z";
 
-				return d; 
+				// return d; 
 
 			});
 
