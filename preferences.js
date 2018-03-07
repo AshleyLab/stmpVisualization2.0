@@ -128,6 +128,7 @@ function showSort(slidersElement, gradientElement) {
 					.attr("id", id); 
 
 				var weight = sortPreferences[d];
+				console.log("slider " + i + " has weight " + weight);
 
 				//activate the jQuery UI slider
 				$("#" + id).slider({
@@ -135,8 +136,14 @@ function showSort(slidersElement, gradientElement) {
 					"min" : 0, 
 					"max" : 100, 
 					"value" : weight, 
-					"slide" : function() {
-						console.log("sliding!");
+					"slide" : function(event, ui) {
+
+						var criteria = d3.select(this.parentNode).datum(); 
+						var newWeight = ui.value; 
+						console.log("criteria: " + criteria);
+
+						sortPreferences[criteria] = newWeight; 
+						showGradient(gradientElement);
 					}
 				});
 
@@ -151,6 +158,8 @@ function showSort(slidersElement, gradientElement) {
 
 	function showGradient(gradientElement) { //https://stackoverflow.com/a/12355923/2809263
 
+		console.log(sortPreferences);
+
 		var total = 0; 
 		var gradientStops = $.map(sortPreferences, (d, i) => { 
 			total += d; 
@@ -158,9 +167,12 @@ function showSort(slidersElement, gradientElement) {
 		});
 
 		//trim off the last one (sliders go BETWEEN ranges)
-		gradientStops.pop(); 
+		// gradientStops.pop(); 
+		gradientStops.shift(); 
 
-		var colorstops = colorer(0) + ", "; // start left with the first color
+		console.log(gradientStops);
+
+		var colorstops = "left, " + colorer(0) + ","
 
 		for (var i = 0; i < gradientStops.length; i++) {
 
@@ -169,9 +181,10 @@ function showSort(slidersElement, gradientElement) {
 
         }
 
-        colorstops += colorer(gradientStops.length)
+        colorstops += colorer(gradientStops.length) 
 
-        var webkitGradient = "-webkit-linear-gradient(left," + colorstops + ")";
+        var webkitGradient = "-webkit-linear-gradient(" + colorstops + ")";
+        console.log(webkitGradient);
 
         $("#gradient").css({
         	"height" : "8px",
