@@ -15,6 +15,8 @@ function renderVisualization() {
 	d3.select("#bottomRow").remove();
 	//d3.select("#preferences").remove();
 
+	//font color of "Overview of Variants" changes?
+
 	//setup work to get the right configuration of divs and svg for the spiralgram and staffgram 
 	//the positioning of these elements is set in main.css
 	d3.select(element)
@@ -54,9 +56,7 @@ function renderVisualization() {
 
 	//
 
-	console.log("pre-render: " + performance.now());
 	renderComponents(true);
-	console.log("post-render: " + performance.now());
 
 	hideSpinner(); 
 	// scrollToElement(element);
@@ -134,159 +134,6 @@ function renderComponents() {
 	renderBarchart(elements.barchart, "gnomAD Max Frequency");
 	renderStaff(elements.staff, elements.spiralgram);
 	renderTools(elements.tools);
-
-}
-
-//all columns used to make circles on spindles in spiralgram
-var sortPreferences = [ //keys and corresponding weights for sort
-	{"SIFT Function Prediction" : 10},
-	{"PolyPhen-2 Function Prediction" : 10},
-	{"MutationTaster" : 10},
-	{"CADD Score" : 10},
-	{"phyloP" : 10},
-	{"fathmm" : 10},
-	{"1000 Genomes Frequency" : 10}, 
-	{"ExAC Frequency" : 20},
-	{"GNOMADMaxAlleleFreq" : 10} 
-]; //should always all add up to 100
-
-function getKey(d) { 
-	return Object.keys(d)[0];
-}
-
-function sortData() { 
-
-	console.log("sorting");
-	console.log(sortPreferences);
-
-	//weights are supposed to be accumulated (e.g., if one is 10 and next has weight 10, slider wants 20)
-	var total = 0; 
-	var sliderStops = $.map(sortPreferences, (d, i) => { 
-
-		var key = getKey(d); 
-		var value = d[key];
-		total += value; 
-
-		return {key : total}
-
-	});
-
-	//trim off the last one (sliders go BETWEEN ranges)
-	sliderStops.pop(); 
-
-	//attach event handler to gear icon
-	$("#gear").on("click", function() { 
-
-		//remove old preferences pane
-		d3.select("#preferences").remove(); 
-
-		//append container element and slider divs
-		var element = "#graphics"; 
-		d3.select(element)
-			.append("div")
-				.attr("id", "preferences")
-			.append("div")
-				.attr("id", "slider")
-			.selectAll("div")
-			.data(sliderStops)
-			.enter()
-			.append("div")
-				.attr("class", "sliderColorBackground")
-				.attr("id", (d, i) => "sliderColorBackground" + i)
-				.style("background-color", getRandomColor)
-				.attr("height", "100%");
-
-		var weights = $.map(sliderStops, (d, i) => d[getKey(d)]);
-
-		$("#slider").slider({
-			"min" : 0, 
-			"max" : 100, 
-			"values" : weights,
-			"slide" : function(event, ui) {
-
-				console.log("slide: " + performance.now());
-				var weights = ui.values; 
-				setColors(weights);
-
-				var newPreferences = $.map(weights, (d, i) => { 
-
-					var sPi = sortPreferences[i]; 
-					var toReturn = {}; 
-					toReturn[getKey(sPi)] = d; 
-					return toReturn; 
-
-				}); //NEED TO DO SUBTRACTION (INVERT ADDITION DID FROM SORTPREFERNECES TO SLIDER STOPS)
-
-				sortPreferences = newPreferences;
-				renderVisualization(); //REMEMBER TO REMOVE OLD DOM ELEMENTS FROM LAST CALL TO RENDERVISUALIZATION()
-
-			} 
-		});
-
-		setColors(weights);
-
-   		function setColors(values) { //https://stackoverflow.com/a/12355923/2809263
-
-			var colorer = function(i) {
-				return colorForAnnotation(i, 9); //9 is nSpindleColumns (same as nSortColumns)
-			}
-
-        	var colorstops = colorer(0) + ", "; // start left with the first color
-
-        	for (var i = 0; i < values.length; i++) {
-
-            	colorstops += colorer(i) + " " + values[i] + "%,";
-            	colorstops += colorer(i + 1) + " " + values[i] + "%,";
-
-        	}
-
-            // end with the last color to the right
-            colorstops += colorer(values.length);
-
-            /* Safari 5.1, Chrome 10+ */
-            var css = "-webkit-linear-gradient(left," + colorstops + ")";
-            $("#slider").css("background-image", css);
-    	}
-
-	});
-
-	var original = window.variantData; 
-
-	function comparator(a, b) {
-
-		function getSortValue(d) {
-
-			var ignoreMissingData = true;
-			var missingDataValue = .5; //what to substitute for missing data if ignoreMissingData is false
-
-			var sortValue = 0; 
-			$.each(sortPreferences, function(_, sortPreference) {
-
-				var key = getKey(sortPreference)
-				var weight = sortPreference[key];
-				//go from sortPreference = {"phyloP" : .6} to key = "phyloP", weight = ".6"
-
-				//implement ignoreMissingData
-				var weightedValue = weight * d.core[key].value;
-				sortValue += weightedValue; 
-
-			}); 
-
-			return sortValue; 
-
-		}
-
-		var aSV = getSortValue(a); 
-		var bSV = getSortValue(b);
-		return bSV - aSV; 
-	}
-
-
-	var sorted = window.variantData.sort(comparator); 
-	console.log(original);
-	console.log(sorted);
-
-	window.variantData = sorted; 
 
 }
 
