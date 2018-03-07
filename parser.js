@@ -1,16 +1,13 @@
+var isNotFullScreen = true; 
+
 $(function() {
 
 	var element = "#graphics";
 	fileName = ""; 
 
-	var isNotFullScreen = true; 
-
 	$("#uploadLink").on("click", function(event) {
 
-		if (isNotFullScreen) {
-			// toggleFullScreen(); //disable for testing
-			isNotFullScreen = false; 
-		}
+		toggleFullScreen(); //disable for testing
 
 		//#uploadLink is a dummy element used to activate the hidden #uploadInput element
     	event.preventDefault();

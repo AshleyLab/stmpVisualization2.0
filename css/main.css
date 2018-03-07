@@ -264,15 +264,15 @@ path.mask {
   width: 60%;
   height: 100%;
   display: inline-block;
-/*  background-color: red;
-*/}
+  background-color: red;
+}
 
 #staffContainer { 
   width: 40%;
   height: 100%;
   display: inline-block;
-/*  background-color: blue;
-*/}
+  background-color: blue;
+}
 
 #spiralElement, #staffElement { 
   width: 100%;

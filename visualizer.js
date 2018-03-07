@@ -62,23 +62,35 @@ function renderVisualization() {
 	// scrollToElement(element);
 	setVisualizationTitle(); 
 
+
+	// //go full screen on section#visualizer
+	// if (isNotFullScreen) {
+	// 	toggleFullScreen(); //disable for testing
+	// 	isNotFullScreen = false; 
+	// }
+
 }
 
 
 function toggleFullScreen() {
 
+	// var el = document.documentElement; 
+	var el = document.getElementById("visualizer");
+
+
   if (!document.fullscreenElement &&    // alternative standard method
       !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement ) {  // current working methods
   	console.log("entering")
-    if (document.documentElement.requestFullscreen) {
-      document.documentElement.requestFullscreen();
-    } else if (document.documentElement.msRequestFullscreen) {
-      document.documentElement.msRequestFullscreen();
-    } else if (document.documentElement.mozRequestFullScreen) {
-      document.documentElement.mozRequestFullScreen();
-    } else if (document.documentElement.webkitRequestFullscreen) {
+
+    if (el.requestFullscreen) {
+      el.requestFullscreen();
+    } else if (el.msRequestFullscreen) {
+      el.msRequestFullscreen();
+    } else if (el.mozRequestFullScreen) {
+      el.mozRequestFullScreen();
+    } else if (el.webkitRequestFullscreen) {
     	console.log("webkit")
-      document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+      el.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
     }
   } else {
     if (document.exitFullscreen) {

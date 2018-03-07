@@ -59,9 +59,11 @@ function sortData() {
 
 }
 
+var preferencesIsVisible = false; 
 function setGear() { 
 
 	$("#gear").on("click", function() { 
+		preferencesIsVisible = !preferencesIsVisible;
 
 		//remove old preferences pane 
 		d3.select("#preferences").remove(); 
@@ -72,6 +74,7 @@ function setGear() {
 			.select(".rightSplit")
 			.append("div")
 				.attr("id", "preferences")
+				.style("visibility", preferencesIsVisible ? "visible" : "hidden")
 			.append("div")
 				.attr("id", "gradient"); 
 
