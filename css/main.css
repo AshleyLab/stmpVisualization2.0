@@ -232,9 +232,13 @@ g.crescent path {
 }
 
 path.mask { 
-  fill:  #22262e !important;
-  stroke: #22262e !important;
-  stroke-width: 3 !important;
+/*  fill:  #22262e !important;
+  stroke: #22262e !important;*/
+  
+  fill: green !important;
+  fill: green !important;
+
+stroke-width: 3 !important;
 }
 
 #spiralLayoutContainer { 

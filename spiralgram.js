@@ -674,16 +674,38 @@ function renderSpiralgram(element) {
 				var outerCorner2 = [oR * Math.cos(eA), oR * Math.sin(eA)];
 
 				var controlPointRadius = innerRadius + (outerRadius - innerRadius) / 1;
-				var controlPoint = [controlPointRadius * Math.cos(mA), controlPointRadius * Math.sin(mA)]
+				var controlPoint = [controlPointRadius * Math.cos(mA), controlPointRadius * Math.sin(mA)];
 
 				var d  = "M " + innerCorner1[0] + " " + innerCorner1[1] + " ";
 					d += "L " + outerCorner1[0] + " " + outerCorner1[1] + " ";
 				    d += "A " + outerRadius     + " " + outerRadius     + " " + 0 + " " + 0 + " " + 0 + " " + outerCorner2[0] + " " + outerCorner2[1] + " ";
 				    d += "L " + innerCorner2[0] + " " + innerCorner2[1] + " ";
-				    d += "Q " + controlPoint[0] + " " + controlPoint[1] + " " + innerCorner1[0] + " " + innerCorner1[1] + " "; 
+				 
+
+				   	//ARC
+				    //Option 1: Q
+				    var Q = "Q " + controlPoint[0] + " " + controlPoint[1] + " " + innerCorner1[0] + " " + innerCorner1[1] + " "; 
+				    console.log(Q);
+				    // d += Q; 
+
+				    //Option 2: A
+				    // var rx = Math.abs(innerCorner1[0] - innerCorner2[0]) / 2; 
+				    // var ry = Math.abs(innerCorner1[1] - innerCorner2[1]) / 2; 
+				    var rx = 2; 
+				    var ry = 10;
+				    var rotation = 0; 
+				    var largeArcSweepFlag = 0; 
+				    var sweepFlag = 0; 
+				    A = "A " + rx + " " + ry + " " + rotation + " " + largeArcSweepFlag + " " + sweepFlag + " " + innerCorner1[0] + " " + innerCorner1[1] + " "; 
+				    console.log(A);
+				    d += A; 
+				    //END ARC
+
+
 				    d += "Z";
 
-				// return d; 
+
+				return d; 
 
 			});
 
