@@ -231,6 +231,12 @@ g.crescent path {
   stroke-width: 0;
 }
 
+g.links path { 
+  stroke-width: 1 !important;
+  opacity: .8;
+  fill: none !important;
+}
+
 path.mask { 
 /*  fill:  #22262e !important;
   stroke: #22262e !important;*/

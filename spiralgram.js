@@ -13,21 +13,6 @@ function renderSpiralgram(element) {
 	var apothem = Math.min(width, height) / 2; 
 	console.log("apothem: " + apothem);
 
-	testBounds(center, width, height);
-
-	function testBounds(c, w, h) {
-
-		d3.select(element)
-			.append("line")
-				.attr("stroke", "blue")
-				.attr("stroke-width", 6)
-			.attr("x1", center[0])
-			.attr("y1", center[1])
-			.attr("x2", width / 2)
-			.attr("y2", 0);
-
-	}
-
 	// var radiusMap = { 
 	// 	"innerTracks" : [60, 75],
 	// 	"spindles" : [85, 210],
@@ -718,36 +703,6 @@ function renderSpiralgram(element) {
 				 	console.log(d);
 				 	return d; 
 
-				//    	//ARC
-				//     //Option 1: Q
-				//     var Q = "Q " + controlPoint[0] + " " + controlPoint[1] + " " + innerCorner1[0] + " " + innerCorner1[1] + " "; 
-				//     console.log(Q);
-				//     // d += Q; 
-
-				//     //Option 2: A
-				//     // var rx = Math.abs(innerCorner1[0] - innerCorner2[0]) / 2; 
-				//     // var ry = Math.abs(innerCorner1[1] - innerCorner2[1]) / 2; 
-				//     var rx = Math.sqrt(Math.pow(innerCorner1[0] - innerCorner2[0], 2) + Math.pow(innerCorner1[1] - innerCorner2[1], 2)); 
-				//     var ry = outerRadius - innerRadius;
-				//     var rotation = 0; 
-				//     var largeArcSweepFlag = 0; 
-				//     var sweepFlag = 1; 
-				//     A = "A " + rx + " " + ry + " " + rotation + " " + largeArcSweepFlag + " " + sweepFlag + " " + innerCorner1[0] + " " + innerCorner1[1] + " "; 
-				//     console.log(A);
-				//     // d += A; 
-
-				//     //Option 3: M
-				//     var mR =  0; //(innerRadius + outerRadius) / 2; 
-				//     var M = "M " + mR * Math.cos(mA) + " " + mR * Math.sin(mA) + " ";
-				//     // d += M; 
-				//     //END ARC
-
-
-				//     // d += "Z";
-
-				//     // alert(d);
-				// return d; 
-
 			});
 
 	}
@@ -756,6 +711,7 @@ function renderSpiralgram(element) {
 	addSpindles(); 
 	addTracks(); 
 	addCrescents(); 
+	addLinks(element);
 	
 }
 
